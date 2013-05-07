@@ -117,7 +117,7 @@ Function `available` gets the number of bytes of data available.  The bytes are 
 ### Quick Example
 
     bluetoothSerial.available(function (numBytes) {
-        console.log("There are " + numBytes + " availble to read.");
+        console.log("There are " + numBytes + " available to read.");
     }, failure);
 
 ## read
