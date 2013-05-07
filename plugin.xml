@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin 
+    xmlns="http://www.phonegap.com/ns/plugins/1.0" 
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    id="com.megster.cordova.BluetoothSerial" 
+    version="0.0.0">
+    
+    <name>Bluetooth Serial</name>
+    
+    <!-- engines 2.7.0 + -->
+    
+    <!-- TODO js-module -->
+    <asset src="www/bluetoothSerial.js" target="js/bluetoothSerial.js"/>
+
+    <platform name="android">
+                
+        <config-file target="res/xml/config.xml" parent="/cordova/plugins">
+            <plugin name="BluetoothSerial" value="com.megster.cordova.BluetoothSerial"/>
+        </config-file>
+                
+        <source-file src="src/android/com/megster/cordova/BluetoothSerial.java"
+            target-dir="com/megster/cordova"/>
+        <source-file src="src/android/com/megster/cordova/BluetoothSerialService.java" 
+            target-dir="com/megster/cordova"/>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.BLUETOOTH" />
+            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />                        
+        </config-file>
+        
+    </platform>
+</plugin>
