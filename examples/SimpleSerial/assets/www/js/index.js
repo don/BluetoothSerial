@@ -1,9 +1,15 @@
+/*
+    SimpleSerial index.js
+    Created 7 May 2013
+    Modified 9 May 2013
+    by Tom Igoe
+*/
+
 
 var bluetoothSerial = cordova.require('bluetoothSerial');
 
 var app = {
     macAddress: "AA:BB:CC:DD:EE:FF",  // get your mac address from bluetoothSerial.list
-    connected: false,
     chars: "",
 
 /*
@@ -40,9 +46,9 @@ var app = {
 */
     manageConnection: function() {
         app.display("I heard you");
-        console.log(app.connected);
-        if (app.connected === false) {
-            // if not connected, do this:
+        bluetoothSerial.isConnected (
+            function() {
+                // if not connected, do this:
                 // clear the screen and display an attempt to connect
                 app.clear();
                 app.display("Attempting to connect. " +
@@ -53,21 +59,22 @@ var app = {
                     app.openPort,    // start listening if you succeed
                     app.showError    // show the error if you fail
                 );
-        } else {
-            console.log("attempting to disconnect");
-            // if connected, do this:
-            bluetoothSerial.disconnect(
-                app.closePort,     // stop listening to the port
-                app.showError      // show the error if you fail
-            );
-        }
+            },
+            function () {
+                console.log("attempting to disconnect");
+                // if connected, do this:
+                bluetoothSerial.disconnect(
+                    app.closePort,     // stop listening to the port
+                    app.showError      // show the error if you fail
+                );
+            }
+        )
     },
 /*
     subscribes to a Bluetooth serial listener for newline
     and changes the button:
 */
     openPort: function() {
-        app.connected = true;
         // if you get a good Bluetooth serial connection:
         app.display("Connected to: " + app.macAddress);
         // change the button's name:
@@ -85,7 +92,6 @@ var app = {
     unsubscribes from any Bluetooth serial listener and changes the button:
 */
     closePort: function() {
-        app.connected = false;
         // if you get a good Bluetooth serial connection:
         app.display("Disconnected from: " + app.macAddress);
         // change the button's name:
