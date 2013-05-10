@@ -31,22 +31,39 @@ var app = {
     this runs when the device is ready for user interaction:
 */
     onDeviceReady: function() {
-        // Bluetooth Connect
-        bluetoothSerial.list(
-            function(results) {
-                app.display(JSON.stringify(results));
-            },
-            function(error) {
-                app.display(JSON.stringify(error));
-            }
+        // check to see if Bluetooth is turned on.
+        // this function is called only
+        //if isEnabled(), below, returns success:
+        var listPorts = function() {
+            // list the available BT ports:
+            bluetoothSerial.list(
+                function(results) {
+                    app.display(JSON.stringify(results));
+                },
+                function(error) {
+                    app.display(JSON.stringify(error));
+                }
+            );
+        }
+
+        // if isEnabled returns failure, this function is called:
+        var notEnabled = function() {
+            app.display("Bluetooth is not enabled.")
+        }
+
+         // check if Bluetooth is on:
+        bluetoothSerial.isEnabled(
+            listPorts,
+            notEnabled
         );
     },
 /*
     Connects if not connected, and disconnects if connected:
 */
     manageConnection: function() {
-        app.display("I heard you");
-        
+
+        // connect() will get called only if isConnected() (below)
+        // returns failure. In other words, if not connected, then connect:
         var connect = function () {
             // if not connected, do this:
             // clear the screen and display an attempt to connect
@@ -60,16 +77,19 @@ var app = {
                 app.showError    // show the error if you fail
             );
         };
-        
+
+        // disconnect() will get called only if isConnected() (below)
+        // returns success  In other words, if  connected, then disconnect:
         var disconnect = function () {
-            console.log("attempting to disconnect");
+            app.display("attempting to disconnect");
             // if connected, do this:
             bluetoothSerial.disconnect(
                 app.closePort,     // stop listening to the port
                 app.showError      // show the error if you fail
             );
         };
-                    
+
+        // here's the real action of the manageConnection function:
         bluetoothSerial.isConnected(disconnect, connect);
     },
 /*
