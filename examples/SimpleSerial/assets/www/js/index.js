@@ -46,29 +46,31 @@ var app = {
 */
     manageConnection: function() {
         app.display("I heard you");
-        bluetoothSerial.isConnected (
-            function() {
-                // if not connected, do this:
-                // clear the screen and display an attempt to connect
-                app.clear();
-                app.display("Attempting to connect. " +
-                    "Make sure the serial port is open on the target device.");
-                // attempt to connect:
-                bluetoothSerial.connect(
-                    app.macAddress,  // device to connect to
-                    app.openPort,    // start listening if you succeed
-                    app.showError    // show the error if you fail
-                );
-            },
-            function () {
-                console.log("attempting to disconnect");
-                // if connected, do this:
-                bluetoothSerial.disconnect(
-                    app.closePort,     // stop listening to the port
-                    app.showError      // show the error if you fail
-                );
-            }
-        )
+        
+        var connect = function () {
+            // if not connected, do this:
+            // clear the screen and display an attempt to connect
+            app.clear();
+            app.display("Attempting to connect. " +
+                "Make sure the serial port is open on the target device.");
+            // attempt to connect:
+            bluetoothSerial.connect(
+                app.macAddress,  // device to connect to
+                app.openPort,    // start listening if you succeed
+                app.showError    // show the error if you fail
+            );
+        };
+        
+        var disconnect = function () {
+            console.log("attempting to disconnect");
+            // if connected, do this:
+            bluetoothSerial.disconnect(
+                app.closePort,     // stop listening to the port
+                app.showError      // show the error if you fail
+            );
+        };
+                    
+        bluetoothSerial.isConnected(disconnect, connect);
     },
 /*
     subscribes to a Bluetooth serial listener for newline

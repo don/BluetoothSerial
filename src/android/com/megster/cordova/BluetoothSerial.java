@@ -123,15 +123,19 @@ public class BluetoothSerial extends CordovaPlugin {
 
         } else if (action.equals(IS_ENABLED)) {
 
-            boolean enabled = bluetoothAdapter.isEnabled();
-            PluginResult result = new PluginResult(PluginResult.Status.OK, enabled);
-            callbackContext.sendPluginResult(result);
+            if (bluetoothAdapter.isEnabled()) {
+                callbackContext.success();                
+            } else {
+                callbackContext.error("Bluetooth is disabled.");
+            }            
 
         } else if (action.equals(IS_CONNECTED)) {
-
-            boolean connected = bluetoothSerialService.getState() == BluetoothSerialService.STATE_CONNECTED;
-            PluginResult result = new PluginResult(PluginResult.Status.OK, connected);
-            callbackContext.sendPluginResult(result);
+            
+            if (bluetoothSerialService.getState() == BluetoothSerialService.STATE_CONNECTED) {
+                callbackContext.success();                
+            } else {
+                callbackContext.error("Not connected.");
+            }
 
         } else if (action.equals(CLEAR)) {
 
