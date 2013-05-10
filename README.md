@@ -17,7 +17,7 @@ Use [plugman](https://github.com/imhotep/plugman) to add BluetoothSerial to your
 
 Install plugman
 
-    $ npm install -g plugman
+    $ npm install -g plugman@0.5.6
 
 Get the latest source code
 
