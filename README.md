@@ -263,7 +263,7 @@ Reports the connection status.
 
 ### Description
 
-Function `isConnected` passes true to the success callback when connected to another device.
+Function `isConnected` calls the success callback when connected to a peer and the failure callback when *not* connected.
 
 ### Parameters
 
@@ -284,7 +284,7 @@ Reports if bluetooth is enabled.
 
 ### Description
 
-Function `isEnabled` passes true to the success callback when bluetooth is enabled.
+Function `isEnabled` calls the success callback when bluetooth is enabled and the failure callback when bluetooth is *not* enabled.
 
 ### Parameters
 
