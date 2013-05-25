@@ -1,6 +1,8 @@
 # Bluetooth Serial Plugin for PhoneGap
 
-This plugin enables serial communication over Bluetooth. It was written for communicating between Android and an Arduino.
+This plugin enables serial communication over Bluetooth. It was written for communicating between Android or iOS and an Arduino.
+
+Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
 ## Supported Platforms
 
@@ -27,7 +29,13 @@ Get the latest source code
 
 Install the plugin
 
+Android
+
     $ plugman --platform android --project /path/to/your/project --plugin /path/to/BluetoothSerial
+
+iOS
+
+    $ plugman --platform ios --project /path/to/your/project --plugin /path/to/BluetoothSerial
 
 Modify your HTML to include bluetoothSerial.js
 
@@ -66,8 +74,15 @@ Connect to a Bluetooth device.
 
 Function `connect` connects to a Bluetooth device.  The callback is long running.  Success will be called when the connection is successful.  Failure is called if the connection fails, or later if the connection disconnects. An error message is passed to the failure callback.
 
+#### Android
+For Android, `connect` takes a macAddress of the remote device.  
+
+#### iOS
+For iOS, `connect` takes the UUID of the remote device.  Optionally, you can pass an **empty string** and the plugin will connect to the first BLE peripheral.
+
 ### Parameters
 
+- __macAddress_or_uuid__: Identifier of the remote device. 
 - __connectSuccess__: Success callback function that is invoked when the connection is successful. 
 - __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
 
@@ -230,7 +245,9 @@ Lists bonded devices
     
 ### Description
 
-Function `list` lists and paired Bluetooth devices.  The success callback is called with a list of objects.
+#### Android
+
+Function `list` lists the paired Bluetooth devices.  The success callback is called with a list of objects.
 
 Example list passed to success callback.  See [BluetoothDevice](http://developer.android.com/reference/android/bluetooth/BluetoothDevice.html#getName()) and [BluetoothClass#getDeviceClass](http://developer.android.com/reference/android/bluetooth/BluetoothClass.html#getDeviceClass()).
 
@@ -243,6 +260,18 @@ Example list passed to success callback.  See [BluetoothDevice](http://developer
         "address": "00:06:66:4D:00:00",
         "name": "RN42"
     }]
+    
+#### iOS
+
+Function `list` lists the discovered Bluetooth Low Energy peripheral.  The success callback is called with a list of objects.
+
+Example list passed to success callback for iOS.
+
+    [{
+        "uuid": "CC410A23-2865-F03E-FC6A-4C17E858E11E",
+        "name": "Biscuit"
+    }]
+
     
 ### Parameters
 
