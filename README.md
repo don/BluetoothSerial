@@ -5,11 +5,13 @@ This plugin enables serial communication over Bluetooth. It was written for comm
 ## Supported Platforms
 
 * Android
+* iOS (with [BLEMini](http://redbearlab.com/blemini))
 
 ## Limitations
 
  * The phone must initiate the Bluetooth connection
  * Data sent over the connection is assumed to be Strings
+ * iOS Bluetooth Low Energy requires iPhone 4S, iPhone5, iPod 5, or iPad3+
 
 # Installing 
 
@@ -300,12 +302,26 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
 # Misc
 
 ## Where does this work? 
-            
+
+### Android
 This plugin was developed with PhoneGap 2.7.0 using Android 4.2.2 on a Nexus 4 connecting to a [Sparkfun Mate Silver](https://www.sparkfun.com/products/10393). The code should be generic and work with most hardware.
+    
+### iOS
+This plugin was developed with PhoneGap 2.7.0 using iOS 6.x on an iPad 4 connecting to a [RedBearLab BLEMini](http://redbearlab.com/blemini).
+
+Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_20130313.bin](https://github.com/RedBearLab/Biscuit/tree/master/release).
     
 ## Props
 
+### Android
+
 Most of the Bluetooth implementation was borrows from the Bluetooth Chat example in the Android SDK.
+
+### iOS
+
+The iOS code uses RedBearLab's [BLE_Framework](https://github.com/RedBearLab/Release/tree/master/BLEMini).
+
+### API
 
 The API for available, read, readUntil was influenced by the [BtSerial Library for Processing for Arduino](https://github.com/arduino/BtSerial)
 
