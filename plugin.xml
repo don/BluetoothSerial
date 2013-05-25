@@ -10,7 +10,7 @@
     <!-- engines 2.7.0 + -->
     
     <!-- TODO js-module -->
-    <asset src="www/bluetoothSerial.js" target="js/bluetoothSerial.js"/>
+    <asset src="www/bluetoothSerial.js" target="js"/>
 
     <platform name="android">
                 
@@ -27,6 +27,25 @@
             <uses-permission android:name="android.permission.BLUETOOTH" />
             <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />                        
         </config-file>
+        
+    </platform>
+    
+    <platform name="ios">
+                
+        <config-file target="config.xml" parent="plugins">
+            <plugin name="BluetoothSerial" value="MEGBluetoothSerial" />
+        </config-file>
+        
+        <header-file src="MEGBluetoothSerial.h" target-dir="BluetoothSerial" />
+        <source-file src="MEGBluetoothSerial.m" target-dir="BluetoothSerial" />
+                        
+        <!-- BLEMini see http://redbearlab.com -->
+        <header-file src="BLE.h" target-dir="BluetoothSerial" />
+        <source-file src="BLEDefines.h" target-dir="BluetoothSerial" />        
+        <source-file src="BLE.m" target-dir="BluetoothSerial" />
+        
+        <!-- frameworks -->
+        <framework src="CoreBluetooth.framework" />
         
     </platform>
 </plugin>
