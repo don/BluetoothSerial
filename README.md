@@ -68,7 +68,7 @@ Require bluetoothSerial in your JavaScript
 
 Connect to a Bluetooth device.
 
-    bluetoothSerial.connect(macAddress, connectSuccess, connectFailure);
+    bluetoothSerial.connect(macAddress_or_uuid, connectSuccess, connectFailure);
 
 ### Description
 
