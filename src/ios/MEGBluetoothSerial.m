@@ -68,7 +68,6 @@
     CDVPluginResult *pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
 
-    _connectCallbackId = nil;
     if (_bleShield.activePeripheral) {
         if(_bleShield.activePeripheral.isConnected)
         {
@@ -78,6 +77,7 @@
     }
     
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    _connectCallbackId = nil;
 }
 
 - (void)subscribe:(CDVInvokedUrlCommand*)command {
