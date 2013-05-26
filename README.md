@@ -61,8 +61,8 @@ Require bluetoothSerial in your JavaScript
 - [bluetoothSerial.unsubscribe](#unsubscribe)
 - [bluetoothSerial.clear](#clear)
 - [bluetoothSerial.list](#list)
-- [bluetoothSerial.isEnabled](#isEnabled)
-- [bluetoothSerial.isConnected](#isConnected)
+- [bluetoothSerial.isEnabled](#isenabled)
+- [bluetoothSerial.isConnected](#isconnected)
 
 ## connect
 
