@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.megster.bluetooth.chat" version="2.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Chat</name>
+    <description>
+        A Sample Chat Application demonstrating the BluetoothSerial PhoneGap plugin.
+    </description>
+    <author email="don.coleman@gmail.com" href="http://megster.com">
+        Don Coleman
+    </author>
+    <icon height="512" src="res/icon/cordova_512.png" width="512" />
+    <icon cdv:platform="android" height="96" src="res/icon/cordova_android_96.png" width="96" />
+    <icon cdv:platform="blackberry" height="80" src="res/icon/cordova_bb_80.png" width="80" />
+    <icon cdv:platform="ios" height="144" src="res/icon/cordova_ios_144.png" width="144" />
+    <cdv:splash cdv:platform="android" height="480" src="res/screen/android_hdpi_landscape.png" width="800" />
+    <cdv:splash cdv:platform="android" height="800" src="res/screen/android_hdpi_portrait.png" width="480" />
+    <cdv:splash cdv:platform="android" height="200" src="res/screen/android_ldpi_landscape.png" width="320" />
+    <cdv:splash cdv:platform="android" height="320" src="res/screen/android_ldpi_portrait.png" width="200" />
+    <cdv:splash cdv:platform="android" height="320" src="res/screen/android_mdpi_landscape.png" width="480" />
+    <cdv:splash cdv:platform="android" height="480" src="res/screen/android_mdpi_portrait.png" width="320" />
+    <cdv:splash cdv:platform="android" height="720" src="res/screen/android_xhdpi_landscape.png" width="1280" />
+    <cdv:splash cdv:platform="android" height="1280" src="res/screen/android_xhdpi_portrait.png" width="720" />
+    <cdv:splash cdv:platform="blackberry" height="300" src="res/screen/blackberry_transparent_300.png" width="300" />
+    <cdv:splash cdv:platform="blackberry" height="200" src="res/screen/blackberry_transparent_400.png" width="200" />
+    <cdv:splash cdv:platform="ios" height="748" src="res/screen/ipad_landscape.png" width="1024" />
+    <cdv:splash cdv:platform="ios" height="1004" src="res/screen/ipad_portrait.png" width="768" />
+    <cdv:splash cdv:platform="ios" height="1496" src="res/screen/ipad_retina_landscape.png" width="2048" />
+    <cdv:splash cdv:platform="ios" height="2008" src="res/screen/ipad_retina_portrait.png" width="1536" />
+    <cdv:splash cdv:platform="ios" height="320" src="res/screen/iphone_landscape.png" width="480" />
+    <cdv:splash cdv:platform="ios" height="480" src="res/screen/iphone_portrait.png" width="320" />
+    <cdv:splash cdv:platform="ios" height="640" src="res/screen/iphone_retina_landscape.png" width="960" />
+    <cdv:splash cdv:platform="ios" height="960" src="res/screen/iphone_retina_portrait.png" width="640" />
+    <cdv:splash cdv:platform="winphone" height="800" src="res/screen/windows_phone_portrait.jpg" width="480" />
+    <feature name="http://api.phonegap.com/1.0/device" />
+    <preference name="phonegap-version" value="2.7.0" />
+    <preference name="orientation" value="default" />
+    <preference name="target-device" value="universal" />
+    <preference name="fullscreen" value="false" />
+    <preference name="KeyboardShrinksView" value="true" />
+    <preference name="DisallowOverscroll" value="true" />
+    <access origin="*" />
+</widget>
