@@ -9,8 +9,9 @@
     
     <!-- engines 2.7.0 + -->
     
-    <!-- TODO js-module -->
-    <asset src="www/bluetoothSerial.js" target="js"/>
+    <js-module src="www/bluetoothSerial.js" name="bluetoothSerial">
+        <runs />
+    </js-module>
 
     <platform name="android">
                 

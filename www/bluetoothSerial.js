@@ -1,5 +1,5 @@
 /*global cordova*/
-cordova.define('bluetoothSerial', function (require, exports, module) {
+//cordova.define('bluetoothSerial', function (require, exports, module) {
     module.exports = {
 
         connect: function (macAddress, success, failure) {
@@ -59,4 +59,4 @@ cordova.define('bluetoothSerial', function (require, exports, module) {
         }
 
     };
-});
+//});
