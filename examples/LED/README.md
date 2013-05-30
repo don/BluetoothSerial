@@ -17,9 +17,9 @@ Hardware
 
 TODO Fritzing diagram here
 
-TODO Sketch here
-
 ### Upload the sketch
+
+Upload the [sketch](https://github.com/don/BluetoothSerial/blob/master/examples/LED/Arduino/PhoneGapLED/PhoneGapLED.ino) to your Uno using the Arduino IDE.
 
 ### Pair your phone
 
