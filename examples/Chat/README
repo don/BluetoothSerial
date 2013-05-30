@@ -8,7 +8,7 @@ I'll assume you've cloned https://github.com/don/BluetoothSerial into ~/Bluetoot
 
 Copy the chat example to a new directory.  
 
-    $ cp ~/BluetoothSerial/examples/Chat ~/Chat
+    $ cp -R ~/BluetoothSerial/examples/Chat ~/Chat
     
 You need to copy the project to a new directory, otherwise the plugin installer will fail.
 
