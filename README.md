@@ -19,9 +19,9 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
 Use [plugman](https://github.com/imhotep/plugman) to add BluetoothSerial to your Android project.  Plugman requires [node.js](http://nodejs.org) and is installed through npm.
 
-Install plugman
+Install plugman (v0.7.7 or greater)
 
-    $ npm install -g plugman@0.5.6
+    $ npm install -g plugman
 
 Get the latest source code
 
