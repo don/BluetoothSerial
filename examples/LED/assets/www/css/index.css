@@ -1,0 +1,16 @@
+input { /* todo limit to range */
+    display:block;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+#previewColor {
+    background-color: #000000;
+    width: 100%;
+    height: 100px
+}
+
+#output {
+    font-size: 4em;
+}
