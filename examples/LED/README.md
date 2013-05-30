@@ -2,7 +2,9 @@
 
 Control LEDs on the Arduino from your Android Phone.
 
-TODO photos here
+![Blue Lights](assets/www/img/blue.jpg "Blue")
+
+![Green Lights](assets/www/img/green.jpg "Green")
 
 This is the example code from my [PhoneGap for Makers](http://don.github.io/slides/2013-05-19-phonegap-for-makers/#/) talk at the 2013 Maker Faire Bay Area.
 
