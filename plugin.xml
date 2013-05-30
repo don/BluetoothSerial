@@ -27,7 +27,7 @@
             <uses-permission android:name="android.permission.BLUETOOTH" />
             <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />                        
         </config-file>
-        
+                
     </platform>
     
     <platform name="ios">
