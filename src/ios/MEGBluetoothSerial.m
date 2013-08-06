@@ -336,7 +336,11 @@
             [peripheral setObject: @"" forKey: @"uuid"];
         }
         
-        [peripheral setObject: [p name] forKey: @"name"];
+        NSString *name = [p name];
+        if (!name) {
+            name = [peripheral objectForKey:@"uuid"];
+        }
+        [peripheral setObject: name forKey: @"name"];
         [peripherals addObject:peripheral];
     }
     
