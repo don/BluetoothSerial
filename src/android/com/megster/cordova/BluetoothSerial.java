@@ -173,7 +173,9 @@ public class BluetoothSerial extends CordovaPlugin {
             JSONObject json = new JSONObject();
             json.put("name", device.getName());
             json.put("address", device.getAddress());
-            json.put("class", device.getBluetoothClass().getDeviceClass());
+            if (device.getBluetoothClass() != null) {
+                json.put("class", device.getBluetoothClass().getDeviceClass());
+            }
             deviceList.put(json);
         }
         callbackContext.success(deviceList);
