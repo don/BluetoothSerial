@@ -303,9 +303,14 @@ Function `isConnected` calls the success callback when connected to a peer and t
 
 ### Quick Example
 
-    bluetoothSerial.isConnected(function (connected) {
-        console.log(connected); // true or false
-    }, failure);   
+    bluetoothSerial.isConnected(
+        function() { 
+            console.log("Bluetooth is connected");
+        },
+        function() { 
+            console.log("Bluetooth is *not* connected");
+        }
+    ); 
     
 ## isEnabled
 
@@ -324,9 +329,14 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
 
 ### Quick Example
 
-    bluetoothSerial.isEnabled(function (enabled) {
-        console.log(enabled); // true or false
-    }, failure); 
+    bluetoothSerial.isEnabled(
+        function() { 
+            console.log("Bluetooth is enabled");
+        },
+        function() { 
+            console.log("Bluetooth is *not* enabled");
+        }
+    );    
 
 # Misc
 
