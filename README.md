@@ -17,35 +17,11 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
 # Installing 
 
-Use [plugman](https://github.com/imhotep/plugman) to add BluetoothSerial to your Android project.  Plugman requires [node.js](http://nodejs.org) and is installed through npm.
+Install with Cordova cli
 
-Install plugman (v0.7.7 or greater)
-
-    $ npm install -g plugman
-
-Get the latest source code
-
-    $ git clone https://github.com/don/BluetoothSerial.git
-
-Install the plugin
-
-Android
-
-    $ plugman --platform android --project /path/to/your/project --plugin /path/to/BluetoothSerial
-
-iOS
-
-    $ plugman --platform ios --project /path/to/your/project --plugin /path/to/BluetoothSerial
-
-Modify your HTML to include bluetoothSerial.js
-
-    <script type="text/javascript" src="cordova-2.7.0.js"></script>
-    <script type="text/javascript" src="js/bluetoothSerial.js"></script>
-    <script type="text/javascript" src="js/index.js"></script>
-
-Require bluetoothSerial in your JavaScript
-
-    var bluetoothSerial = cordova.require('bluetoothSerial');
+    $ cordova plugin add https://github.com/don/BluetoothSerial.git
+    
+This plugin is also available for [PhoneGap Build](https://build.phonegap.com/plugins/23)
 
 # API
 
