@@ -14,17 +14,12 @@
     <engines>
         <engine name="cordova" version=">=2.8.0" />
     </engines>
-
-    <!-- TODO js-module -->
-    <asset src="www/bluetoothSerial.js" target="js/bluetoothSerial.js"/>
+    
+    <js-module src="www/bluetoothSerial.js" name="bluetoothSerial">
+        <clobbers target="bluetoothSerial" />
+    </js-module>
 
     <platform name="android">
-
-        <!-- Cordova 2.7
-        <config-file target="res/xml/config.xml" parent="/cordova/plugins">
-            <plugin name="BluetoothSerial" value="com.megster.cordova.BluetoothSerial"/>
-        </config-file>
-        -->
 
         <config-file target="res/xml/config.xml" parent="/widget">
             <feature name="BluetoothSerial">
@@ -51,7 +46,9 @@
     <platform name="ios">
 
         <config-file target="config.xml" parent="plugins">
-            <plugin name="BluetoothSerial" value="MEGBluetoothSerial" />
+            <feature name="BluetoothSerial">
+                <param name="ios-package" value="MEGBluetoothSerial" />
+            </feature>
         </config-file>
 
         <header-file src="src/ios/MEGBluetoothSerial.h" target-dir="BluetoothSerial" />
@@ -61,14 +58,6 @@
         <header-file src="src/ios/BLE.h" target-dir="BluetoothSerial" />
         <source-file src="src/ios/BLEDefines.h" target-dir="BluetoothSerial" />
         <source-file src="src/ios/BLE.m" target-dir="BluetoothSerial" />
-
-        <!-- Paths are incorrect for cordova-cli v 2.7.4
-        <header-file src="MEGBluetoothSerial.h" target-dir="BluetoothSerial" />
-        <source-file src="MEGBluetoothSerial.m" target-dir="BluetoothSerial" />
-        <header-file src="BLE.h" target-dir="BluetoothSerial" />
-        <source-file src="BLEDefines.h" target-dir="BluetoothSerial" />
-        <source-file src="BLE.m" target-dir="BluetoothSerial" />
-        -->
 
         <!-- frameworks -->
         <framework src="CoreBluetooth.framework" />
