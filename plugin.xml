@@ -12,7 +12,7 @@
     <license>Apache 2.0</license>
 
     <engines>
-        <engine name="cordova" version=">=2.8.0" />
+        <engine name="cordova" version=">=2.9.0" />
     </engines>
     
     <js-module src="www/bluetoothSerial.js" name="bluetoothSerial">
@@ -45,7 +45,7 @@
 
     <platform name="ios">
 
-        <config-file target="config.xml" parent="plugins">
+        <config-file target="config.xml" parent="/widget">
             <feature name="BluetoothSerial">
                 <param name="ios-package" value="MEGBluetoothSerial" />
             </feature>
