@@ -28,6 +28,7 @@ This plugin is also available for [PhoneGap Build](https://build.phonegap.com/pl
 ## Methods
 
 - [bluetoothSerial.connect](#connect)
+- [bluetoothSerial.connectInsecure](#connectInsecure)
 - [bluetoothSerial.disconnect](#disconnect)
 - [bluetoothSerial.write](#write)
 - [bluetoothSerial.available](#available)
@@ -61,6 +62,29 @@ For iOS, `connect` takes the UUID of the remote device.  Optionally, you can pas
 - __macAddress_or_uuid__: Identifier of the remote device. 
 - __connectSuccess__: Success callback function that is invoked when the connection is successful. 
 - __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
+
+## connectInsecure
+
+Connect insecurely to a Bluetooth device.
+
+    bluetoothSerial.connectInsecure(macAddress, connectSuccess, connectFailure);
+
+### Description
+
+Function `connectInsecure` works like [connect](#connect), but creates an insecure connection to a Bluetooth device.  See the [Android docs](http://goo.gl/1mFjZY) for more information.
+
+#### Android
+For Android, `connectInsecure` takes a macAddress of the remote device.  
+
+#### iOS
+`connectInsecure` is **not supported** on iOS.
+
+### Parameters
+
+- __macAddress__: Identifier of the remote device. 
+- __connectSuccess__: Success callback function that is invoked when the connection is successful. 
+- __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
+
 
 ## disconnect
 
