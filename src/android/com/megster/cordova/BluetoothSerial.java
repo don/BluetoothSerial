@@ -206,9 +206,7 @@ public class BluetoothSerial extends CordovaPlugin {
          public void handleMessage(Message msg) {
              switch (msg.what) {
                  case MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-                    String readMessage = new String(readBuf, 0, msg.arg1);
-                    buffer.append(readMessage);
+                    buffer.append((String)msg.obj);
 
                     if (dataAvailableCallback != null) {
                         sendDataToSubscriber();

@@ -436,9 +436,10 @@ public class BluetoothSerialService {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
+                    String data = new String(buffer, 0, bytes);
 
-                    // Send the obtained bytes to the UI Activity
-                    mHandler.obtainMessage(BluetoothSerial.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                    // Send the new data String to the UI Activity
+                    mHandler.obtainMessage(BluetoothSerial.MESSAGE_READ, data).sendToTarget();
 
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
