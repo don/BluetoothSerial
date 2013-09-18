@@ -343,10 +343,22 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
 ## Where does this work? 
 
 ### Android
-This plugin was developed with PhoneGap 2.7.0 using Android 4.2.2 on a Nexus 4 connecting to a [Sparkfun Mate Silver](https://www.sparkfun.com/products/10393). The code should be generic and work with most hardware.
+
+Current development is done with Cordova 3.0.0 on Android 4.x. Theoretically this code runs on PhoneGap 2.9 and greater.  It should support Android-10 (2.3.2) and greater, but I only test with Android 4.x.
+
+Development Devices include
+ * Samsung Galaxy Tab 10.1 (GT-P7510) with Android 4.0.4 (see Issue #8)
+ * Google Nexus S with Android 4.1.2
+ * Nexus 4 with Android 4.2.2
+ * Samsung Galaxy S4 with Android 4.3
+
+On the Arduino side I test with [Sparkfun Mate Silver](https://www.sparkfun.com/products/10393) and the [Seeed Studio Bluetooth Shield](http://www.seeedstudio.com/depot/bluetooth-shield-p-866.html?cPath=19_21). The code should be generic and work with most hardware.
     
 ### iOS
-This plugin was developed with PhoneGap 2.7.0 using iOS 6.x on an iPad 4 connecting to a [RedBearLab BLEMini](http://redbearlab.com/blemini).
+
+**NOTE: Currently iOS only works with RedBear Labs BLE Mini Hardware**
+
+This plugin was developed with Cordova 3.0 using iOS 6.x on an iPad 4 connecting to a [RedBearLab BLEMini](http://redbearlab.com/blemini).
 
 Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_20130313.bin](https://github.com/RedBearLab/Biscuit/tree/master/release).
     
