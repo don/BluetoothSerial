@@ -347,7 +347,7 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
 Current development is done with Cordova 3.0.0 on Android 4.x. Theoretically this code runs on PhoneGap 2.9 and greater.  It should support Android-10 (2.3.2) and greater, but I only test with Android 4.x.
 
 Development Devices include
- * Samsung Galaxy Tab 10.1 (GT-P7510) with Android 4.0.4 (see Issue #8)
+ * Samsung Galaxy Tab 10.1 (GT-P7510) with Android 4.0.4 (see [Issue #8](https://github.com/don/BluetoothSerial/issues/8))
  * Google Nexus S with Android 4.1.2
  * Nexus 4 with Android 4.2.2
  * Samsung Galaxy S4 with Android 4.3
