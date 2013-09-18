@@ -349,7 +349,8 @@ public class BluetoothSerialService {
                     // tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
                     tmp = device.createRfcommSocketToServiceRecord(UUID_SPP);
                 } else {
-                    tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
+                    //tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
+                    tmp = device.createInsecureRfcommSocketToServiceRecord(UUID_SPP);
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);

@@ -27,6 +27,7 @@ public class BluetoothSerial extends CordovaPlugin {
     // actions
     private static final String LIST = "list";
     private static final String CONNECT = "connect";
+    private static final String CONNECT_INSECURE = "connectInsecure";
     private static final String DISCONNECT = "disconnect";
     private static final String WRITE = "write";
     private static final String AVAILABLE  = "available";
@@ -84,7 +85,14 @@ public class BluetoothSerial extends CordovaPlugin {
 
         } else if (action.equals(CONNECT)) {
 
-            connect(args, callbackContext);
+            boolean secure = true;
+            connect(args, secure, callbackContext);
+
+        } else if (action.equals(CONNECT_INSECURE)) {
+
+            // see Android docs about Insecure RFCOMM http://goo.gl/1mFjZY
+            boolean secure = false;
+            connect(args, false, callbackContext);
 
         } else if (action.equals(DISCONNECT)) {
 
@@ -181,13 +189,13 @@ public class BluetoothSerial extends CordovaPlugin {
         callbackContext.success(deviceList);
     }
 
-    private void connect(CordovaArgs args, CallbackContext callbackContext) throws JSONException {
+    private void connect(CordovaArgs args, boolean secure, CallbackContext callbackContext) throws JSONException {
         String macAddress = args.getString(0);
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
 
         if (device != null) {
             connectCallback = callbackContext;
-            bluetoothSerialService.connect(device, true);
+            bluetoothSerialService.connect(device, secure);
 
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
             result.setKeepCallback(true);
