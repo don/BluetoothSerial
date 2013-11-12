@@ -31,16 +31,19 @@ This assumes you have the [Android SDK](http://developer.android.com/sdk/index.h
 
 Edit [assets/www/js/index.js](http://github.com/don/BluetoothSerial/examples/LED/assets/www/js/index.js) and change the Mac Address to match the address of **your** Bluetooth modem.
 
-Create a local.properties file
+Adding platforms generates the native project
 
-    $ cd ~/BluetoothSerial/examples/LED
-    $ android update project -p . -t android-17
+    $ cordova platform add android
+    
+Install the Bluetooth Serial plugin with cordova
+
+    $ cordova plugin add ~/BluetoothSerial
 
 Connect your phone to the computer.
 
 Compile and run the application
 
-    $ ./cordova run
+    $ cordova run
     
 After the application starts, connect bluetooth by touching the "Connect" label. Occasionally it takes a few times to connect. Watch for the green connect light on the Bluetooth adapter. 
 
