@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.megster.led" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>RGB</name>
+<widget id="com.megster.bluetooth.led" version="0.0.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>LED</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        PhoneGap app for controlling an Adafruit NeoPixel LED strip via Bluetooth Serial
     </description>
-    <author email="dev@callback.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <autho href="https://github.com/don">
+        Don Coleman
     </author>
     <content src="index.html" />
     <access origin="*" />
