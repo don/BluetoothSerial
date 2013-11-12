@@ -1,7 +1,8 @@
 #include <SoftwareSerial.h>  
 
-int bluetoothTx = 2;  // TX-O pin of bluetooth mate, Arduino D2
-int bluetoothRx = 3;  // RX-I pin of bluetooth mate, Arduino D3
+int neoPixelPin = 5;
+int bluetoothTx = 6;  // TX-O pin of bluetooth mate
+int bluetoothRx = 7;  // RX-I pin of bluetooth mate
 
 SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
 
@@ -9,12 +10,8 @@ SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
-// Parameter 3 = pixel type flags, add together as needed:
-//   NEO_RGB     Pixels are wired for RGB bitstream
-//   NEO_GRB     Pixels are wired for GRB bitstream
-//   NEO_KHZ400  400 KHz bitstream (e.g. FLORA pixels)
-//   NEO_KHZ800  800 KHz bitstream (e.g. High Density LED strip)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, 6, NEO_GRB + NEO_KHZ800);
+// Parameter 3 = pixel type flags
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, neoPixelPin, NEO_GRB + NEO_KHZ800);
 uint16_t color;
 
 void setup() {
