@@ -4,7 +4,7 @@
     <description>
         PhoneGap app for controlling an Adafruit NeoPixel LED strip via Bluetooth Serial
     </description>
-    <autho href="https://github.com/don">
+    <author href="https://github.com/don">
         Don Coleman
     </author>
     <content src="index.html" />
