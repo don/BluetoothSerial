@@ -61,6 +61,7 @@ void solid(int red, int green, int blue) {
   strip.show();
 }
 
+// init for Sparkfun radio
 void setupBluetooth() {
   bluetooth.begin(115200);  // The Bluetooth Mate defaults to 115200bps
   bluetooth.print("$$$");  // Enter command mode

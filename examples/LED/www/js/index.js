@@ -1,5 +1,5 @@
-//var macAddress = "00:06:66:4D:65:22"; // Sparkfun
-var macAddress = "00:13:EF:00:08:8B"; // Seeed Studio
+var macAddress = "00:06:66:4D:65:22"; // Sparkfun
+//var macAddress = "00:13:EF:00:08:8B"; // Seeed Studio
 
 var app = {
     initialize: function() {
