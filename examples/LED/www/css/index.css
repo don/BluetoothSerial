@@ -1,8 +1,21 @@
-input { /* todo limit to range */
-    display:block;
+body { 
+    text-align: center;
+}
+
+select {
+    min-width: 200px;
+}
+
+input { 
+/*    display:block;
     margin-top: 30px;
     margin-bottom: 30px;
-    width: 100%;
+*/    width: 100%;
+}
+
+.rangeDiv {
+    margin-top: 40px;
+    margin-bottom: 40px;    
 }
 
 #previewColor {

@@ -3,29 +3,61 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name = "format-detection" content = "telephone=no"/>
+        <!--
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width;" />
-        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <link rel="stylesheet" type="text/css" href="css/topcoat-mobile-light.min.css">
         <title>Light Control</title>
         <script src="js/jquery-1.9.1.min.js"></script>
 
     </head>
     <body>
-        <div>
-            <input type="range" min="0" max="255" value="0" name="red" id="red" />
-            <input type="range" min="0" max="255" value="0" name="green" id="green" />
-            <input type="range" min="0" max="255" value="0" name="blue" id="blue" />
+        <div class="topcoat-navigation-bar">
+            <div class="topcoat-navigation-bar__item center full">
+                <h1 class="topcoat-navigation-bar__title">LED</h1>
+            </div>
+        </div>
+        <div id="connectionScreen">
+            <div style="margin: 20px">
+                Device: <br/>
+                <select id="deviceList">
+                    <option>Discovering...</option>
+                </select>       
+            </div>
+            <p>
+                <a class="topcoat-button--large" id="connectButton" disabled>Connect</a>
+            </p>
+            <p>
+                <a class="topcoat-button--large" id="listButton">List Devices</a>
+            </p>
+        </div>
+        
+        <div id="colorScreen">
+            <div>
+                Use sliders to set color.
+            </div>
+            <div class="rangeDiv">
+                <input type="range" min="0" max="255" value="0" name="red" id="red" class="topcoat-range"/>
+            </div>
+            <div class="rangeDiv">
+                <input type="range" min="0" max="255" value="0" name="green" id="green" class="topcoat-range"/>
+            </div>
+            <div class="rangeDiv">
+                <input type="range" min="0" max="255" value="0" name="blue" id="blue" class="topcoat-range"/>
+            </div>
 
-            <div id="output">
+            <div id="rgbText">
+                &nbsp;
             </div>
             <div id="previewColor">
             </div>
-            <div>
-                <h1 id="connectLabel">Connect</h1>
-            </div>
-            <div>
-                <p id="statusLabel">Status</p>
-            </div>
+            <p>
+                <a class="topcoat-button--large" id="disconnectButton">Disconnect</a>
+            </p>
         </div>
+        <div id="messageDiv">        
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/underscore-min.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
