@@ -6,15 +6,16 @@
     version="0.2.1">
 
     <name>Bluetooth Serial</name>
-
     <description>Bluetooth Serial Communication Plugin</description>
-
     <license>Apache 2.0</license>
+    <keywords>bluetooth</keywords>
+    <repo>https://github.com/don/BluetoothSerial.git</repo>
+    <issue>https://github.com/don/BluetoothSerial/issues</issue>
 
     <engines>
         <engine name="cordova" version=">=2.9.0" />
     </engines>
-    
+
     <js-module src="www/bluetoothSerial.js" name="bluetoothSerial">
         <clobbers target="bluetoothSerial" />
     </js-module>
@@ -31,7 +32,7 @@
             target-dir="src/com/megster/cordova"/>
         <source-file src="src/android/com/megster/cordova/BluetoothSerialService.java"
             target-dir="src/com/megster/cordova"/>
-            
+
         <!-- kludge for 2.9 -->
         <source-file src="src/android/org/apache/cordova/api/Dummy.java"
             target-dir="src/org/apache/cordova/api"/>
