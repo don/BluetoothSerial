@@ -2,13 +2,13 @@
 <plugin
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.megster.cordova.BluetoothSerial"
+    id="com.megster.cordova.bluetoothserial"
     version="0.2.1">
 
     <name>Bluetooth Serial</name>
     <description>Bluetooth Serial Communication Plugin</description>
     <license>Apache 2.0</license>
-    <keywords>bluetooth</keywords>
+    <keywords>bluetooth, arduino</keywords>
     <repo>https://github.com/don/BluetoothSerial.git</repo>
     <issue>https://github.com/don/BluetoothSerial/issues</issue>
 
@@ -48,7 +48,7 @@
 
         <config-file target="config.xml" parent="/widget">
             <feature name="BluetoothSerial">
-                <param name="ios-package" value="MEGBluetoothSerial" />
+                <param name="ios-package" value="MEGBluetoothSerial" onload="true"/>
             </feature>
         </config-file>
 
