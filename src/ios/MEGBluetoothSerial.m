@@ -357,6 +357,8 @@
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: message];
         [pluginResult setKeepCallbackAsBool:TRUE];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:_subscribeCallbackId];
+        
+        [self sendDataToSubscriber];
     }
     
 }
