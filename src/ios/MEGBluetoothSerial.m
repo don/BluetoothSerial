@@ -207,10 +207,15 @@
     NSData *d = [NSData dataWithBytes:data length:length];
     NSString *s = [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
     NSLog(@"Received %@", s);
-    [_buffer appendString:s];
-    
-    if (_subscribeCallbackId) {
-        [self sendDataToSubscriber];
+
+    if (s) {
+        [_buffer appendString:s];
+
+        if (_subscribeCallbackId) {
+            [self sendDataToSubscriber];
+        }
+    } else {
+        NSLog(@"Error converting received data into a String.");
     }
 }
 
