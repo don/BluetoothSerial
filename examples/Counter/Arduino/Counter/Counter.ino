@@ -22,6 +22,7 @@ void loop() {
   delay(1000);
 }
  
+// Seeed Studio Bluetooth Shield
 void setupBluetooth()
 {
   bluetooth.begin(38400); //Set BluetoothBee BaudRate to default baud rate 38400
@@ -35,6 +36,17 @@ void setupBluetooth()
   delay(2000); // This delay is required.
   bluetooth.flush();
 }
+
+// Use this version for Sparkfun radio (works for BLEmini too)
+// void setupBluetooth() {
+//   bluetooth.begin(115200);  // The Bluetooth Mate defaults to 115200bps
+//   bluetooth.print("$$$");  // Enter command mode
+//   delay(100);  // Short delay, wait for the Mate to send back CMD
+//   bluetooth.println("U,9600,N");  // Temporarily Change the baudrate to 9600, no parity
+//   // 115200 can be too fast at times for NewSoftSerial to relay the data reliably
+//   bluetooth.begin(9600);  // Start bluetooth serial at 9600
+// }
+
 
 
 
