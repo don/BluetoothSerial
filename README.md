@@ -298,8 +298,8 @@ Function `isConnected` calls the success callback when connected to a peer and t
 
 ### Parameters
 
-- __success__: Success callback function that is invoked with a boolean for connected status.
-- __failure__: Error callback function, invoked when error occurs. [optional]
+- __success__: Success callback function, invoked when device connected.
+- __failure__: Error callback function, invoked when device is NOT connected.
 
 ### Quick Example
 
@@ -324,8 +324,8 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
 
 ### Parameters
 
-- __success__: Success callback function that is invoked with a boolean for connected status.
-- __failure__: Error callback function, invoked when error occurs. [optional]
+- __success__: Success callback function, invoked when Bluetooth is enabled.
+- __failure__: Error callback function, invoked when Bluetooth is NOT enabled.
 
 ### Quick Example
 
