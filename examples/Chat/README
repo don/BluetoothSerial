@@ -14,7 +14,7 @@ You need to copy the project to a new directory, otherwise the plugin installer 
 
 This code requires [cordova-cli](https://github.com/apache/cordova-cli), which require [node.js](http://nodejs.org)
     
-    $ npm install cordova@2.7.4 -g
+    $ npm install cordova -g
     
 Adding platforms generates the native projects
 
@@ -23,13 +23,13 @@ Adding platforms generates the native projects
     
 Install the Bluetooth Serial plugin with cordova
 
-    $ cordova plugin add ~/BluetoothSerial
+    $ cordova plugin add com.megster.cordova.bluetooth
     
 This code requires an Android device since the emulator does not support Bluetooth. Pair your Android device the Bluetooth modem running on the Arduino.
 
 Build and deploy to an Android device. (Emulate deploys to the connected device.)
 
-    $ cordova build android && cordova emulate android
+    $ cordova run android
     
 This code uses Bluetooth and requires an iOS device, rather than the emulator.  The iOS version uses Bluetooth Low Energy, so there's no need to pair with the remove device.  The iOS code *only* connects to Red Bear Labs BLE Mini http://redbearlab.com/blemini/
 
