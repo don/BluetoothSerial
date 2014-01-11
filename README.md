@@ -380,7 +380,9 @@ The API for available, read, readUntil was influenced by the [BtSerial Library f
 
 If you don't need **serial** over Bluetooth, try the [PhoneGap Bluetooth Plugin for Android](https://github.com/phonegap/phonegap-plugins/tree/master/Android/Bluetooth)
 
+## What format should the Mac Address be in?
+An example a properly formatted mac address is ``AA:BB:CC:DD:EE:FF``
+
 ## Feedback
     
 Try the code. If you find an problem or missing feature, file an issue or create a pull request.
-
