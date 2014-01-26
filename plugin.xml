@@ -17,7 +17,7 @@
     </engines>
 
     <js-module src="www/bluetoothSerial.js" name="bluetoothSerial">
-        <clobbers target="bluetoothSerial" />
+        <clobbers target="window.bluetoothSerial" />
     </js-module>
 
     <platform name="android">
