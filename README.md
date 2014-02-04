@@ -23,6 +23,10 @@ Install with Cordova cli
     
 This plugin is also available for [PhoneGap Build](https://build.phonegap.com/plugins/23)
 
+# Examples
+
+There are some [sample projects](https://github.com/don/BluetoothSerial/tree/master/examples) included with the plugin.
+
 # API
 
 ## Methods
