@@ -20,18 +20,11 @@
             </div>
         </div>
         <div id="connectionScreen">
-            <div style="margin: 20px">
-                Device: <br/>
-                <select id="deviceList">
-                    <option>Discovering...</option>
-                </select>       
-            </div>
-            <p>
-                <a class="topcoat-button--large" id="connectButton" disabled>Connect</a>
-            </p>
-            <p>
-                <a class="topcoat-button--large" id="listButton">List Devices</a>
-            </p>
+            <ul id="deviceList" class="topcoat-list">      
+            </ul>
+            <div style="margin: 10px">            
+                <button class="topcoat-button" id="refreshButton">Refresh</button>
+            </div>            
         </div>
         
         <div id="colorScreen">

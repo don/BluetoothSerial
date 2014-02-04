@@ -1,5 +1,5 @@
-/* jshint quotmark: false, unused: vars */
-/* global cordova, bluetoothSerial, _, connectButton, listButton, deviceList, previewColor, red, green, blue, disconnectButton, connectionScreen, colorScreen, rgbText, messageDiv */
+/* jshint quotmark: false, unused: vars, browser: true */
+/* global cordova, console, $, bluetoothSerial, _, refreshButton, deviceList, previewColor, red, green, blue, disconnectButton, connectionScreen, colorScreen, rgbText, messageDiv */
 'use strict';
 
 var app = {
@@ -13,14 +13,15 @@ var app = {
     deviceready: function() {
 
         // wire buttons to functions
-        connectButton.ontouchstart = app.connect;
-        listButton.ontouchstart = app.list;
+        deviceList.ontouchstart = app.connect; // assume not scrolling
+        refreshButton.ontouchstart = app.list;
         disconnectButton.ontouchstart = app.disconnect;
 
+        // throttle changes
         var throttledOnColorChange = _.throttle(app.onColorChange, 200);
-
-        //$('input').on('change', app.onColorChange);
         $('input').on('change', throttledOnColorChange);
+        
+        app.list();
     },
     list: function(event) {
         deviceList.firstChild.innerHTML = "Discovering...";
@@ -28,13 +29,11 @@ var app = {
         
         bluetoothSerial.list(app.ondevicelist, app.generateFailureFunction("List Failed"));
     },
-    connect: function () {
-        console.log("connect");
-        var device = deviceList[deviceList.selectedIndex].value;
-        app.disable(connectButton);
+    connect: function (e) {
         app.setStatus("Connecting...");
+        var device = e.target.getAttribute('deviceId');
         console.log("Requesting connection to " + device);
-        bluetoothSerial.connect(device, app.onconnect, app.ondisconnect);
+        bluetoothSerial.connect(device, app.onconnect, app.ondisconnect);        
     },
     disconnect: function(event) {
         if (event) {
@@ -79,51 +78,37 @@ var app = {
         app.timeoutId = setTimeout(function() { messageDiv.innerText = ""; }, 4000);
     },
     ondevicelist: function(devices) {
-        var option;
+        var listItem, deviceId;
 
         // remove existing devices
         deviceList.innerHTML = "";
         app.setStatus("");
-
+        
         devices.forEach(function(device) {
-            option = document.createElement('option');
-            if (device.hasOwnProperty("uuid")) {
-                option.value = device.uuid;
+            listItem = document.createElement('li');
+            listItem.className = "topcoat-list__item";
+            if (device.hasOwnProperty("uuid")) { // TODO https://github.com/don/BluetoothSerial/issues/5
+                deviceId = device.uuid;
             } else if (device.hasOwnProperty("address")) {
-                option.value = device.address;
+                deviceId = device.address;
             } else {
-                option.value = "ERROR " + JSON.stringify(device);
+                deviceId = "ERROR " + JSON.stringify(device);
             }
-            option.innerHTML = device.name;
-            deviceList.appendChild(option);
+            listItem.setAttribute('deviceId', device.address);            
+            listItem.innerHTML = device.name + "<br/><i>" + deviceId + "</i>";
+            deviceList.appendChild(listItem);
         });
 
         if (devices.length === 0) {
-
-            option = document.createElement('option');
-            option.innerHTML = "No Bluetooth Devices";
-            deviceList.appendChild(option);
-
+            
             if (cordova.platformId === "ios") { // BLE
                 app.setStatus("No Bluetooth Peripherals Discovered.");
             } else { // Android
                 app.setStatus("Please Pair a Bluetooth Device.");
             }
 
-            app.disable(connectButton);
-            listButton.style.display = "";
         } else {
-            app.enable(connectButton);
-            listButton.style.display = "none";
             app.setStatus("Found " + devices.length + " device" + (devices.length === 1 ? "." : "s."));
-        }
-    },
-    enable: function(button) {
-        button.className = button.className.replace(/\bis-disabled\b/g,'');
-    },
-    disable: function(button) {
-        if (!button.className.match(/is-disabled/)) {
-            button.className += " is-disabled";
         }
     },
     generateFailureFunction: function(message) {
