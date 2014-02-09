@@ -1,3 +1,0 @@
-KLUDGE WARNING
-
-src/ios is a symlink back to this directory so cordova-cli 2.7.4 can install the plugin
