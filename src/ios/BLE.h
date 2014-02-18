@@ -1,7 +1,7 @@
 
 /*
  
- Copyright (c) 2012 RedBearLab
+ Copyright (c) 2013 RedBearLab
  
  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  
@@ -36,19 +36,15 @@
 @property (strong, nonatomic) CBCentralManager *CM;
 @property (strong, nonatomic) CBPeripheral *activePeripheral;
 
--(void) enableWrite;
 -(void) enableReadNotification:(CBPeripheral *)p;
 -(void) read;
 -(void) writeValue:(CBUUID *)serviceUUID characteristicUUID:(CBUUID *)characteristicUUID p:(CBPeripheral *)p data:(NSData *)data;
 
--(UInt16) readLibVer;
--(UInt16) readFrameworkVersion;
--(NSString *) readVendorName;
 -(BOOL) isConnected;
--(int) readRSSI;
 -(void) write:(NSData *)d;
+-(void) readRSSI;
 
--(int) controlSetup:(int) s;
+-(void) controlSetup;
 -(int) findBLEPeripherals:(int) timeout;
 -(void) connectPeripheral:(CBPeripheral *)peripheral;
 
@@ -62,11 +58,13 @@
 -(void) getAllCharacteristicsFromPeripheral:(CBPeripheral *)p;
 -(CBService *) findServiceFromUUID:(CBUUID *)UUID p:(CBPeripheral *)p;
 -(CBCharacteristic *) findCharacteristicFromUUID:(CBUUID *)UUID service:(CBService*)service;
--(const char *) UUIDToString:(CFUUIDRef) UUID;
--(const char *) CBUUIDToString:(CBUUID *) UUID;
+
+//-(NSString *) NSUUIDToString:(NSUUID *) UUID;
+-(NSString *) CBUUIDToString:(CBUUID *) UUID;
+
 -(int) compareCBUUID:(CBUUID *) UUID1 UUID2:(CBUUID *)UUID2;
 -(int) compareCBUUIDToInt:(CBUUID *) UUID1 UUID2:(UInt16)UUID2;
 -(UInt16) CBUUIDToInt:(CBUUID *) UUID;
--(int) UUIDSAreEqual:(CFUUIDRef)u1 u2:(CFUUIDRef)u2;
+-(BOOL) UUIDSAreEqual:(NSUUID *)UUID1 UUID2:(NSUUID *)UUID2;
 
 @end
