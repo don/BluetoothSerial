@@ -30,7 +30,7 @@
     [super pluginInitialize];
     
     _bleShield = [[BLE alloc] init];
-    [_bleShield controlSetup:1];
+    [_bleShield controlSetup];
     [_bleShield setDelegate:self];
 
     _buffer = [[NSMutableString alloc] init];
@@ -425,7 +425,7 @@
         
     for (CBPeripheral *p in peripherals) {
 
-        NSString *other = [NSString stringWithUTF8String:[_bleShield UUIDToString:p.UUID]];
+        NSString *other = p.identifier.UUIDString;
         
         if ([uuid isEqualToString:other]) {
             peripheral = p;
