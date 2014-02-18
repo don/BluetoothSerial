@@ -16,6 +16,7 @@
     BLE *_bleShield;
     NSString* _connectCallbackId;
     NSString* _subscribeCallbackId;
+    NSString* _rssiCallbackId;
     NSMutableString *_buffer;
     NSString *_delimiter;
 }
@@ -34,6 +35,8 @@
 - (void)read:(CDVInvokedUrlCommand *)command;
 - (void)readUntil:(CDVInvokedUrlCommand *)command;
 - (void)clear:(CDVInvokedUrlCommand *)command;
+
+- (void)readRSSI:(CDVInvokedUrlCommand *)command;
 
 @end
 

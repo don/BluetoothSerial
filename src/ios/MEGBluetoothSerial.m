@@ -198,6 +198,18 @@
     [_buffer deleteCharactersInRange:truncate];
 }
 
+- (void)readRSSI:(CDVInvokedUrlCommand*)command {
+    NSLog(@"readRSSI");
+    
+    // TODO if callback exists...
+    [_bleShield readRSSI];
+    CDVPluginResult *pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    [pluginResult setKeepCallbackAsBool:TRUE];
+    _rssiCallbackId = [command.callbackId copy];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 #pragma mark - BLEDelegate 
 
 - (void)bleDidReceiveData:(unsigned char *)data length:(int)length {
@@ -241,8 +253,13 @@
     _connectCallbackId = nil;
 }
 
-// TODO future versions should add callback for signal strength
 - (void)bleDidUpdateRSSI:(NSNumber *)rssi {
+    if (_rssiCallbackId) {
+        CDVPluginResult *pluginResult = nil;
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:[rssi doubleValue]];
+        [pluginResult setKeepCallbackAsBool:TRUE]; // TODO let expire, unless watching RSSI        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:_rssiCallbackId];
+    }
 }
 
 #pragma mark - timers

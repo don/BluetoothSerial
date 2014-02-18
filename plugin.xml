@@ -57,7 +57,7 @@
 
         <!-- BLEMini see http://redbearlab.com -->
         <header-file src="src/ios/BLE.h" target-dir="BluetoothSerial" />
-        <source-file src="src/ios/BLEDefines.h" target-dir="BluetoothSerial" />
+        <header-file src="src/ios/BLEDefines.h" target-dir="BluetoothSerial" />
         <source-file src="src/ios/BLE.m" target-dir="BluetoothSerial" />
 
         <!-- frameworks -->
