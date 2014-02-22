@@ -427,6 +427,7 @@ static int rssi = 0;
         for(int i = 0; i < self.peripherals.count; i++)
         {
             CBPeripheral *p = [self.peripherals objectAtIndex:i];
+            [p setAdvertisementData:advertisementData RSSI:RSSI];            
             
             if ((p.identifier == NULL) || (peripheral.identifier == NULL))
                 continue;

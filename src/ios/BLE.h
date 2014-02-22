@@ -18,6 +18,8 @@
     #import <IOBluetooth/IOBluetooth.h>
 #endif
 
+#import "CBPeripheral+Extensions.h"
+
 @protocol BLEDelegate
 @optional
 -(void) bleDidConnect;
