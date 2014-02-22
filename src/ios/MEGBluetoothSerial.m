@@ -363,6 +363,9 @@
             name = [peripheral objectForKey:@"uuid"];
         }
         [peripheral setObject: name forKey: @"name"];
+        
+        [peripheral setObject: [p advertisementRSSI] forKey:@"rssi"];
+        
         [peripherals addObject:peripheral];
     }
     
