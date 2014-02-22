@@ -51,7 +51,7 @@ module.exports = {
     subscribe: function (delimiter, success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "subscribe", [delimiter]);
     },
-
+    
     // removes data subscription
     unsubscribe: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "unsubscribe", []);
@@ -60,6 +60,11 @@ module.exports = {
     // clears the data buffer
     clear: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "clear", []);
+    },
+    
+    // reads the RSSI of the *connected* peripherial
+    readRSSI: function (success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "readRSSI", []);        
     }
 
 };
