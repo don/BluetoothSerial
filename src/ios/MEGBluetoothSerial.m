@@ -364,7 +364,10 @@
         }
         [peripheral setObject: name forKey: @"name"];
         
-        [peripheral setObject: [p advertisementRSSI] forKey:@"rssi"];
+        NSNumber *rssi = [p advertisementRSSI];
+        if (rssi) { // BLEShield doesn't provide advertised RSSI
+            [peripheral setObject: rssi forKey:@"rssi"];
+        }
         
         [peripherals addObject:peripheral];
     }
