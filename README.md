@@ -37,13 +37,14 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.write](#write)
 - [bluetoothSerial.available](#available)
 - [bluetoothSerial.read](#read)
-- [bluetoothSerial.readUntil](#readUntil)
+- [bluetoothSerial.readUntil](#readuntil)
 - [bluetoothSerial.subscribe](#subscribe)
 - [bluetoothSerial.unsubscribe](#unsubscribe)
 - [bluetoothSerial.clear](#clear)
 - [bluetoothSerial.list](#list)
 - [bluetoothSerial.isEnabled](#isenabled)
 - [bluetoothSerial.isConnected](#isconnected)
+- [bluetoothSerial.readRSSI](#readrssi)
 
 ## connect
 
@@ -273,9 +274,11 @@ Example list passed to success callback for iOS.
 
     [{
         "uuid": "CC410A23-2865-F03E-FC6A-4C17E858E11E",
-        "name": "Biscuit"
+        "name": "Biscuit",
+        "rssi": -68
     }]
-
+    
+The advertised RSSI **may** be included if available.
     
 ### Parameters
 
@@ -341,6 +344,32 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
             console.log("Bluetooth is *not* enabled");
         }
     );    
+
+## readRSSI
+
+Reads the RSSI from the connected peripheral.
+
+    bluetoothSerial.readRSSI(success, failure);
+
+### Description
+
+Function `readRSSI` calls the success callback with the rssi.
+
+**BLE only** *This function is experimental and the API may change*
+
+### Parameters
+
+- __success__: Success callback function that is invoked with the rssi value.
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    bluetoothSerial.readRSSI(
+        function(rssi) { 
+            console.log(rssi);
+        }
+    );    
+
 
 # Misc
 
