@@ -258,14 +258,16 @@ Example list passed to success callback.  See [BluetoothDevice](http://developer
 
     [{
         "class": 276,
+        "id": "10:BF:48:CB:00:00",        
         "address": "10:BF:48:CB:00:00",
         "name": "Nexus 7"
     }, {
         "class": 7936,
+        "id": "00:06:66:4D:00:00",        
         "address": "00:06:66:4D:00:00",
         "name": "RN42"
     }]
-    
+        
 #### iOS
 
 Function `list` lists the discovered Bluetooth Low Energy peripheral.  The success callback is called with a list of objects.
@@ -273,13 +275,16 @@ Function `list` lists the discovered Bluetooth Low Energy peripheral.  The succe
 Example list passed to success callback for iOS.
 
     [{
+        "id": "CC410A23-2865-F03E-FC6A-4C17E858E11E",        
         "uuid": "CC410A23-2865-F03E-FC6A-4C17E858E11E",
         "name": "Biscuit",
         "rssi": -68
     }]
     
 The advertised RSSI **may** be included if available.
-    
+
+`id` is the generic name for `uuid` or [mac]`address` so that code can be platform independent. 
+
 ### Parameters
 
 - __success__: Success callback function that is invoked with a list of bonded devices.
@@ -289,7 +294,7 @@ The advertised RSSI **may** be included if available.
 
     bluetoothSerial.list(function(devices) {
         devices.forEach(function(device) {
-            console.log(device.address);
+            console.log(device.id);
         })
     }, failure);
     

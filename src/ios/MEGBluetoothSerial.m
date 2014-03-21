@@ -353,6 +353,7 @@
             NSString *uuid = [NSString stringWithCString:CFStringGetCStringPtr(s, 0)
                                                 encoding:(NSStringEncoding)NSUTF8StringEncoding];
             [peripheral setObject: uuid forKey: @"uuid"];
+            [peripheral setObject: uuid forKey: @"id"];
         }
         else {
             [peripheral setObject: @"" forKey: @"uuid"];
