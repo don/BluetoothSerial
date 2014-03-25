@@ -8,6 +8,8 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
 * Android
 * iOS with [BLEMini](http://redbearlab.com/blemini) or [BLEShield v1 or v2](http://redbearlab.com/bleshield/)
+ 
+[Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
 
 ## Limitations
 
@@ -402,7 +404,13 @@ I highly recommend [Adafruit's Bluefruit EZ-Link](http://www.adafruit.com/produc
 This plugin is developed with Cordova 3.4 using iOS 7.x on an iPhone 5s connecting to a [RedBearLab BLEMini](http://redbearlab.com/blemini).
 
 Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_20130313.bin](https://github.com/RedBearLab/Biscuit/tree/master/release).
-    
+
+### Supporting other BLE hardware
+
+For Bluetooth Low Energy this plugin supports the RedBear Labs hardware by default, but can support any Bluetooth Low Energy hardware with a "serial like" serivce. This means a Transmit characteristic that is writable and a Receive charateristic that support notification.
+
+Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your serivce. Future versions of this plugin should be more configurable from JavaScript.
+
 ## Props
 
 ### Android
@@ -420,6 +428,8 @@ The API for available, read, readUntil was influenced by the [BtSerial Library f
 ## Wrong Bluetooth Plugin?
 
 If you don't need **serial** over Bluetooth, try the [PhoneGap Bluetooth Plugin for Android](https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/Android/Bluetooth/2.2.0) or perhaps [phonegap-plugin-bluetooth](https://github.com/tanelih/phonegap-bluetooth-plugin)
+
+If you need generic Bluetooth Low Energy support checkout Rand Dusing's [BluetoothLE](https://github.com/randdusing/BluetoothLE)
 
 ## What format should the Mac Address be in?
 An example a properly formatted mac address is ``AA:BB:CC:DD:EE:FF``
