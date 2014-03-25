@@ -407,7 +407,7 @@ Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_2013
 
 ### Supporting other BLE hardware
 
-For Bluetooth Low Energy this plugin supports the RedBear Labs hardware by default, but can support any Bluetooth Low Energy hardware with a "serial like" serivce. This means a Transmit characteristic that is writable and a Receive charateristic that support notification.
+For Bluetooth Low Energy, this plugin supports the RedBear Labs hardware by default, but can support any Bluetooth Low Energy hardware with a "serial like" serivce. This means a transmit characteristic that is writable and a receive charateristic that supports notification.
 
 Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your serivce. Future versions of this plugin should be more configurable from JavaScript.
 
