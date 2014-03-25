@@ -407,9 +407,9 @@ Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_2013
 
 ### Supporting other BLE hardware
 
-For Bluetooth Low Energy, this plugin supports the RedBear Labs hardware by default, but can support any Bluetooth Low Energy hardware with a "serial like" serivce. This means a transmit characteristic that is writable and a receive charateristic that supports notification.
+For Bluetooth Low Energy, this plugin supports the RedBear Labs hardware by default, but can support any Bluetooth Low Energy hardware with a "serial like" service. This means a transmit characteristic that is writable and a receive characteristic that supports notification.
 
-Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your serivce. Future versions of this plugin should be more configurable from JavaScript.
+Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your service. Future versions of this plugin should be more configurable from JavaScript.
 
 ## Props
 
@@ -427,9 +427,9 @@ The API for available, read, readUntil was influenced by the [BtSerial Library f
 
 ## Wrong Bluetooth Plugin?
 
-If you don't need **serial** over Bluetooth, try the [PhoneGap Bluetooth Plugin for Android](https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/Android/Bluetooth/2.2.0) or perhaps [phonegap-plugin-bluetooth](https://github.com/tanelih/phonegap-bluetooth-plugin)
+If you don't need **serial** over Bluetooth, try the [PhoneGap Bluetooth Plugin for Android](https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/Android/Bluetooth/2.2.0) or perhaps [phonegap-plugin-bluetooth](https://github.com/tanelih/phonegap-bluetooth-plugin).
 
-If you need generic Bluetooth Low Energy support checkout Rand Dusing's [BluetoothLE](https://github.com/randdusing/BluetoothLE)
+If you need generic Bluetooth Low Energy support checkout Rand Dusing's [BluetoothLE](https://github.com/randdusing/BluetoothLE).
 
 ## What format should the Mac Address be in?
 An example a properly formatted mac address is ``AA:BB:CC:DD:EE:FF``
