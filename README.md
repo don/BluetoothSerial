@@ -7,7 +7,7 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 ## Supported Platforms
 
 * Android
-* iOS with [BLEMini](http://redbearlab.com/blemini) or [BLEShield v1 or v2](http://redbearlab.com/bleshield/)
+* iOS with [BLEMini](http://redbearlab.com/blemini), [BLEShield v1 or v2](http://redbearlab.com/bleshield/) or [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697)
  
 [Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
 
@@ -399,7 +399,7 @@ I highly recommend [Adafruit's Bluefruit EZ-Link](http://www.adafruit.com/produc
     
 ### iOS
 
-**NOTE: Currently iOS only works with RedBear Labs BLE Mini & BLE Shield Hardware**
+**NOTE: Currently iOS only works with RedBear Labs Hardware and Adafruit Bluefruit LE**
 
 This plugin is developed with Cordova 3.4 using iOS 7.x on an iPhone 5s connecting to a [RedBearLab BLEMini](http://redbearlab.com/blemini).
 
@@ -409,7 +409,7 @@ Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_2013
 
 For Bluetooth Low Energy, this plugin supports the RedBear Labs hardware by default, but can support any Bluetooth Low Energy hardware with a "serial like" service. This means a transmit characteristic that is writable and a receive characteristic that supports notification.
 
-Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your service. Future versions of this plugin should be more configurable from JavaScript.
+Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your service. 
 
 ## Props
 
