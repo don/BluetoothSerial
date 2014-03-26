@@ -7,7 +7,7 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 ## Supported Platforms
 
 * Android
-* iOS with [BLEMini](http://redbearlab.com/blemini), [BLEShield v1 or v2](http://redbearlab.com/bleshield/) or [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697)
+* iOS with [BLEMini](http://redbearlab.com/blemini), [BLEShield](http://redbearlab.com/bleshield/) or [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697)
  
 [Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
 
