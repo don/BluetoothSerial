@@ -24,6 +24,13 @@
 static bool isConnected = false;
 static int rssi = 0;
 
+// TODO should have a configurable list of services
+CBUUID *redBearLabsServiceUUID;
+CBUUID *adafruitServiceUUID;
+CBUUID *serialServiceUUID;
+CBUUID *readCharacteristicUUID;
+CBUUID *writeCharacteristicUUID;
+
 -(void) readRSSI
 {
     [activePeripheral readRSSI];
@@ -36,26 +43,31 @@ static int rssi = 0;
 
 -(void) read
 {
-    CBUUID *uuid_service = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
-    CBUUID *uuid_char = [CBUUID UUIDWithString:@RBL_CHAR_TX_UUID];
+//    CBUUID *uuid_service = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
+//    CBUUID *uuid_char = [CBUUID UUIDWithString:@RBL_CHAR_TX_UUID];
     
-    [self readValue:uuid_service characteristicUUID:uuid_char p:activePeripheral];
+//    [self readValue:uuid_service characteristicUUID:uuid_char p:activePeripheral];
+     [self readValue:serialServiceUUID characteristicUUID:readCharacteristicUUID p:activePeripheral];
+
 }
 
 -(void) write:(NSData *)d
 {
-    CBUUID *uuid_service = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
-    CBUUID *uuid_char = [CBUUID UUIDWithString:@RBL_CHAR_RX_UUID];
-    
-    [self writeValue:uuid_service characteristicUUID:uuid_char p:activePeripheral data:d];
+//    CBUUID *uuid_service = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
+//    CBUUID *uuid_char = [CBUUID UUIDWithString:@RBL_CHAR_RX_UUID];
+//    
+//    [self writeValue:uuid_service characteristicUUID:uuid_char p:activePeripheral data:d];
+    [self writeValue:serialServiceUUID characteristicUUID:writeCharacteristicUUID p:activePeripheral data:d];
 }
 
 -(void) enableReadNotification:(CBPeripheral *)p
 {
-    CBUUID *uuid_service = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
-    CBUUID *uuid_char = [CBUUID UUIDWithString:@RBL_CHAR_TX_UUID];
-    
-    [self notification:uuid_service characteristicUUID:uuid_char p:p on:YES];
+//    CBUUID *uuid_service = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
+//    CBUUID *uuid_char = [CBUUID UUIDWithString:@RBL_CHAR_TX_UUID];
+//    
+//    [self notification:uuid_service characteristicUUID:uuid_char p:p on:YES];
+    [self notification:serialServiceUUID characteristicUUID:readCharacteristicUUID p:p on:YES];
+
 }
 
 -(void) notification:(CBUUID *)serviceUUID characteristicUUID:(CBUUID *)characteristicUUID p:(CBPeripheral *)p on:(BOOL)on
@@ -189,7 +201,10 @@ static int rssi = 0;
     [NSTimer scheduledTimerWithTimeInterval:(float)timeout target:self selector:@selector(scanTimer:) userInfo:nil repeats:NO];
     
 #if TARGET_OS_IPHONE
-    [self.CM scanForPeripheralsWithServices:[NSArray arrayWithObject:[CBUUID UUIDWithString:@RBL_SERVICE_UUID]] options:nil];
+    redBearLabsServiceUUID = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
+    adafruitServiceUUID = [CBUUID UUIDWithString:@ADAFRUIT_SERVICE_UUID];
+    NSArray *services = @[redBearLabsServiceUUID, adafruitServiceUUID];
+    [self.CM scanForPeripheralsWithServices:services options: nil];
 #else
     [self.CM scanForPeripheralsWithServices:nil options:nil]; // Start scanning
 #endif
@@ -498,7 +513,28 @@ static bool done = false;
 {
     if (!error)
     {
-        //        printf("Services of peripheral with UUID : %s found\n",[self UUIDToString:peripheral.UUID]);
+        // Determine if we're connected to Red Bear Labs or Adafruit hardware
+        for (CBService *service in peripheral.services) {
+            
+            if ([service.UUID isEqual:redBearLabsServiceUUID]) {
+                NSLog(@"RedBearLabs Bluetooth");
+                serialServiceUUID = redBearLabsServiceUUID;
+                readCharacteristicUUID = [CBUUID UUIDWithString:@RBL_CHAR_TX_UUID];
+                writeCharacteristicUUID = [CBUUID UUIDWithString:@RBL_CHAR_RX_UUID];
+                break;
+            } else if ([service.UUID isEqual:adafruitServiceUUID]) {
+                NSLog(@"Adafruit Bluefruit LE");
+                serialServiceUUID = adafruitServiceUUID;
+                readCharacteristicUUID = [CBUUID UUIDWithString:@ADAFRUIT_CHAR_TX_UUID];
+                writeCharacteristicUUID = [CBUUID UUIDWithString:@ADAFRUIT_CHAR_RX_UUID];
+                break;
+            } else {
+                // ignore unknown services
+            }
+        }
+        
+        // TODO - future versions should just get characteristics we care about
+        // [peripheral discoverCharacteristics:characteristics forService:service];
         [self getAllCharacteristicsFromPeripheral:peripheral];
     }
     else
@@ -534,7 +570,7 @@ static bool done = false;
     
     if (!error)
     {
-        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@RBL_CHAR_TX_UUID]])
+        if ([characteristic.UUID isEqual:readCharacteristicUUID])
         {
             data_len = characteristic.value.length;
             [characteristic.value getBytes:data length:data_len];
