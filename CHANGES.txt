@@ -1,0 +1,9 @@
+= 0.3.0 =
+Add support for Adafruit Bluefruit LE http://adafru.it/1697
+Use RedBear Lab BLE 2.0.1 - supports for v1 and v2 of the shield in addition to BLEmini
+Show RSSI for discovered BLE devices, when available
+Add readRSSI api (BLE only)
+
+Fixes issues #4, #5, #23, #24, #25, #26, #38, #54
+
+
