@@ -17,6 +17,8 @@ Hardware
 
 TODO Fritzing diagram here
 
+## Android
+
 ### Upload the sketch
 
 Upload the [sketch](https://github.com/don/BluetoothSerial/blob/master/examples/LED/Arduino/PhoneGapLED/PhoneGapLED.ino) to your Uno using the Arduino IDE.
@@ -25,11 +27,9 @@ Upload the [sketch](https://github.com/don/BluetoothSerial/blob/master/examples/
 
 Pair your Android phone with the bluetooth adapter.
 
-## PhoneGap
+## PhoneGap - Android
 
 This assumes you have the [Android SDK](http://developer.android.com/sdk/index.html) installed and $ANDROID_HOME/tools and $ANDROID_HOME/platform-tools in your system path.
-
-Edit [assets/www/js/index.js](http://github.com/don/BluetoothSerial/examples/LED/assets/www/js/index.js) and change the Mac Address to match the address of **your** Bluetooth modem.
 
 Adding platforms generates the native project
 
@@ -37,7 +37,7 @@ Adding platforms generates the native project
     
 Install the Bluetooth Serial plugin with cordova
 
-    $ cordova plugin add ~/BluetoothSerial
+    $ cordova plugin add com.megster.cordova.bluetoothserial
 
 Connect your phone to the computer.
 
@@ -48,3 +48,28 @@ Compile and run the application
 After the application starts, connect bluetooth by touching the "Connect" label. Occasionally it takes a few times to connect. Watch for the green connect light on the Bluetooth adapter. 
 
 Move the sliders to adjust Red, Green, and Blue values.
+
+## iOS
+
+This code also works with iOS as long as you use a RedBearLabs BLE radio or the Adafruit Bluefruit LE
+
+For the RedBear radios upload the [PhoneGapLED.ino sketch](https://github.com/don/BluetoothSerial/blob/master/examples/LED/Arduino/PhoneGapLED/PhoneGapLED.ino) to your Uno using the Arduino IDE.
+
+For the Adafruit Bluetfruit LE radio upload the [PhoneGapLED_BluefruitLE.ino sketch](https://github.com/don/BluetoothSerial/blob/master/examples/LED/Arduino/PhoneGapLED_BluefruitLE/PhoneGapLED_BluefruitLE.ino) to your Uno using the Arduino IDE.
+
+Adding platforms generates the native project
+
+    $ cordova platform add ios
+    
+Install the Bluetooth Serial plugin with cordova
+
+    $ cordova plugin add com.megster.cordova.bluetoothserial
+    $ cordova prepare
+    
+Open projects/ios/LED.xcodeproj with Xcode
+Build the code and deploy to your iPhone
+
+![BluefruitLE](BluefruitLE.png "BluefruitLE")
+
+    
+
