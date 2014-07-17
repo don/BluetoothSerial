@@ -65,9 +65,9 @@ Install the Bluetooth Serial plugin with cordova
 
     $ cordova plugin add com.megster.cordova.bluetoothserial
     $ cordova prepare
+    $ open platforms/ios/LED.xcodeproj
     
-Open projects/ios/LED.xcodeproj with Xcode
-Build the code and deploy to your iPhone
+Build the code and deploy to your iPhone using Xcode
 
 ![BluefruitLE](BluefruitLE.png "BluefruitLE")
 
