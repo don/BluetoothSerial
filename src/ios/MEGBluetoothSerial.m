@@ -96,6 +96,16 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)unsubscribe:(CDVInvokedUrlCommand*)command {
+    NSLog(@"unsubscribe");
+
+    _delimiter = nil;
+    _subscribeCallbackId = nil;
+
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void)write:(CDVInvokedUrlCommand*)command {
     NSLog(@"write");
     
