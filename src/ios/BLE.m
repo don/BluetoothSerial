@@ -27,6 +27,7 @@ static int rssi = 0;
 // TODO should have a configurable list of services
 CBUUID *redBearLabsServiceUUID;
 CBUUID *adafruitServiceUUID;
+CBUUID *lairdServiceUUID;
 CBUUID *serialServiceUUID;
 CBUUID *readCharacteristicUUID;
 CBUUID *writeCharacteristicUUID;
@@ -203,7 +204,8 @@ CBUUID *writeCharacteristicUUID;
 #if TARGET_OS_IPHONE
     redBearLabsServiceUUID = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
     adafruitServiceUUID = [CBUUID UUIDWithString:@ADAFRUIT_SERVICE_UUID];
-    NSArray *services = @[redBearLabsServiceUUID, adafruitServiceUUID];
+    lairdServiceUUID = [CBUUID UUIDWithString:@LAIRD_SERVICE_UUID];
+    NSArray *services = @[redBearLabsServiceUUID, adafruitServiceUUID, lairdServiceUUID];
     [self.CM scanForPeripheralsWithServices:services options: nil];
 #else
     [self.CM scanForPeripheralsWithServices:nil options:nil]; // Start scanning
@@ -513,7 +515,7 @@ static bool done = false;
 {
     if (!error)
     {
-        // Determine if we're connected to Red Bear Labs or Adafruit hardware
+        // Determine if we're connected to Red Bear Labs, Adafruit or Laird hardware
         for (CBService *service in peripheral.services) {
             
             if ([service.UUID isEqual:redBearLabsServiceUUID]) {
@@ -527,6 +529,12 @@ static bool done = false;
                 serialServiceUUID = adafruitServiceUUID;
                 readCharacteristicUUID = [CBUUID UUIDWithString:@ADAFRUIT_CHAR_TX_UUID];
                 writeCharacteristicUUID = [CBUUID UUIDWithString:@ADAFRUIT_CHAR_RX_UUID];
+                break;
+            } else if ([service.UUID isEqual:lairdServiceUUID]) {
+                NSLog(@"Laird BL600");
+                serialServiceUUID = lairdServiceUUID;
+                readCharacteristicUUID = [CBUUID UUIDWithString:@LAIRD_CHAR_TX_UUID];
+                writeCharacteristicUUID = [CBUUID UUIDWithString:@LAIRD_CHAR_RX_UUID];
                 break;
             } else {
                 // ignore unknown services
