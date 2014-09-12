@@ -7,8 +7,8 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 ## Supported Platforms
 
 * Android
-* iOS with [BLEMini](http://redbearlab.com/blemini), [BLEShield](http://redbearlab.com/bleshield/) or [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697)
- 
+* iOS with [RedBearLab](http://redbearlab.com) BLE hardware, [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697), or [Laird BL600](http://www.lairdtech.com/Products/Embedded-Wireless-Solutions/Bluetooth-Radio-Modules/BL600-Series/#.VBI7AS5dUzI)
+
 [Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
 
 ## Limitations
@@ -16,14 +16,16 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
  * The phone must initiate the Bluetooth connection
  * Data sent over the connection is assumed to be Strings
  * iOS Bluetooth Low Energy requires iPhone 4S, iPhone5, iPod 5, or iPad3+
+ * Will *not* connect Android to Android
+ * Will *not* connect iOS to iOS[*](https://github.com/don/BluetoothSerial/issues/75#issuecomment-52591397)
 
-# Installing 
+# Installing
 
 Install with Cordova cli
 
-    $ cordova plugin add https://github.com/don/BluetoothSerial.git
-    
-This plugin is also available for [PhoneGap Build](https://build.phonegap.com/plugins/23)
+    $ cordova plugin add com.megster.cordova.bluetoothSerial
+
+This plugin is also available for [PhoneGap Build](https://build.phonegap.com/plugins/366)
 
 # Examples
 
@@ -66,8 +68,8 @@ For iOS, `connect` takes the UUID of the remote device.  Optionally, you can pas
 
 ### Parameters
 
-- __macAddress_or_uuid__: Identifier of the remote device. 
-- __connectSuccess__: Success callback function that is invoked when the connection is successful. 
+- __macAddress_or_uuid__: Identifier of the remote device.
+- __connectSuccess__: Success callback function that is invoked when the connection is successful.
 - __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
 
 ## connectInsecure
@@ -88,8 +90,8 @@ For Android, `connectInsecure` takes a macAddress of the remote device.
 
 ### Parameters
 
-- __macAddress__: Identifier of the remote device. 
-- __connectSuccess__: Success callback function that is invoked when the connection is successful. 
+- __macAddress__: Identifier of the remote device.
+- __connectSuccess__: Success callback function that is invoked when the connection is successful.
 - __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
 
 
@@ -186,8 +188,8 @@ Function `readUntil` reads the data from the buffer until it reaches a delimiter
     bluetoothSerial.readUntil('\n', function (data) {
         console.log(data);
     }, failure);
-    
-## subscribe 
+
+## subscribe
 
 Subscribe to be notified when data is received.
 
@@ -249,7 +251,7 @@ Function `clear` removes any data from the receive buffer.
 Lists bonded devices
 
     bluetoothSerial.list(success, failure);
-    
+
 ### Description
 
 #### Android
@@ -260,16 +262,16 @@ Example list passed to success callback.  See [BluetoothDevice](http://developer
 
     [{
         "class": 276,
-        "id": "10:BF:48:CB:00:00",        
+        "id": "10:BF:48:CB:00:00",
         "address": "10:BF:48:CB:00:00",
         "name": "Nexus 7"
     }, {
         "class": 7936,
-        "id": "00:06:66:4D:00:00",        
+        "id": "00:06:66:4D:00:00",
         "address": "00:06:66:4D:00:00",
         "name": "RN42"
     }]
-        
+
 #### iOS
 
 Function `list` lists the discovered Bluetooth Low Energy peripheral.  The success callback is called with a list of objects.
@@ -277,15 +279,15 @@ Function `list` lists the discovered Bluetooth Low Energy peripheral.  The succe
 Example list passed to success callback for iOS.
 
     [{
-        "id": "CC410A23-2865-F03E-FC6A-4C17E858E11E",        
+        "id": "CC410A23-2865-F03E-FC6A-4C17E858E11E",
         "uuid": "CC410A23-2865-F03E-FC6A-4C17E858E11E",
         "name": "Biscuit",
         "rssi": -68
     }]
-    
+
 The advertised RSSI **may** be included if available.
 
-`id` is the generic name for `uuid` or [mac]`address` so that code can be platform independent. 
+`id` is the generic name for `uuid` or [mac]`address` so that code can be platform independent.
 
 ### Parameters
 
@@ -299,10 +301,10 @@ The advertised RSSI **may** be included if available.
             console.log(device.id);
         })
     }, failure);
-    
+
 ## isConnected
 
-Reports the connection status. 
+Reports the connection status.
 
     bluetoothSerial.isConnected(success, failure);
 
@@ -318,14 +320,14 @@ Function `isConnected` calls the success callback when connected to a peer and t
 ### Quick Example
 
     bluetoothSerial.isConnected(
-        function() { 
+        function() {
             console.log("Bluetooth is connected");
         },
-        function() { 
+        function() {
             console.log("Bluetooth is *not* connected");
         }
-    ); 
-    
+    );
+
 ## isEnabled
 
 Reports if bluetooth is enabled.
@@ -344,13 +346,13 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
 ### Quick Example
 
     bluetoothSerial.isEnabled(
-        function() { 
+        function() {
             console.log("Bluetooth is enabled");
         },
-        function() { 
+        function() {
             console.log("Bluetooth is *not* enabled");
         }
-    );    
+    );
 
 ## readRSSI
 
@@ -372,15 +374,15 @@ Function `readRSSI` calls the success callback with the rssi.
 ### Quick Example
 
     bluetoothSerial.readRSSI(
-        function(rssi) { 
+        function(rssi) {
             console.log(rssi);
         }
-    );    
+    );
 
 
 # Misc
 
-## Where does this work? 
+## Where does this work?
 
 ### Android
 
@@ -396,7 +398,7 @@ Development Devices include
 On the Arduino side I test with [Sparkfun Mate Silver](https://www.sparkfun.com/products/10393) and the [Seeed Studio Bluetooth Shield](http://www.seeedstudio.com/depot/bluetooth-shield-p-866.html?cPath=19_21). The code should be generic and work with most hardware.
 
 I highly recommend [Adafruit's Bluefruit EZ-Link](http://www.adafruit.com/products/1588).
-    
+
 ### iOS
 
 **NOTE: Currently iOS only works with RedBear Labs Hardware and Adafruit Bluefruit LE**
@@ -409,7 +411,7 @@ Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_2013
 
 For Bluetooth Low Energy, this plugin supports the RedBear Labs hardware by default, but can support any Bluetooth Low Energy hardware with a "serial like" service. This means a transmit characteristic that is writable and a receive characteristic that supports notification.
 
-Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your service. 
+Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your service.
 
 ## Props
 
@@ -429,11 +431,13 @@ The API for available, read, readUntil was influenced by the [BtSerial Library f
 
 If you don't need **serial** over Bluetooth, try the [PhoneGap Bluetooth Plugin for Android](https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/Android/Bluetooth/2.2.0) or perhaps [phonegap-plugin-bluetooth](https://github.com/tanelih/phonegap-bluetooth-plugin).
 
-If you need generic Bluetooth Low Energy support checkout Rand Dusing's [BluetoothLE](https://github.com/randdusing/BluetoothLE).
+If you need generic Bluetooth Low Energy support checkout my [Cordova BLE Plugin](https://github.com/don/cordova-plugin-ble-central).
+
+If you need BLE for RFduino checkout my [RFduino Plugin](https://github.com/don/cordova-plugin-rfduino).
 
 ## What format should the Mac Address be in?
 An example a properly formatted mac address is ``AA:BB:CC:DD:EE:FF``
 
 ## Feedback
-    
+
 Try the code. If you find an problem or missing feature, file an issue or create a pull request.

@@ -3,12 +3,12 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="com.megster.cordova.bluetoothserial"
-    version="0.3.0">
+    version="0.3.1">
 
     <name>Bluetooth Serial</name>
     <description>Bluetooth Serial Communication Plugin</description>
     <license>Apache 2.0</license>
-    <keywords>bluetooth, arduino</keywords>
+    <keywords>bluetooth, BLE, arduino</keywords>
     <repo>https://github.com/don/BluetoothSerial.git</repo>
     <issue>https://github.com/don/BluetoothSerial/issues</issue>
 
