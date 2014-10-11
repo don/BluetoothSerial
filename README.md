@@ -39,11 +39,14 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.connectInsecure](#connectInsecure)
 - [bluetoothSerial.disconnect](#disconnect)
 - [bluetoothSerial.write](#write)
+- [bluetoothSerial.writeRaw](#writeraw)
 - [bluetoothSerial.available](#available)
 - [bluetoothSerial.read](#read)
 - [bluetoothSerial.readUntil](#readuntil)
 - [bluetoothSerial.subscribe](#subscribe)
 - [bluetoothSerial.unsubscribe](#unsubscribe)
+- [bluetoothSerial.rawSubscribe](#rawsubscribe)
+- [bluetoothSerial.rawUnsubscribe](#rawunsubscribe)
 - [bluetoothSerial.clear](#clear)
 - [bluetoothSerial.list](#list)
 - [bluetoothSerial.isEnabled](#isenabled)
@@ -124,6 +127,26 @@ Function `write` data to the serial port.  Data must be a String.
 
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
+
+
+## writeRaw
+
+Writes binary data to the serial port.
+
+    bluetoothSerial.writeRaw(data, success, failure);
+
+### Description
+
+Function `writeRaw` data to the serial port.  Data must be an array of ints.
+
+### Parameters
+
+- __success__: Success callback function that is invoked when the connection is successful. [optional]
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    bluetoothSerial.writeRaw([186, 220, 222]);
 
 ## available
 
@@ -230,6 +253,48 @@ Function `unsubscribe` removes any notification added by `subscribe` and kills t
 ### Quick Example
 
     bluetoothSerial.unsubscribe();
+
+## rawSubscribe
+
+Subscribe to be notified when data is received.
+
+    bluetoothSerial.rawSubscribe(success, failure);
+
+### Description
+
+Function `rawSubscribe` registers a callback that is called when data is received. The callback is called with the raw received data (as an ArrayBuffer) as soon as the delimiter string is read.  The callback is a long running callback and will exist until `rawUnsubscribe` is called.
+
+### Parameters
+
+- __success__: Success callback function that is invoked with the data.
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    // the success callback is called whenever data is received
+    bluetoothSerial.rawSubscribe(function (data) {
+        var bytes = new Uint8Array(data);
+        console.log(bytes);
+    }, failure);
+
+## rawUnsubscribe
+
+Unsubscribe from a subscription.
+
+    bluetoothSerial.rawUnsubscribe(success, failure);
+
+### Description
+
+Function `rawUnsubscribe` removes any notification added by `rawSubscribe` and kills the callback.
+
+### Parameters
+
+- __success__: Success callback function that is invoked when the connection is successful. [optional]
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    bluetoothSerial.rawUnsubscribe();
 
 ## clear
 
