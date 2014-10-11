@@ -35,6 +35,8 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String READ_UNTIL = "readUntil";
     private static final String SUBSCRIBE = "subscribe";
     private static final String UNSUBSCRIBE = "unsubscribe";
+    private static final String SUBSCRIBE_RAW = "subscribeRaw";
+    private static final String UNSUBSCRIBE_RAW = "unsubscribeRaw";
     private static final String IS_ENABLED = "isEnabled";
     private static final String IS_CONNECTED = "isConnected";
     private static final String CLEAR = "clear";
@@ -42,6 +44,7 @@ public class BluetoothSerial extends CordovaPlugin {
     // callbacks
     private CallbackContext connectCallback;
     private CallbackContext dataAvailableCallback;
+    private CallbackContext rawDataAvailableCallback;
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothSerialService bluetoothSerialService;
@@ -136,6 +139,20 @@ public class BluetoothSerial extends CordovaPlugin {
 
             callbackContext.success();
 
+        } else if (action.equals(SUBSCRIBE_RAW)) {
+
+            rawDataAvailableCallback = callbackContext;
+
+            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
+
+        } else if (action.equals(UNSUBSCRIBE_RAW)) {
+
+            rawDataAvailableCallback = null;
+
+            callbackContext.success();
+
         } else if (action.equals(IS_ENABLED)) {
 
             if (bluetoothAdapter.isEnabled()) {
@@ -221,6 +238,13 @@ public class BluetoothSerial extends CordovaPlugin {
                     if (dataAvailableCallback != null) {
                         sendDataToSubscriber();
                     }
+
+                    break;
+                 case MESSAGE_READ_RAW:
+                    if (rawDataAvailableCallback != null) {
+                        byte[] bytes = (byte[]) msg.obj;
+                        sendRawDataToSubscriber(bytes);
+                    }
                     break;
                  case MESSAGE_STATE_CHANGE:
 
@@ -269,6 +293,14 @@ public class BluetoothSerial extends CordovaPlugin {
             PluginResult result = new PluginResult(PluginResult.Status.OK);
             result.setKeepCallback(true);
             connectCallback.sendPluginResult(result);
+        }
+    }
+
+    private void sendRawDataToSubscriber(byte[] data) {
+        if (data != null && data.length > 0) {
+            PluginResult result = new PluginResult(PluginResult.Status.OK, data);
+            result.setKeepCallback(true);
+            rawDataAvailableCallback.sendPluginResult(result);
         }
     }
 
