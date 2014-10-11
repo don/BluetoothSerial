@@ -30,6 +30,7 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String CONNECT_INSECURE = "connectInsecure";
     private static final String DISCONNECT = "disconnect";
     private static final String WRITE = "write";
+    private static final String WRITE_RAW = "writeRaw";
     private static final String AVAILABLE = "available";
     private static final String READ = "read";
     private static final String READ_UNTIL = "readUntil";
@@ -108,6 +109,17 @@ public class BluetoothSerial extends CordovaPlugin {
 
             String data = args.getString(0);
             bluetoothSerialService.write(data.getBytes());
+            callbackContext.success();
+
+        } else if (action.equals(WRITE_RAW)) {
+
+            JSONArray rawdata = args.getJSONArray(0);
+            byte[] data = new byte[rawdata.length()];
+            for(int i=0; i < rawdata.length() ; i++) {
+                data[i] = (byte)rawdata.getInt(i);
+            }
+
+            bluetoothSerialService.write(data);
             callbackContext.success();
 
         } else if (action.equals(AVAILABLE)) {

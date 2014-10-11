@@ -47,6 +47,11 @@ module.exports = {
         cordova.exec(success, failure, "BluetoothSerial", "write", [data]);
     },
 
+    // writes data to the bluetooth serial port - data must be a plain js array.
+    writeRaw: function (data, success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "writeRaw", [data]);
+    },
+
     // calls the success callback when new data is available
     subscribe: function (delimiter, success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "subscribe", [delimiter]);
