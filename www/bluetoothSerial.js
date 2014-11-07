@@ -42,8 +42,20 @@ module.exports = {
         cordova.exec(success, failure, "BluetoothSerial", "readUntil", [delimiter]);
     },
 
-    // writes data to the bluetooth serial port - data must be a string
+    // writes data to the bluetooth serial port
+    // data can be an ArrayBuffer, string, integer array, or Uint8Array
     write: function (data, success, failure) {
+
+        // convert to ArrayBuffer
+        if (typeof data === 'string') {
+            data = stringToArrayBuffer(data);
+        } else if (data instanceof Array) {
+            // assuming array of interger
+            data = new Uint8Array(data).buffer;
+        } else if (data instanceof Uint8Array) {
+            data = data.buffer;
+        }
+
         cordova.exec(success, failure, "BluetoothSerial", "write", [data]);
     },
 
@@ -56,7 +68,7 @@ module.exports = {
     subscribe: function (delimiter, success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "subscribe", [delimiter]);
     },
-    
+
     // removes data subscription
     unsubscribe: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "unsubscribe", []);
@@ -76,10 +88,18 @@ module.exports = {
     clear: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "clear", []);
     },
-    
+
     // reads the RSSI of the *connected* peripherial
     readRSSI: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothSerial", "readRSSI", []);        
+        cordova.exec(success, failure, "BluetoothSerial", "readRSSI", []);
     }
 
+};
+
+var stringToArrayBuffer = function(str) {
+    var ret = new Uint8Array(str.length);
+    for (var i = 0; i < str.length; i++) {
+        ret[i] = str.charCodeAt(i);
+    }
+    return ret.buffer;
 };

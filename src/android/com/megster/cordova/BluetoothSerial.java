@@ -83,7 +83,7 @@ public class BluetoothSerial extends CordovaPlugin {
         }
 
         boolean validAction = true;
-        
+
         if (action.equals(LIST)) {
 
             listBondedDevices(callbackContext);
@@ -107,8 +107,8 @@ public class BluetoothSerial extends CordovaPlugin {
 
         } else if (action.equals(WRITE)) {
 
-            String data = args.getString(0);
-            bluetoothSerialService.write(data.getBytes());
+            byte[] data = args.getArrayBuffer(0);
+            bluetoothSerialService.write(data);
             callbackContext.success();
 
         } else if (action.equals(WRITE_RAW)) {
@@ -168,15 +168,15 @@ public class BluetoothSerial extends CordovaPlugin {
         } else if (action.equals(IS_ENABLED)) {
 
             if (bluetoothAdapter.isEnabled()) {
-                callbackContext.success();                
+                callbackContext.success();
             } else {
                 callbackContext.error("Bluetooth is disabled.");
-            }            
+            }
 
         } else if (action.equals(IS_CONNECTED)) {
-            
+
             if (bluetoothSerialService.getState() == BluetoothSerialService.STATE_CONNECTED) {
-                callbackContext.success();                
+                callbackContext.success();
             } else {
                 callbackContext.error("Not connected.");
             }
