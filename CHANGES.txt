@@ -1,3 +1,9 @@
+= 0.3.2 =
+Write accepts binary data #83 #39 - Adrián Pardini @pardo-bsso
+Add rawSubscribe for callback with binary data #83 #57 - Adrián Pardini @pardo-bsso
+Add fallback connection for finicky Android devices #89 - Matt Philips @SkySrfr
+Fix UUIDs for Laird BL600 #90 - mrtomhoward
+
 = 0.3.1 =
 Add support for Laird BL600 #71
 Add unsubscribe for iOS #66
