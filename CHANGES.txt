@@ -1,4 +1,4 @@
-= 0.3.2 =
+= 0.3.3 =
 Write accepts binary data #83 #39 - Adrián Pardini @pardo-bsso
 Add rawSubscribe for callback with binary data #83 #57 - Adrián Pardini @pardo-bsso
 Add fallback connection for finicky Android devices #89 - Matt Philips @SkySrfr
