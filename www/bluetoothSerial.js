@@ -75,12 +75,12 @@ module.exports = {
     },
 
     // calls the success callback when new data is available with an ArrayBuffer
-    rawSubscribe: function (success, failure) {
+    subscribeRawData: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "subscribeRaw", []);
     },
 
     // removes data subscription
-    rawUnsubscribe: function (success, failure) {
+    unsubscribeRawData: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "unsubscribeRaw", []);
     },
 

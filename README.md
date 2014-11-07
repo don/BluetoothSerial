@@ -43,8 +43,8 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.readUntil](#readuntil)
 - [bluetoothSerial.subscribe](#subscribe)
 - [bluetoothSerial.unsubscribe](#unsubscribe)
-- [bluetoothSerial.rawSubscribe](#rawsubscribe)
-- [bluetoothSerial.rawUnsubscribe](#rawunsubscribe)
+- [bluetoothSerial.subscribeRawData](#subscriberawdata)
+- [bluetoothSerial.unsubscribeRawData](#unsubscriberawdata)
 - [bluetoothSerial.clear](#clear)
 - [bluetoothSerial.list](#list)
 - [bluetoothSerial.isEnabled](#isenabled)
@@ -256,15 +256,15 @@ Function `unsubscribe` removes any notification added by `subscribe` and kills t
 
     bluetoothSerial.unsubscribe();
 
-## rawSubscribe
+## subscribeRawData
 
 Subscribe to be notified when data is received.
 
-    bluetoothSerial.rawSubscribe(success, failure);
+    bluetoothSerial.subscribeRawData(success, failure);
 
 ### Description
 
-Function `rawSubscribe` registers a callback that is called when data is received. The callback is called immediately when data is received. The raw data is sent to callback as an ArrayBuffer. The callback is a long running callback and will exist until `rawUnsubscribe` is called.
+Function `subscribeRawData` registers a callback that is called when data is received. The callback is called immediately when data is received. The data is sent to callback as an ArrayBuffer. The callback is a long running callback and will exist until `unsubscribeRawData` is called.
 
 ### Parameters
 
@@ -274,20 +274,20 @@ Function `rawSubscribe` registers a callback that is called when data is receive
 ### Quick Example
 
     // the success callback is called whenever data is received
-    bluetoothSerial.rawSubscribe(function (data) {
+    bluetoothSerial.subscribeRawData(function (data) {
         var bytes = new Uint8Array(data);
         console.log(bytes);
     }, failure);
 
-## rawUnsubscribe
+## unsubscribeRawData
 
 Unsubscribe from a subscription.
 
-    bluetoothSerial.rawUnsubscribe(success, failure);
+    bluetoothSerial.unsubscribeRawData(success, failure);
 
 ### Description
 
-Function `rawUnsubscribe` removes any notification added by `rawSubscribe` and kills the callback.
+Function `unsubscribeRawData` removes any notification added by `subscribeRawData` and kills the callback.
 
 ### Parameters
 
@@ -296,7 +296,7 @@ Function `rawUnsubscribe` removes any notification added by `rawSubscribe` and k
 
 ### Quick Example
 
-    bluetoothSerial.rawUnsubscribe();
+    bluetoothSerial.unsubscribeRawData();
 
 ## clear
 
