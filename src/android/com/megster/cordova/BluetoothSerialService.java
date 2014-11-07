@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
+import java.util.Arrays;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -441,6 +442,14 @@ public class BluetoothSerialService {
 
                     // Send the new data String to the UI Activity
                     mHandler.obtainMessage(BluetoothSerial.MESSAGE_READ, data).sendToTarget();
+
+                    // Send the raw bytestream to the UI Activity.
+                    // We make a copy because the full array can have extra data at the end
+                    // when / if we read less than its size.
+                    if (bytes > 0) {
+                        byte[] rawdata = Arrays.copyOf(buffer, bytes);
+                        mHandler.obtainMessage(BluetoothSerial.MESSAGE_READ_RAW, rawdata).sendToTarget();
+                    }
 
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
