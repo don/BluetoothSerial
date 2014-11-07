@@ -133,6 +133,24 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
+### Quick Example
+
+    // string
+    bluetoothSerial.write("hello, world", success, failure);
+
+    // array of int (or bytes)
+    bluetoothSerial.write([186, 220, 222], success, failure);
+
+    // Typed Array
+    var data = new Uint8Array(4);
+    data[0] = 0x41;
+    data[1] = 0x42;
+    data[2] = 0x43;
+    data[3] = 0x44;
+    bluetoothSerial.write(data, success, failure);
+
+    // Array Buffer
+    bluetoothSerial.write(data.buffer, success, failure);
 
 ## writeRaw
 
@@ -267,7 +285,7 @@ Subscribe to be notified when data is received.
 
 ### Description
 
-Function `rawSubscribe` registers a callback that is called when data is received. The callback is called with the raw received data (as an ArrayBuffer) as soon as the delimiter string is read.  The callback is a long running callback and will exist until `rawUnsubscribe` is called.
+Function `rawSubscribe` registers a callback that is called when data is received. The callback is called immediately when data is received. The raw data is sent to callback as an ArrayBuffer. The callback is a long running callback and will exist until `rawUnsubscribe` is called.
 
 ### Parameters
 
