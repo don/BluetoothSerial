@@ -14,7 +14,6 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 ## Limitations
 
  * The phone must initiate the Bluetooth connection
- * Data sent over the connection is assumed to be Strings
  * iOS Bluetooth Low Energy requires iPhone 4S, iPhone5, iPod 5, or iPad3+
  * Will *not* connect Android to Android
  * Will *not* connect iOS to iOS[*](https://github.com/don/BluetoothSerial/issues/75#issuecomment-52591397)
@@ -23,7 +22,7 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
 Install with Cordova cli
 
-    $ cordova plugin add com.megster.cordova.bluetoothSerial
+    $ cordova plugin add com.megster.cordova.bluetoothserial
 
 This plugin is also available for [PhoneGap Build](https://build.phonegap.com/plugins/366)
 
@@ -39,7 +38,6 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.connectInsecure](#connectInsecure)
 - [bluetoothSerial.disconnect](#disconnect)
 - [bluetoothSerial.write](#write)
-- [bluetoothSerial.writeRaw](#writeraw)
 - [bluetoothSerial.available](#available)
 - [bluetoothSerial.read](#read)
 - [bluetoothSerial.readUntil](#readuntil)
@@ -151,25 +149,6 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
 
     // Array Buffer
     bluetoothSerial.write(data.buffer, success, failure);
-
-## writeRaw
-
-Writes binary data to the serial port.
-
-    bluetoothSerial.writeRaw(data, success, failure);
-
-### Description
-
-Function `writeRaw` data to the serial port.  Data must be an array of ints.
-
-### Parameters
-
-- __success__: Success callback function that is invoked when the connection is successful. [optional]
-- __failure__: Error callback function, invoked when error occurs. [optional]
-
-### Quick Example
-
-    bluetoothSerial.writeRaw([186, 220, 222]);
 
 ## available
 
