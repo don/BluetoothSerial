@@ -25,7 +25,7 @@
 - (void)pluginInitialize {
 
     NSLog(@"Bluetooth Serial Cordova Plugin - BLE version");
-    NSLog(@"(c)2013 Don Coleman");
+    NSLog(@"(c)2013-2014 Don Coleman");
 
     [super pluginInitialize];
 
@@ -102,9 +102,31 @@
     _delimiter = nil;
     _subscribeCallbackId = nil;
 
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+- (void)subscribeRaw:(CDVInvokedUrlCommand*)command {
+    NSLog(@"subscribeRaw");
+
+    CDVPluginResult *pluginResult = nil;
+
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    [pluginResult setKeepCallbackAsBool:TRUE];
+    _subscribeBytesCallbackId = [command.callbackId copy];
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)unsubscribeRaw:(CDVInvokedUrlCommand*)command {
+    NSLog(@"unsubscribeRaw");
+
+    _subscribeBytesCallbackId = nil;
+
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 
 - (void)write:(CDVInvokedUrlCommand*)command {
     NSLog(@"write");
@@ -231,11 +253,21 @@
         [_buffer appendString:s];
 
         if (_subscribeCallbackId) {
-            [self sendDataToSubscriber];
+            [self sendDataToSubscriber]; // only sends if a delimiter is hit
         }
+
     } else {
         NSLog(@"Error converting received data into a String.");
     }
+
+    // Always send raw data if someone is listening
+    if (_subscribeBytesCallbackId) {
+        NSData* nsData = [NSData dataWithBytes:(const void *)data length:length];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArrayBuffer:nsData];
+        [pluginResult setKeepCallbackAsBool:TRUE];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:_subscribeBytesCallbackId];
+    }
+
 }
 
 - (void)bleDidConnect {
