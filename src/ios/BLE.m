@@ -176,7 +176,11 @@ CBUUID *writeCharacteristicUUID;
         return;
     }
 
-    [p writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+    if ([serviceUUID isEqual:blueGigaServiceUUID]) {
+        [p writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+    } else {
+        [p writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithoutResponse];
+    }
 }
 
 -(UInt16) swap:(UInt16)s
