@@ -1,3 +1,6 @@
+= 0.3.4 =
+Support for BlueGiga #96 - @ChrisMorter
+
 = 0.3.3 =
 Write accepts binary data #83 #39 - Adrián Pardini @pardo-bsso
 Add rawSubscribe for callback with binary data #83 #57 - Adrián Pardini @pardo-bsso
