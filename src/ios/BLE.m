@@ -28,6 +28,7 @@ static int rssi = 0;
 CBUUID *redBearLabsServiceUUID;
 CBUUID *adafruitServiceUUID;
 CBUUID *lairdServiceUUID;
+CBUUID *blueGigaServiceUUID;
 CBUUID *serialServiceUUID;
 CBUUID *readCharacteristicUUID;
 CBUUID *writeCharacteristicUUID;
@@ -175,7 +176,7 @@ CBUUID *writeCharacteristicUUID;
         return;
     }
     
-    [p writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithoutResponse];
+    [p writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
 }
 
 -(UInt16) swap:(UInt16)s
@@ -205,7 +206,8 @@ CBUUID *writeCharacteristicUUID;
     redBearLabsServiceUUID = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
     adafruitServiceUUID = [CBUUID UUIDWithString:@ADAFRUIT_SERVICE_UUID];
     lairdServiceUUID = [CBUUID UUIDWithString:@LAIRD_SERVICE_UUID];
-    NSArray *services = @[redBearLabsServiceUUID, adafruitServiceUUID, lairdServiceUUID];
+    blueGigaServiceUUID = [CBUUID UUIDWithString:@BLUEGIGA_SERVICE_UUID];    
+    NSArray *services = @[redBearLabsServiceUUID, adafruitServiceUUID, lairdServiceUUID, blueGigaServiceUUID];
     [self.CM scanForPeripheralsWithServices:services options: nil];
 #else
     [self.CM scanForPeripheralsWithServices:nil options:nil]; // Start scanning
@@ -535,6 +537,12 @@ static bool done = false;
                 serialServiceUUID = lairdServiceUUID;
                 readCharacteristicUUID = [CBUUID UUIDWithString:@LAIRD_CHAR_TX_UUID];
                 writeCharacteristicUUID = [CBUUID UUIDWithString:@LAIRD_CHAR_RX_UUID];
+                break;
+            else if ([service.UUID isEqual:blueGigaServiceUUID]) {
+                NSLog(@"BlueGiga Bluetooth");
+                serialServiceUUID = blueGigaServiceUUID;
+                readCharacteristicUUID = [CBUUID UUIDWithString:@BLUEGIGA_CHAR_TX_UUID];
+                writeCharacteristicUUID = [CBUUID UUIDWithString:@BLUEGIGA_CHAR_RX_UUID];
                 break;
             } else {
                 // ignore unknown services

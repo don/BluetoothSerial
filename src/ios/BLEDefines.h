@@ -11,6 +11,11 @@
  
  */
 
+// BlueGiga Service
+#define BLUEGIGA_SERVICE_UUID                         "1D5688DE-866D-3AA4-EC46-A1BDDB37ECF6"
+#define BLUEGIGA_CHAR_TX_UUID                         "AF20fBAC-2518-4998-9AF7-AF42540731B3"
+#define BLUEGIGA_CHAR_RX_UUID                         "AF20fBAC-2518-4998-9AF7-AF42540731B3"
+
 // RBL Service
 #define RBL_SERVICE_UUID                         "713D0000-503E-4C75-BA94-3148F18D941E"
 #define RBL_CHAR_TX_UUID                         "713D0002-503E-4C75-BA94-3148F18D941E"
