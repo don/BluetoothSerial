@@ -7,7 +7,7 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 ## Supported Platforms
 
 * Android
-* iOS with [RedBearLab](http://redbearlab.com) BLE hardware, [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697), or [Laird BL600](http://www.lairdtech.com/Products/Embedded-Wireless-Solutions/Bluetooth-Radio-Modules/BL600-Series/#.VBI7AS5dUzI)
+* iOS with [RedBearLab](http://redbearlab.com) BLE hardware, [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697), [Laird BL600](http://www.lairdtech.com/Products/Embedded-Wireless-Solutions/Bluetooth-Radio-Modules/BL600-Series/#.VBI7AS5dUzI), or BlueGiga
 
 [Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
 
@@ -15,7 +15,7 @@ Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
  * The phone must initiate the Bluetooth connection
  * iOS Bluetooth Low Energy requires iPhone 4S, iPhone5, iPod 5, or iPad3+
- * Will *not* connect Android to Android
+ * Will *not* connect Android to Android[*](https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
  * Will *not* connect iOS to iOS[*](https://github.com/don/BluetoothSerial/issues/75#issuecomment-52591397)
 
 # Installing
