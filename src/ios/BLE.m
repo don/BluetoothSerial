@@ -176,7 +176,7 @@ CBUUID *writeCharacteristicUUID;
         return;
     }
 
-    if ([serviceUUID isEqual:blueGigaServiceUUID]) {
+    if ([serviceUUID isEqual:adafruitServiceUUID] || [serviceUUID isEqual:blueGigaServiceUUID]) {
         [p writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
     } else {
         [p writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithoutResponse];
