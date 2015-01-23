@@ -14,6 +14,8 @@
 
     <engines>
         <engine name="cordova" version=">=2.9.0" />
+        <engine name="cordova-android" version=">=2.9.0" />
+        <engine name="cordova-ios" version=">=2.9.0" />        
     </engines>
 
     <js-module src="www/bluetoothSerial.js" name="bluetoothSerial">
