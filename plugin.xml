@@ -3,7 +3,7 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="com.megster.cordova.bluetoothserial"
-    version="0.3.4">
+    version="0.3.5">
 
     <name>Bluetooth Serial</name>
     <description>Bluetooth Serial Communication Plugin</description>
@@ -15,7 +15,7 @@
     <engines>
         <engine name="cordova" version=">=2.9.0" />
         <engine name="cordova-android" version=">=2.9.0" />
-        <engine name="cordova-ios" version=">=2.9.0" />        
+        <engine name="cordova-ios" version=">=2.9.0" />
     </engines>
 
     <js-module src="www/bluetoothSerial.js" name="bluetoothSerial">
