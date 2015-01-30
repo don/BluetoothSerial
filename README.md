@@ -119,9 +119,7 @@ Writes data to the serial port.
 
 ### Description
 
-Function `write` data to the serial port.  Data must be a String.
-
-Data can be an ArrayBuffer, string, array of integers, or a Uint8Array.
+Function `write` data to the serial port. Data can be an ArrayBuffer, string, array of integers, or a Uint8Array.
 
 Internally string, integer array, and Uint8Array are converted to an ArrayBuffer. String conversion assume 8bit characters.
 
