@@ -66,4 +66,20 @@
         <framework src="CoreBluetooth.framework" />
 
     </platform>
+
+    <platform name="wp8">
+        <config-file target="config.xml" parent="/*">
+             <feature name="BluetoothSerial">
+                 <param name="wp-package" value="BluetoothSerial"/>
+             </feature>
+         </config-file>
+
+
+         <config-file target="Properties/WMAppManifest.xml" parent="/Deployment/App/Capabilities">
+             <Capability Name="ID_CAP_PROXIMITY" />
+         </config-file>
+
+         <source-file src="src/wp/BluetoothSerial.cs" />
+
+    </platform>
 </plugin>
