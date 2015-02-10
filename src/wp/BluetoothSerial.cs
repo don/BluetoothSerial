@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
@@ -40,48 +41,19 @@ public class BluetoothSerial : BaseCommand
         PeerFinder.AlternateIdentities["Bluetooth:Paired"] = "";
         var pairedDevices = await PeerFinder.FindAllPeersAsync();
 
-        PairedDeviceList pairedDeviceList = new PairedDeviceList(pairedDevices);
-
         if (pairedDevices.Count == 0)
         {
             Debug.WriteLine("No paired devices were found.");
         }
 
-        // send the list back in the callback
-        //DispatchCommandResult(new PluginResult(PluginResult.Status.OK, pairedDeviceList));
-        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, pairedDeviceList.devices));
-
-    }
-
-    // TODO eliminate this and just use a list
-    // TODO map over PeerInformation list applying contructor to each element
-    [DataContract]
-    public class PairedDeviceList
-    {
-        public PairedDeviceList(IReadOnlyList<PeerInformation> peerInformationList)
-        {
-            var list = new List<PairedDeviceInfo>();
-
-            foreach (var peerInfo in peerInformationList)
-            {
-                list.Add(new PairedDeviceInfo(peerInfo));
-            }
-
-            this.devices = list;
-        }
-
-        [DataMember]
-        public List<PairedDeviceInfo> devices { get; set; }
+        // convert to serializable format
+        var pairedDeviceList = new List<PairedDeviceInfo>(pairedDevices.Select(x => new PairedDeviceInfo(x)));
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, pairedDeviceList));
     }
 
     [DataContract]
     public class PairedDeviceInfo
     {
-        public PairedDeviceInfo()
-        {
-
-        }
-
         public PairedDeviceInfo(PeerInformation peerInformation)
         {
             id = peerInformation.HostName.ToString(); // TODO might need to remove () from MAC
