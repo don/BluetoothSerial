@@ -80,6 +80,7 @@
          </config-file>
 
          <source-file src="src/wp/BluetoothSerial.cs" />
+         <source-file src="src/wp/BluetoothConnectionManager.cs" />
 
     </platform>
 </plugin>
