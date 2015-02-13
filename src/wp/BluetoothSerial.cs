@@ -71,10 +71,14 @@ public class BluetoothSerial : BaseCommand
         connectionManager.Initialize(); // TODO can't we put this in the constructor?
         connectionManager.MessageReceived += connectionManager_MessageReceived;
 
+        // TODO handle invalud hostname
         HostName deviceHostName = new HostName(macAddress);
 
         connectionManager.Connect(deviceHostName);
-        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));  // TODO keep callback for disconnect
+
+        // TODO we need a callback here for when the connection really happens, otherwise if connection timeout randomly get error later
+        // TODO keep callback for and handle unexpected disconnection
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK)); 
     }
 
     // TODO this needs to change and give us RAW data
@@ -107,8 +111,11 @@ public class BluetoothSerial : BaseCommand
 
     public void disconnect(string args)
     {
-        connectionManager.Terminate();
-
+        if (connectionManager != null)
+        {
+            connectionManager.Terminate();
+        }
+        
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
@@ -142,11 +149,9 @@ public class BluetoothSerial : BaseCommand
     public void subscribeRaw(string args)
     {
         rawDataCallbackId = JsonHelper.Deserialize<string[]>(args)[0];
+
         // success is called when data arrives 
-        //DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT));
-        DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT));
-
-
+        DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT)); // TODO keep callback?
     }
 
     public void unsubscribeRaw(string args)
@@ -177,23 +182,20 @@ public class BluetoothSerial : BaseCommand
     }
 
     public void read(string args) {
-        string callbackId = JsonHelper.Deserialize<string[]>(args)[0];
         int length = buffer.Length; // can the size of the buffer change in this method?
         string message = buffer.ToString(0, length);
         buffer.Remove(0, length);
-        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, message), callbackId);
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, message));
     }
 
     public void readUntil(string args) {
         string delimiter = JsonHelper.Deserialize<string[]>(args)[0];
-        string callbackId = JsonHelper.Deserialize<string[]>(args)[1]; // TODO inefficient
 
         int index = buffer.ToString().IndexOf(delimiter);
         string message = buffer.ToString(0, index + delimiter.Length);
         buffer.Remove(0, index + delimiter.Length);
 
-        // We need to esure the delimiter is included.
-        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, message), callbackId);
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, message));
     }
 
     public void clear(string args) {
@@ -215,7 +217,7 @@ public class BluetoothSerial : BaseCommand
     {
         public PairedDeviceInfo(PeerInformation peerInformation)
         {
-            id = peerInformation.HostName.ToString(); // TODO might need to remove () from MAC
+            id = peerInformation.HostName.ToString();
             name = peerInformation.DisplayName;
         }
 
