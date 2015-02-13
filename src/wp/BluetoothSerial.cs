@@ -39,8 +39,11 @@ public class BluetoothSerial : BaseCommand
     */
 
     private ConnectionManager connectionManager;
+    private string token; // normally a char like \n
     private string rawDataCallbackId;
     private string subscribeCallbackId;
+
+    private StringBuilder buffer = new StringBuilder("This is a test\nThis is fake data\nFin.");
 
     // no args
     public async void list(string args)
@@ -71,16 +74,35 @@ public class BluetoothSerial : BaseCommand
         HostName deviceHostName = new HostName(macAddress);
 
         connectionManager.Connect(deviceHostName);
-        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));  // TODO keep callback for disconnect
     }
 
+    // TODO this needs to change and give us RAW data
     private void connectionManager_MessageReceived(string message)
     {
         Debug.WriteLine(message);
+
+        // store the data in the buffer as a string
+
+        // if there's a rawDataCallbackId, send the data right away
+        if (rawDataCallbackId != null)
+        {
+            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+            DispatchCommandResult(new PluginResult(PluginResult.Status.OK, messageBytes), rawDataCallbackId);
+        }
+  
+        // TODO see other implementations
         if (subscribeCallbackId != null)
         {
-            DispatchCommandResult(new PluginResult(PluginResult.Status.OK, message), subscribeCallbackId);
+            // TODO really only send to the delimiter
+            // TODO need to handle the case with multiple delimiters
+            //DispatchCommandResult(new PluginResult(PluginResult.Status.OK, message), subscribeCallbackId);
+
+            var pluginResult = new PluginResult(PluginResult.Status.OK, message);
+            pluginResult.KeepCallback = true;
+            DispatchCommandResult(pluginResult, subscribeCallbackId);
         }
+
     }
 
     public void disconnect(string args)
@@ -93,23 +115,45 @@ public class BluetoothSerial : BaseCommand
     public void subscribe(string args)
     {
         var arguments = JsonHelper.Deserialize<string[]>(args);
-        var token = arguments[0];
+        token = arguments[0];
         subscribeCallbackId = arguments[1];
+
+        // success is called when data arrives 
+        // BOGUS TESTING
+        //DispatchCommandResult(new PluginResult(PluginResult.Status.OK, "remove this"));
+        //DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT));
+
+        /*
+        TODO is this required? I hope not.
+        var pr = new PluginResult(PluginResult.Status.NO_RESULT);
+        pr.KeepCallback = true;
+        DispatchCommandResult(pr);
+         */ 
     }
 
     public void unsubscribe(string args)
     {
+        token = null;
+        subscribeCallbackId = null;
 
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
     public void subscribeRaw(string args)
     {
         rawDataCallbackId = JsonHelper.Deserialize<string[]>(args)[0];
+        // success is called when data arrives 
+        //DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT));
+        DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT));
+
+
     }
 
     public void unsubscribeRaw(string args)
     {
         rawDataCallbackId = null;
+
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
     public async void write(string args)
@@ -127,12 +171,43 @@ public class BluetoothSerial : BaseCommand
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
+    public void available(string args) {
+        string callbackId = JsonHelper.Deserialize<string[]>(args)[0];
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, buffer.Length), callbackId);
+    }
+
+    public void read(string args) {
+        string callbackId = JsonHelper.Deserialize<string[]>(args)[0];
+        int length = buffer.Length; // can the size of the buffer change in this method?
+        string message = buffer.ToString(0, length);
+        buffer.Remove(0, length);
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, message), callbackId);
+    }
+
+    public void readUntil(string args) {
+        string delimiter = JsonHelper.Deserialize<string[]>(args)[0];
+        string callbackId = JsonHelper.Deserialize<string[]>(args)[1]; // TODO inefficient
+
+        int index = buffer.ToString().IndexOf(delimiter);
+        string message = buffer.ToString(0, index + delimiter.Length);
+        buffer.Remove(0, index + delimiter.Length);
+
+        // We need to esure the delimiter is included.
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, message), callbackId);
+    }
+
+    public void clear(string args) {
+        buffer.Clear();
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+    }
+
     // TODO new API, need to add JavaScript
     public void showBluetoothConnectionSettings(string args)
     {
         ConnectionSettingsTask connectionSettingsTask = new ConnectionSettingsTask();
         connectionSettingsTask.ConnectionSettingsType = ConnectionSettingsType.Bluetooth;
         connectionSettingsTask.Show();
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
     [DataContract]
