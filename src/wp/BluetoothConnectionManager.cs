@@ -95,6 +95,7 @@ namespace BluetoothConnectionManager
         /// </summary>
         private async void ReceiveMessages(object sender, DoWorkEventArgs e)
         {
+            Debug.WriteLine("Received Message");
             try
             {
                 while (true)
@@ -117,6 +118,7 @@ namespace BluetoothConnectionManager
                     }
                     // Read the message and process it.
                     string message = dataReader.ReadString(actualMessageLength);
+                    Debug.WriteLine("Message was " + message);
                     MessageReceived(message);
                 }
             }
