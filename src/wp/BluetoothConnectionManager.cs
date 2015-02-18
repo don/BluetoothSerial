@@ -50,6 +50,17 @@ namespace BluetoothConnectionManager
         public event MessageReceivedHandler MessageReceived;
 
         /// <summary>
+        /// Delegate used by event handler.
+        /// </summary>
+        /// <param name="message">The message received.</param>
+        public delegate void ByteReceivedHandler(uint data);
+
+        /// <summary>
+        /// Event fired when a new byte is received from Arduino.
+        /// </summary>
+        public event ByteReceivedHandler ByteReceived;
+
+        /// <summary>
         /// Initialize the manager, should be called in OnNavigatedTo of main page.
         /// </summary>
         public void Initialize()
@@ -108,6 +119,7 @@ namespace BluetoothConnectionManager
                         return;
                     }
 
+                    /*
                     // Read the message. 
                     uint messageLength = dataReader.ReadByte();
                     uint actualMessageLength = await dataReader.LoadAsync(messageLength);
@@ -120,6 +132,11 @@ namespace BluetoothConnectionManager
                     string message = dataReader.ReadString(actualMessageLength);
                     Debug.WriteLine("Message was " + message);
                     MessageReceived(message);
+                    */
+                    uint bite = dataReader.ReadByte();
+                    Debug.WriteLine(bite);
+                    ByteReceived(bite);
+
                 }
             }
             catch (Exception ex)

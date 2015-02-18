@@ -70,6 +70,7 @@ public class BluetoothSerial : BaseCommand
         connectionManager = new ConnectionManager();
         connectionManager.Initialize(); // TODO can't we put this in the constructor?
         connectionManager.MessageReceived += connectionManager_MessageReceived;
+        connectionManager.ByteReceived += connectionManager_ByteReceived;
 
         // TODO handle invalud hostname
         HostName deviceHostName = new HostName(macAddress);
@@ -105,6 +106,55 @@ public class BluetoothSerial : BaseCommand
             var pluginResult = new PluginResult(PluginResult.Status.OK, message);
             pluginResult.KeepCallback = true;
             DispatchCommandResult(pluginResult, subscribeCallbackId);
+        }
+
+    }
+
+    private void connectionManager_ByteReceived(uint data)
+    {
+        Debug.WriteLine(data);
+
+        char dataAsChar = Convert.ToChar(data); 
+        Debug.WriteLine(dataAsChar);
+
+        // ideally we'll send more than one byte at a time
+        // if there's a rawDataCallbackId, send the data right away
+        if (rawDataCallbackId != null)
+        {
+            byte[] messageBytes = new byte[1];
+            messageBytes[0] = (byte)data; // unfortunately WP8 optimized an array of 1 into an int
+            //messageBytes[1] = 0x0;
+ 
+            //DispatchCommandResult(new PluginResult(PluginResult.Status.OK, messageBytes), rawDataCallbackId);
+            PluginResult result = new PluginResult(PluginResult.Status.OK, messageBytes);
+            result.KeepCallback = true;
+            DispatchCommandResult(result, rawDataCallbackId);
+        }
+
+        buffer.Append(dataAsChar);
+
+        if (subscribeCallbackId != null)
+        {
+            sendDataToSubscriber();
+        }
+
+    }
+
+    private void sendDataToSubscriber()
+    {
+        string delimiter = token;
+        int index = buffer.ToString().IndexOf(delimiter);
+        if (index > -1)
+        {
+            string message = buffer.ToString(0, index + delimiter.Length);
+            buffer.Remove(0, index + delimiter.Length);
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK, message);
+            result.KeepCallback = true;
+            DispatchCommandResult(result, subscribeCallbackId);
+            
+            // call again in case the delimiter occurs multiple times
+            sendDataToSubscriber();
         }
 
     }
@@ -146,14 +196,19 @@ public class BluetoothSerial : BaseCommand
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
+    // TODO rename subscribeRawData (across all platforms)
     public void subscribeRaw(string args)
     {
         rawDataCallbackId = JsonHelper.Deserialize<string[]>(args)[0];
 
         // success is called when data arrives 
-        DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT)); // TODO keep callback?
+        //DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT)); // TODO keep callback?
+        //PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+        //result.KeepCallback = true;
+        //DispatchCommandResult(result);
     }
 
+    // TODO rename unsubscribeRawData
     public void unsubscribeRaw(string args)
     {
         rawDataCallbackId = null;
