@@ -12,6 +12,7 @@ using Microsoft.Phone.Tasks;
 using BluetoothConnectionManager;
 using Windows.Networking;
 using System.Text;
+using System.Threading;
 
 public class BluetoothSerial : BaseCommand
 {
@@ -43,7 +44,11 @@ public class BluetoothSerial : BaseCommand
     private string rawDataCallbackId;
     private string subscribeCallbackId;
 
+    // TODO should we use one buffer for everything? OK if delimiter is a char, not if it can be a string
     private StringBuilder buffer = new StringBuilder("This is a test\nThis is fake data\nFin.");
+    private List<byte> byteBuffer = new List<byte>();
+    private Timer timer;
+    private int MIN_RAW_DATA_COUNT = 6;
 
     // no args
     public async void list(string args)
@@ -110,7 +115,27 @@ public class BluetoothSerial : BaseCommand
 
     }
 
-    private void connectionManager_ByteReceived(uint data)
+    private void connectionManager_ByteReceived(byte data)
+    {
+        char dataAsChar = Convert.ToChar(data);
+        buffer.Append(dataAsChar);
+        byteBuffer.Add(data);
+
+        Debug.WriteLine(data + " " + dataAsChar);
+ 
+        if (rawDataCallbackId != null)
+        {
+            MaybeSendRawData();
+        }
+
+        if (subscribeCallbackId != null)
+        {
+            sendDataToSubscriber();
+        }
+
+    }
+
+    private void connectionManager_ByteReceivedDELETEME(uint data)
     {
         Debug.WriteLine(data);
 
@@ -138,6 +163,42 @@ public class BluetoothSerial : BaseCommand
             sendDataToSubscriber();
         }
 
+    }
+
+    // This method is called by the timer delegate. 
+    private void FlushByteBuffer(Object stateInfo) 
+    {
+        SendRawDataToSubscriber();
+    }
+
+    private void SendRawDataToSubscriber()
+    {
+        if (byteBuffer.Count > 0)
+        {
+            // TODO this is still a problem id we send an array of 1, fix in JavaScript
+            PluginResult result = new PluginResult(PluginResult.Status.OK, byteBuffer);
+            result.KeepCallback = true;
+            DispatchCommandResult(result, rawDataCallbackId);
+            byteBuffer.Clear();
+        }
+    }
+
+    // TODO is this even necessary or can we make the timer fast enough?
+    private void MaybeSendRawData() // TODO rename "fill raw data buffer and maybe send to subscribers"
+    {
+        if (byteBuffer.Count >= MIN_RAW_DATA_COUNT)
+        {
+            FlushByteBuffer("");
+        }
+        else if (byteBuffer.Count == 0)
+        {
+            Debug.WriteLine("Empty");
+        }
+        else
+        {
+            Debug.WriteLine("Not enough data");
+            timer.Change(200, Timeout.Infinite);  // reset the timer
+        }
     }
 
     private void sendDataToSubscriber()
@@ -201,6 +262,26 @@ public class BluetoothSerial : BaseCommand
     {
         rawDataCallbackId = JsonHelper.Deserialize<string[]>(args)[0];
 
+
+        //Initialize the timer to not start automatically... 
+        //System.Threading.Timer tmrThreadingTimer = new System.Threading.Timer(new TimerCallback(tmrThreadingTimer_TimerCallback), null, System.Threading.Timeout.Infinite, 1000); 
+        //Manually start the timer... 
+        //tmrThreadingTimer.Change(0, 1000); 
+        //Manually stop the timer... 
+        //tmrThreadingTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+        // TODO create a timer like this http://stackoverflow.com/questions/12796148/working-with-system-threading-timer-in-c-sharp 
+        // and start it ticking when data is added;
+
+        timer = new Timer(new TimerCallback(FlushByteBuffer));
+
+
+        //timer = new Timer(new TimerCallback(FlushByteBuffer), null, Timeout.Infinite, 1000);
+        //timer.Change(0, 1000); // start HUH?
+        //timer = new Timer(FlushByteBuffer);
+        //timer.Elapsed += FlushByteBuffer;
+
+
         // success is called when data arrives 
         //DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT)); // TODO keep callback?
         //PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
@@ -212,7 +293,9 @@ public class BluetoothSerial : BaseCommand
     public void unsubscribeRaw(string args)
     {
         rawDataCallbackId = null;
-
+        // stop the timer
+        //timer.Change(Timeout.Infinite, Timeout.Infinite);
+        timer.Dispose();
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 

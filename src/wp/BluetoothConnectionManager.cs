@@ -53,7 +53,7 @@ namespace BluetoothConnectionManager
         /// Delegate used by event handler.
         /// </summary>
         /// <param name="message">The message received.</param>
-        public delegate void ByteReceivedHandler(uint data);
+        public delegate void ByteReceivedHandler(byte data);
 
         /// <summary>
         /// Event fired when a new byte is received from Arduino.
@@ -135,7 +135,7 @@ namespace BluetoothConnectionManager
                     */
                     uint bite = dataReader.ReadByte();
                     Debug.WriteLine(bite);
-                    ByteReceived(bite);
+                    ByteReceived((byte)bite);
 
                 }
             }
