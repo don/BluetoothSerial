@@ -109,7 +109,10 @@ public class BluetoothSerial : BaseCommand
     public void unsubscribeRaw(string args)
     {
         rawDataCallbackId = null;
-        timer.Dispose();
+        if (timer != null)
+        {
+            timer.Dispose();
+        }
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 

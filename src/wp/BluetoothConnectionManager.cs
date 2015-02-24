@@ -56,7 +56,6 @@ namespace BluetoothConnectionManager
         public event ConnectionSuccessHandler ConnectionSuccess;
         public event ConnectionFailureHandler ConnectionFailure;
 
-        // TODO - move this to the constructor
         /// <summary>
         /// Initialize the manager, should be called in OnNavigatedTo of main page.
         /// </summary>
