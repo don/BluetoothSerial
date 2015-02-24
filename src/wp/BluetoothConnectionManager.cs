@@ -49,6 +49,13 @@ namespace BluetoothConnectionManager
         /// </summary>
         public event ByteReceivedHandler ByteReceived;
 
+        // TODO this event stuff is probably overkill
+        public delegate void ConnectionSuccessHandler();
+        public delegate void ConnectionFailureHandler(string reason);
+
+        public event ConnectionSuccessHandler ConnectionSuccess;
+        public event ConnectionFailureHandler ConnectionFailure;
+
         /// <summary>
         /// Initialize the manager, should be called in OnNavigatedTo of main page.
         /// </summary>
@@ -81,12 +88,24 @@ namespace BluetoothConnectionManager
         /// <param name="deviceHostName">The host device name.</param>
         public async void Connect(HostName deviceHostName)
         {
-            if (socket != null) // TODO is the socket is null, we need to return an error to cordova
+            if (socket != null) 
             {
-                await socket.ConnectAsync(deviceHostName, "1");
-                dataReader = new DataReader(socket.InputStream);
-                dataReadWorker.RunWorkerAsync();
-                dataWriter = new DataWriter(socket.OutputStream);
+                try
+                {
+                    await socket.ConnectAsync(deviceHostName, "1");
+                    dataReader = new DataReader(socket.InputStream);
+                    dataReadWorker.RunWorkerAsync();
+                    dataWriter = new DataWriter(socket.OutputStream);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                    ConnectionFailure(ex.Message);
+                }
+            }
+            else
+            {
+                ConnectionFailure("Socket is null");
             }
         }
 
@@ -95,7 +114,8 @@ namespace BluetoothConnectionManager
         /// </summary>
         private async void ReceiveMessages(object sender, DoWorkEventArgs e)
         {
-            Debug.WriteLine("Received Message");
+            Debug.WriteLine("Received Message Worker");
+            ConnectionSuccess();
             try
             {
                 while (true)
@@ -104,7 +124,8 @@ namespace BluetoothConnectionManager
                     uint sizeFieldCount = await dataReader.LoadAsync(1);
                     if (sizeFieldCount != 1)
                     {
-                        // The underlying socket was closed before we were able to read the whole data. 
+                        // The underlying socket was closed before we were able to read the whole data.
+                        ConnectionFailure("Socket closed");
                         return;
                     }
                     uint bite = dataReader.ReadByte();
@@ -115,6 +136,7 @@ namespace BluetoothConnectionManager
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+                ConnectionFailure(ex.Message);
             }
 
         }

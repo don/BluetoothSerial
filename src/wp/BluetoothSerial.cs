@@ -18,7 +18,7 @@ public class BluetoothSerial : BaseCommand
 {
     private ConnectionManager connectionManager;
     private string token; // normally a char like \n  TODO rename to delimiter
-    private string connectionCallbackId; // TODO 
+    private string connectionCallbackId;  
     private string rawDataCallbackId;
     private string subscribeCallbackId;
 
@@ -42,27 +42,35 @@ public class BluetoothSerial : BaseCommand
             Debug.WriteLine("No paired devices were found.");
         }
 
-        // convert to serializable format
+        // return serializable device info
         var pairedDeviceList = new List<PairedDeviceInfo>(pairedDevices.Select(x => new PairedDeviceInfo(x)));
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK, pairedDeviceList));
     }
 
     public void connect(string args)
     {
-        string macAddress = JsonHelper.Deserialize<string[]>(args)[0];
+        string[] javascriptArgs = JsonHelper.Deserialize<string[]>(args);
+        string macAddress = javascriptArgs[0];
+        connectionCallbackId = javascriptArgs[1];
 
         connectionManager = new ConnectionManager();
         connectionManager.Initialize(); // TODO can't we put this in the constructor?
         connectionManager.ByteReceived += connectionManager_ByteReceived;
 
-        // TODO handle invalud hostname
-        HostName deviceHostName = new HostName(macAddress);
+        connectionManager.ConnectionSuccess += connectionManager_ConnectionSuccess;
+        connectionManager.ConnectionFailure += connectionManager_ConnectionFailure;
 
-        connectionManager.Connect(deviceHostName);
+        try
+        {
+            HostName deviceHostName = new HostName(macAddress);
+            connectionManager.Connect(deviceHostName);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+            connectionManager_ConnectionFailure("Invalid Hostname");
+        }
 
-        // TODO we need a callback here for when the connection really happens, otherwise if connection timeout randomly get error later
-        // TODO keep callback for and handle unexpected disconnection
-        DispatchCommandResult(new PluginResult(PluginResult.Status.OK)); 
     }
 
     private void connectionManager_ByteReceived(byte data)
@@ -85,6 +93,20 @@ public class BluetoothSerial : BaseCommand
 
     }
 
+    private void connectionManager_ConnectionSuccess()
+    {
+        PluginResult result = new PluginResult(PluginResult.Status.OK);
+        result.KeepCallback = true;
+        DispatchCommandResult(result, connectionCallbackId);
+    }
+
+    private void connectionManager_ConnectionFailure(string reason)
+    {
+        PluginResult result = new PluginResult(PluginResult.Status.ERROR, reason);
+        result.KeepCallback = true;
+        DispatchCommandResult(result, connectionCallbackId);
+    }
+    
     // This method is called by the timer delegate. 
     private void FlushByteBuffer(Object stateInfo) 
     {
@@ -95,7 +117,7 @@ public class BluetoothSerial : BaseCommand
     {
         if (byteBuffer.Count > 0)
         {
-            // TODO this is still a problem id we send an array of 1, fix in JavaScript
+            // NOTE an array of 1 gets flattened to an int, we fix in JavaScript 
             PluginResult result = new PluginResult(PluginResult.Status.OK, byteBuffer);
             result.KeepCallback = true;
             DispatchCommandResult(result, rawDataCallbackId);
@@ -176,21 +198,6 @@ public class BluetoothSerial : BaseCommand
     {
         rawDataCallbackId = null;
         timer.Dispose();
-        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
-    }
-
-    public async void write(string args)
-    {
-        // TODO need to handle bytes
-        string encodedMessageBytes = JsonHelper.Deserialize<string[]>(args)[0];
-        byte[] data = Convert.FromBase64String(encodedMessageBytes);
-
-        // Using a string for now until I fix the underlying class
-        var message = Encoding.UTF8.GetString(data, 0, data.Length);
-
-        var result = await connectionManager.SendCommand(message);
-
-        // TODO handle bad cases
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
