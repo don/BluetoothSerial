@@ -194,6 +194,17 @@ public class BluetoothSerial : BaseCommand
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
+    public async void write(string args)
+    {
+        string encodedMessageBytes = JsonHelper.Deserialize<string[]>(args)[0];
+        byte[] data = Convert.FromBase64String(encodedMessageBytes);
+
+        var result = await connectionManager.SendData(data);
+
+        // TODO handle bad cases
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+    }
+
     public void available(string args) {
         string callbackId = JsonHelper.Deserialize<string[]>(args)[0];
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK, buffer.Length), callbackId);
