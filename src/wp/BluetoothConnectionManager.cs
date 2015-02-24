@@ -42,17 +42,6 @@ namespace BluetoothConnectionManager
         /// Delegate used by event handler.
         /// </summary>
         /// <param name="message">The message received.</param>
-        public delegate void MessageReceivedHandler(string message);
-
-        /// <summary>
-        /// Event fired when a new message is received from Arduino.
-        /// </summary>
-        public event MessageReceivedHandler MessageReceived;
-
-        /// <summary>
-        /// Delegate used by event handler.
-        /// </summary>
-        /// <param name="message">The message received.</param>
         public delegate void ByteReceivedHandler(byte data);
 
         /// <summary>
@@ -111,32 +100,16 @@ namespace BluetoothConnectionManager
             {
                 while (true)
                 {
-                    // Read first byte (length of the subsequent message, 255 or less). 
+                    // TODO see if there's a better way to do this
                     uint sizeFieldCount = await dataReader.LoadAsync(1);
                     if (sizeFieldCount != 1)
                     {
                         // The underlying socket was closed before we were able to read the whole data. 
                         return;
                     }
-
-                    /*
-                    // Read the message. 
-                    uint messageLength = dataReader.ReadByte();
-                    uint actualMessageLength = await dataReader.LoadAsync(messageLength);
-                    if (messageLength != actualMessageLength)
-                    {
-                        // The underlying socket was closed before we were able to read the whole data. 
-                        return;
-                    }
-                    // Read the message and process it.
-                    string message = dataReader.ReadString(actualMessageLength);
-                    Debug.WriteLine("Message was " + message);
-                    MessageReceived(message);
-                    */
                     uint bite = dataReader.ReadByte();
                     Debug.WriteLine(bite);
                     ByteReceived((byte)bite);
-
                 }
             }
             catch (Exception ex)
@@ -151,6 +124,7 @@ namespace BluetoothConnectionManager
         /// </summary>
         /// <param name="command">The sent command.</param>
         /// <returns>The number of bytes sent</returns>
+        /*
         public async Task<uint> SendCommand(string command)
         {
             uint sentCommandSize = 0;
@@ -162,6 +136,18 @@ namespace BluetoothConnectionManager
                 await dataWriter.StoreAsync();
             }
             return sentCommandSize;
+        }
+        */
+
+        // TODO return something meaningful or fix the signature
+        public async Task<uint> SendData(byte[] data)
+        {
+            if (dataWriter != null)  // TODO if this is null, notify Cordova
+            {
+                dataWriter.WriteBytes(data);
+                await dataWriter.StoreAsync();
+            }
+            return 42;
         }
     }
 }

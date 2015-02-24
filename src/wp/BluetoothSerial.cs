@@ -16,39 +16,18 @@ using System.Threading;
 
 public class BluetoothSerial : BaseCommand
 {
-
-    /*
-    - (void)connect:(CDVInvokedUrlCommand *)command;
-    - (void)disconnect:(CDVInvokedUrlCommand *)command;
-
-    - (void)subscribe:(CDVInvokedUrlCommand *)command;
-    - (void)unsubscribe:(CDVInvokedUrlCommand *)command;
-    - (void)subscribeRaw:(CDVInvokedUrlCommand *)command;
-    - (void)unsubscribeRaw:(CDVInvokedUrlCommand *)command;
-    - (void)write:(CDVInvokedUrlCommand *)command;
-
-    - (void)list:(CDVInvokedUrlCommand *)command;
-    - (void)isEnabled:(CDVInvokedUrlCommand *)command;
-    - (void)isConnected:(CDVInvokedUrlCommand *)command;
-
-    - (void)available:(CDVInvokedUrlCommand *)command;
-    - (void)read:(CDVInvokedUrlCommand *)command;
-    - (void)readUntil:(CDVInvokedUrlCommand *)command;
-    - (void)clear:(CDVInvokedUrlCommand *)command;
-
-    - (void)readRSSI:(CDVInvokedUrlCommand *)command;
-    */
-
     private ConnectionManager connectionManager;
-    private string token; // normally a char like \n
+    private string token; // normally a char like \n  TODO rename to delimiter
+    private string connectionCallbackId; // TODO 
     private string rawDataCallbackId;
     private string subscribeCallbackId;
 
-    // TODO should we use one buffer for everything? OK if delimiter is a char, not if it can be a string
-    private StringBuilder buffer = new StringBuilder("This is a test\nThis is fake data\nFin.");
+    // TODO maybe use one buffer if delimiter is a char and not a string
+    private StringBuilder buffer = new StringBuilder("");
     private List<byte> byteBuffer = new List<byte>();
     private Timer timer;
-    private int MIN_RAW_DATA_COUNT = 6;
+    private int MIN_RAW_DATA_COUNT = 6; // queue data until it reaches this count
+    private int RAW_DATA_FLUSH_TIMER_MILLIS = 200;
 
     // no args
     public async void list(string args)
@@ -74,7 +53,6 @@ public class BluetoothSerial : BaseCommand
 
         connectionManager = new ConnectionManager();
         connectionManager.Initialize(); // TODO can't we put this in the constructor?
-        connectionManager.MessageReceived += connectionManager_MessageReceived;
         connectionManager.ByteReceived += connectionManager_ByteReceived;
 
         // TODO handle invalud hostname
@@ -85,34 +63,6 @@ public class BluetoothSerial : BaseCommand
         // TODO we need a callback here for when the connection really happens, otherwise if connection timeout randomly get error later
         // TODO keep callback for and handle unexpected disconnection
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK)); 
-    }
-
-    // TODO this needs to change and give us RAW data
-    private void connectionManager_MessageReceived(string message)
-    {
-        Debug.WriteLine(message);
-
-        // store the data in the buffer as a string
-
-        // if there's a rawDataCallbackId, send the data right away
-        if (rawDataCallbackId != null)
-        {
-            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-            DispatchCommandResult(new PluginResult(PluginResult.Status.OK, messageBytes), rawDataCallbackId);
-        }
-  
-        // TODO see other implementations
-        if (subscribeCallbackId != null)
-        {
-            // TODO really only send to the delimiter
-            // TODO need to handle the case with multiple delimiters
-            //DispatchCommandResult(new PluginResult(PluginResult.Status.OK, message), subscribeCallbackId);
-
-            var pluginResult = new PluginResult(PluginResult.Status.OK, message);
-            pluginResult.KeepCallback = true;
-            DispatchCommandResult(pluginResult, subscribeCallbackId);
-        }
-
     }
 
     private void connectionManager_ByteReceived(byte data)
@@ -127,36 +77,6 @@ public class BluetoothSerial : BaseCommand
         {
             MaybeSendRawData();
         }
-
-        if (subscribeCallbackId != null)
-        {
-            sendDataToSubscriber();
-        }
-
-    }
-
-    private void connectionManager_ByteReceivedDELETEME(uint data)
-    {
-        Debug.WriteLine(data);
-
-        char dataAsChar = Convert.ToChar(data); 
-        Debug.WriteLine(dataAsChar);
-
-        // ideally we'll send more than one byte at a time
-        // if there's a rawDataCallbackId, send the data right away
-        if (rawDataCallbackId != null)
-        {
-            byte[] messageBytes = new byte[1];
-            messageBytes[0] = (byte)data; // unfortunately WP8 optimized an array of 1 into an int
-            //messageBytes[1] = 0x0;
- 
-            //DispatchCommandResult(new PluginResult(PluginResult.Status.OK, messageBytes), rawDataCallbackId);
-            PluginResult result = new PluginResult(PluginResult.Status.OK, messageBytes);
-            result.KeepCallback = true;
-            DispatchCommandResult(result, rawDataCallbackId);
-        }
-
-        buffer.Append(dataAsChar);
 
         if (subscribeCallbackId != null)
         {
@@ -183,12 +103,11 @@ public class BluetoothSerial : BaseCommand
         }
     }
 
-    // TODO is this even necessary or can we make the timer fast enough?
     private void MaybeSendRawData() // TODO rename "fill raw data buffer and maybe send to subscribers"
     {
         if (byteBuffer.Count >= MIN_RAW_DATA_COUNT)
         {
-            FlushByteBuffer("");
+            SendRawDataToSubscriber();
         }
         else if (byteBuffer.Count == 0)
         {
@@ -197,7 +116,7 @@ public class BluetoothSerial : BaseCommand
         else
         {
             Debug.WriteLine("Not enough data");
-            timer.Change(200, Timeout.Infinite);  // reset the timer
+            timer.Change(RAW_DATA_FLUSH_TIMER_MILLIS, Timeout.Infinite);  // reset the timer
         }
     }
 
@@ -235,18 +154,6 @@ public class BluetoothSerial : BaseCommand
         var arguments = JsonHelper.Deserialize<string[]>(args);
         token = arguments[0];
         subscribeCallbackId = arguments[1];
-
-        // success is called when data arrives 
-        // BOGUS TESTING
-        //DispatchCommandResult(new PluginResult(PluginResult.Status.OK, "remove this"));
-        //DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT));
-
-        /*
-        TODO is this required? I hope not.
-        var pr = new PluginResult(PluginResult.Status.NO_RESULT);
-        pr.KeepCallback = true;
-        DispatchCommandResult(pr);
-         */ 
     }
 
     public void unsubscribe(string args)
@@ -261,40 +168,13 @@ public class BluetoothSerial : BaseCommand
     public void subscribeRaw(string args)
     {
         rawDataCallbackId = JsonHelper.Deserialize<string[]>(args)[0];
-
-
-        //Initialize the timer to not start automatically... 
-        //System.Threading.Timer tmrThreadingTimer = new System.Threading.Timer(new TimerCallback(tmrThreadingTimer_TimerCallback), null, System.Threading.Timeout.Infinite, 1000); 
-        //Manually start the timer... 
-        //tmrThreadingTimer.Change(0, 1000); 
-        //Manually stop the timer... 
-        //tmrThreadingTimer.Change(Timeout.Infinite, Timeout.Infinite);
-
-        // TODO create a timer like this http://stackoverflow.com/questions/12796148/working-with-system-threading-timer-in-c-sharp 
-        // and start it ticking when data is added;
-
         timer = new Timer(new TimerCallback(FlushByteBuffer));
-
-
-        //timer = new Timer(new TimerCallback(FlushByteBuffer), null, Timeout.Infinite, 1000);
-        //timer.Change(0, 1000); // start HUH?
-        //timer = new Timer(FlushByteBuffer);
-        //timer.Elapsed += FlushByteBuffer;
-
-
-        // success is called when data arrives 
-        //DispatchCommandResult(new PluginResult(PluginResult.Status.NO_RESULT)); // TODO keep callback?
-        //PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-        //result.KeepCallback = true;
-        //DispatchCommandResult(result);
     }
 
     // TODO rename unsubscribeRawData
     public void unsubscribeRaw(string args)
     {
         rawDataCallbackId = null;
-        // stop the timer
-        //timer.Change(Timeout.Infinite, Timeout.Infinite);
         timer.Dispose();
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
