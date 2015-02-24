@@ -56,6 +56,7 @@ namespace BluetoothConnectionManager
         public event ConnectionSuccessHandler ConnectionSuccess;
         public event ConnectionFailureHandler ConnectionFailure;
 
+        // TODO - move this to the constructor
         /// <summary>
         /// Initialize the manager, should be called in OnNavigatedTo of main page.
         /// </summary>
@@ -141,36 +142,19 @@ namespace BluetoothConnectionManager
 
         }
 
-        /// <summary>
-        /// Send command to the Arduino through bluetooth.
-        /// </summary>
-        /// <param name="command">The sent command.</param>
-        /// <returns>The number of bytes sent</returns>
-        /*
-        public async Task<uint> SendCommand(string command)
+        public async Task<bool> WriteData(byte[] data)
         {
-            uint sentCommandSize = 0;
             if (dataWriter != null)
-            {
-                uint commandSize = dataWriter.MeasureString(command);
-                dataWriter.WriteByte((byte)commandSize);
-                sentCommandSize = dataWriter.WriteString(command);
-                await dataWriter.StoreAsync();
-            }
-            return sentCommandSize;
-        }
-        */
-
-        // TODO return something meaningful or fix the signature
-        public async Task<uint> SendData(byte[] data)
-        {
-            if (dataWriter != null)  // TODO if this is null, notify Cordova
             {
                 dataWriter.WriteBytes(data);
                 await dataWriter.StoreAsync();
+                return true;
             }
-            return 42;
+            else
+            {
+                return false;
+            }
         }
-    }
+
 }
 

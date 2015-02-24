@@ -76,6 +76,7 @@ public class BluetoothSerial : BaseCommand
     {
         if (connectionManager != null)
         {
+            connectionCallbackId = null;
             connectionManager.Terminate();
         }
         
@@ -114,13 +115,21 @@ public class BluetoothSerial : BaseCommand
 
     public async void write(string args)
     {
-        string encodedMessageBytes = JsonHelper.Deserialize<string[]>(args)[0];
+        string[] javascriptArgs = JsonHelper.Deserialize<string[]>(args);
+        string encodedMessageBytes = javascriptArgs[0];
+        string writeCallbackId = javascriptArgs[1];
+
         byte[] data = Convert.FromBase64String(encodedMessageBytes);
+        var success = await connectionManager.WriteData(data);
 
-        var result = await connectionManager.SendData(data);
-
-        // TODO handle bad cases
-        DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+        if (success)
+        {
+            DispatchCommandResult(new PluginResult(PluginResult.Status.OK), writeCallbackId);
+        }
+        else
+        {
+            DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR), writeCallbackId);
+        }
     }
 
     public void available(string args) {
@@ -161,16 +170,22 @@ public class BluetoothSerial : BaseCommand
 
     private void connectionManager_ConnectionSuccess()
     {
-        PluginResult result = new PluginResult(PluginResult.Status.OK);
-        result.KeepCallback = true;
-        DispatchCommandResult(result, connectionCallbackId);
+        if (connectionCallbackId != null)
+        {
+            PluginResult result = new PluginResult(PluginResult.Status.OK);
+            result.KeepCallback = true;
+            DispatchCommandResult(result, connectionCallbackId);
+        }
     }
 
     private void connectionManager_ConnectionFailure(string reason)
     {
-        PluginResult result = new PluginResult(PluginResult.Status.ERROR, reason);
-        result.KeepCallback = true;
-        DispatchCommandResult(result, connectionCallbackId);
+        if (connectionCallbackId != null)
+        {
+            PluginResult result = new PluginResult(PluginResult.Status.ERROR, reason);
+            result.KeepCallback = true;
+            DispatchCommandResult(result, connectionCallbackId);
+        }
     }
 
     private void connectionManager_ByteReceived(byte data)
