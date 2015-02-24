@@ -29,7 +29,6 @@ public class BluetoothSerial : BaseCommand
     private int MIN_RAW_DATA_COUNT = 6; // queue data until it reaches this count
     private int RAW_DATA_FLUSH_TIMER_MILLIS = 200;
 
-    // no args
     public async void list(string args)
     {
         Debug.WriteLine("Listing Paired Bluetooth Devices");
@@ -69,94 +68,6 @@ public class BluetoothSerial : BaseCommand
         {
             Debug.WriteLine(ex);
             connectionManager_ConnectionFailure("Invalid Hostname");
-        }
-
-    }
-
-    private void connectionManager_ByteReceived(byte data)
-    {
-        char dataAsChar = Convert.ToChar(data);
-        buffer.Append(dataAsChar);
-        byteBuffer.Add(data);
-
-        Debug.WriteLine(data + " " + dataAsChar);
- 
-        if (rawDataCallbackId != null)
-        {
-            MaybeSendRawData();
-        }
-
-        if (subscribeCallbackId != null)
-        {
-            sendDataToSubscriber();
-        }
-
-    }
-
-    private void connectionManager_ConnectionSuccess()
-    {
-        PluginResult result = new PluginResult(PluginResult.Status.OK);
-        result.KeepCallback = true;
-        DispatchCommandResult(result, connectionCallbackId);
-    }
-
-    private void connectionManager_ConnectionFailure(string reason)
-    {
-        PluginResult result = new PluginResult(PluginResult.Status.ERROR, reason);
-        result.KeepCallback = true;
-        DispatchCommandResult(result, connectionCallbackId);
-    }
-    
-    // This method is called by the timer delegate. 
-    private void FlushByteBuffer(Object stateInfo) 
-    {
-        SendRawDataToSubscriber();
-    }
-
-    private void SendRawDataToSubscriber()
-    {
-        if (byteBuffer.Count > 0)
-        {
-            // NOTE an array of 1 gets flattened to an int, we fix in JavaScript 
-            PluginResult result = new PluginResult(PluginResult.Status.OK, byteBuffer);
-            result.KeepCallback = true;
-            DispatchCommandResult(result, rawDataCallbackId);
-            byteBuffer.Clear();
-        }
-    }
-
-    private void MaybeSendRawData() // TODO rename "fill raw data buffer and maybe send to subscribers"
-    {
-        if (byteBuffer.Count >= MIN_RAW_DATA_COUNT)
-        {
-            SendRawDataToSubscriber();
-        }
-        else if (byteBuffer.Count == 0)
-        {
-            Debug.WriteLine("Empty");
-        }
-        else
-        {
-            Debug.WriteLine("Not enough data");
-            timer.Change(RAW_DATA_FLUSH_TIMER_MILLIS, Timeout.Infinite);  // reset the timer
-        }
-    }
-
-    private void sendDataToSubscriber()
-    {
-        string delimiter = token;
-        int index = buffer.ToString().IndexOf(delimiter);
-        if (index > -1)
-        {
-            string message = buffer.ToString(0, index + delimiter.Length);
-            buffer.Remove(0, index + delimiter.Length);
-
-            PluginResult result = new PluginResult(PluginResult.Status.OK, message);
-            result.KeepCallback = true;
-            DispatchCommandResult(result, subscribeCallbackId);
-            
-            // call again in case the delimiter occurs multiple times
-            sendDataToSubscriber();
         }
 
     }
@@ -246,6 +157,94 @@ public class BluetoothSerial : BaseCommand
         connectionSettingsTask.ConnectionSettingsType = ConnectionSettingsType.Bluetooth;
         connectionSettingsTask.Show();
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+    }
+
+    private void connectionManager_ConnectionSuccess()
+    {
+        PluginResult result = new PluginResult(PluginResult.Status.OK);
+        result.KeepCallback = true;
+        DispatchCommandResult(result, connectionCallbackId);
+    }
+
+    private void connectionManager_ConnectionFailure(string reason)
+    {
+        PluginResult result = new PluginResult(PluginResult.Status.ERROR, reason);
+        result.KeepCallback = true;
+        DispatchCommandResult(result, connectionCallbackId);
+    }
+
+    private void connectionManager_ByteReceived(byte data)
+    {
+        char dataAsChar = Convert.ToChar(data);
+        buffer.Append(dataAsChar);
+        byteBuffer.Add(data);
+
+        Debug.WriteLine(data + " " + dataAsChar);
+
+        if (rawDataCallbackId != null)
+        {
+            MaybeSendRawData();
+        }
+
+        if (subscribeCallbackId != null)
+        {
+            sendDataToSubscriber();
+        }
+
+    }
+
+    // This method is called by the timer delegate. 
+    private void FlushByteBuffer(Object stateInfo)
+    {
+        SendRawDataToSubscriber();
+    }
+
+    private void SendRawDataToSubscriber()
+    {
+        if (byteBuffer.Count > 0)
+        {
+            // NOTE an array of 1 gets flattened to an int, we fix in JavaScript 
+            PluginResult result = new PluginResult(PluginResult.Status.OK, byteBuffer);
+            result.KeepCallback = true;
+            DispatchCommandResult(result, rawDataCallbackId);
+            byteBuffer.Clear();
+        }
+    }
+
+    private void MaybeSendRawData() // TODO rename "fill raw data buffer and maybe send to subscribers"
+    {
+        if (byteBuffer.Count >= MIN_RAW_DATA_COUNT)
+        {
+            SendRawDataToSubscriber();
+        }
+        else if (byteBuffer.Count == 0)
+        {
+            Debug.WriteLine("Empty");
+        }
+        else
+        {
+            Debug.WriteLine("Not enough data");
+            timer.Change(RAW_DATA_FLUSH_TIMER_MILLIS, Timeout.Infinite);  // reset the timer
+        }
+    }
+
+    private void sendDataToSubscriber()
+    {
+        string delimiter = token;
+        int index = buffer.ToString().IndexOf(delimiter);
+        if (index > -1)
+        {
+            string message = buffer.ToString(0, index + delimiter.Length);
+            buffer.Remove(0, index + delimiter.Length);
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK, message);
+            result.KeepCallback = true;
+            DispatchCommandResult(result, subscribeCallbackId);
+
+            // call again in case the delimiter occurs multiple times
+            sendDataToSubscriber();
+        }
+
     }
 
     [DataContract]
