@@ -1,4 +1,2 @@
-platforms/ios/www
-platforms/ios/Chat/Plugins
-platforms/ios/build
-platforms/ios/CordovaLib/build
+plugins
+platforms
