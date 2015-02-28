@@ -2,12 +2,13 @@
 
 This plugin enables serial communication over Bluetooth. It was written for communicating between Android or iOS and an Arduino.
 
-Android uses Classic Bluetooth.  iOS uses Bluetooth Low Energy.
+Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
 ## Supported Platforms
 
 * Android
 * iOS with [RedBearLab](http://redbearlab.com) BLE hardware, [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697), [Laird BL600](http://www.lairdtech.com/Products/Embedded-Wireless-Solutions/Bluetooth-Radio-Modules/BL600-Series/#.VBI7AS5dUzI), or [BlueGiga](https://bluegiga.zendesk.com/entries/29185293--BGScript-spp-over-ble-AT-command-SPP-implementation-for-BLE)
+* Windows Phone 8
 
 [Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
 
@@ -62,10 +63,14 @@ Connect to a Bluetooth device.
 Function `connect` connects to a Bluetooth device.  The callback is long running.  Success will be called when the connection is successful.  Failure is called if the connection fails, or later if the connection disconnects. An error message is passed to the failure callback.
 
 #### Android
-For Android, `connect` takes a macAddress of the remote device.  
+For Android, `connect` takes a MAC address of the remote device.  
 
 #### iOS
 For iOS, `connect` takes the UUID of the remote device.  Optionally, you can pass an **empty string** and the plugin will connect to the first BLE peripheral.
+
+#### Windows Phone
+For Windows Phone, `connect` takes a MAC address of the remote device. The MAC address can optionally surrounded with parenthesis. e.g. `(AA:BB:CC:DD:EE:FF)`  
+
 
 ### Parameters
 
@@ -88,6 +93,9 @@ For Android, `connectInsecure` takes a macAddress of the remote device.
 
 #### iOS
 `connectInsecure` is **not supported** on iOS.
+
+#### Windows Phone
+`connectInsecure` is **not supported** on Windows Phone.
 
 ### Parameters
 
@@ -352,6 +360,22 @@ Example list passed to success callback for iOS.
 
 The advertised RSSI **may** be included if available.
 
+#### Windows Phone
+
+Function `list` lists the paired Bluetooth devices.  The success callback is called with a list of objects.
+
+Example list passed to success callback for Windows Phone.
+
+    [{
+        "id": "(10:BF:48:CB:00:00)",
+        "name": "Nexus 7"
+    }, {
+        "id": "(00:06:66:4D:00:00)",
+        "name": "RN42"
+    }]
+
+### Note
+
 `id` is the generic name for `uuid` or [mac]`address` so that code can be platform independent.
 
 ### Parameters
@@ -451,13 +475,13 @@ Function `readRSSI` calls the success callback with the rssi.
 
 ### Android
 
-Current development is done with Cordova 3.4 on Android 4.x. Theoretically this code runs on PhoneGap 2.9 and greater.  It should support Android-10 (2.3.2) and greater, but I only test with Android 4.x.
+Current development is done with Cordova 4.2 on Android 5. Theoretically this code runs on PhoneGap 2.9 and greater.  It should support Android-10 (2.3.2) and greater, but I only test with Android 4.x+.
 
 Development Devices include
- * Nexus 5 with Android 4.4
+ * Nexus 5 with Android 5
  * Samsung Galaxy Tab 10.1 (GT-P7510) with Android 4.0.4 (see [Issue #8](https://github.com/don/BluetoothSerial/issues/8))
  * Google Nexus S with Android 4.1.2
- * Nexus 4 with Android 4.2.2
+ * Nexus 4 with Android 5
  * Samsung Galaxy S4 with Android 4.3
 
 On the Arduino side I test with [Sparkfun Mate Silver](https://www.sparkfun.com/products/10393) and the [Seeed Studio Bluetooth Shield](http://www.seeedstudio.com/depot/bluetooth-shield-p-866.html?cPath=19_21). The code should be generic and work with most hardware.
@@ -466,15 +490,15 @@ I highly recommend [Adafruit's Bluefruit EZ-Link](http://www.adafruit.com/produc
 
 ### iOS
 
-**NOTE: Currently iOS only works with RedBear Labs Hardware and Adafruit Bluefruit LE**
+**NOTE: Currently iOS only works with RedBear Labs Hardware, Adafruit Bluefruit LE, Laird BL600, and BlueGiga**
 
-This plugin is developed with Cordova 3.4 using iOS 7.x on an iPhone 5s connecting to a [RedBearLab BLEMini](http://redbearlab.com/blemini).
+This plugin was originally developed with Cordova 3.4 using iOS 7.x on an iPhone 5s connecting to a [RedBearLab BLEMini](http://redbearlab.com/blemini). Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_20130313.bin](https://github.com/RedBearLab/Biscuit/tree/master/release).
 
-Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_20130313.bin](https://github.com/RedBearLab/Biscuit/tree/master/release).
+Most development is now done with iOS 8 with Cordova 4.2 using [RedBear Lab BLE Shield](http://redbearlab.com/bleshield/) or [Adafruit Bluefruit LE Friend](https://www.adafruit.com/product/2267).
 
 ### Supporting other BLE hardware
 
-For Bluetooth Low Energy, this plugin supports the RedBear Labs hardware by default, but can support any Bluetooth Low Energy hardware with a "serial like" service. This means a transmit characteristic that is writable and a receive characteristic that supports notification.
+For Bluetooth Low Energy, this plugin supports some hardware running known UART-like services, but can support any Bluetooth Low Energy hardware with a "serial like" service. This means a transmit characteristic that is writable and a receive characteristic that supports notification.
 
 Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your service.
 
