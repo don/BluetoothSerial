@@ -154,6 +154,6 @@ namespace BluetoothConnectionManager
                 return false;
             }
         }
-
+    }
 }
 
