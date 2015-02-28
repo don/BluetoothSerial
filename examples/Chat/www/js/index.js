@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* global mainPage, deviceList, refreshButton */
+/* global mainPage, deviceList, refreshButton, statusDiv */
 /* global detailPage, resultDiv, messageInput, sendButton, disconnectButton */
 /* global cordova, bluetoothSerial  */
 /* jshint browser: true , devel: true*/
@@ -21,14 +21,19 @@
 var app = {
     initialize: function() {
         this.bindEvents();
-        detailPage.hidden = true;
+        this.showMainPage();
     },
     bindEvents: function() {
+
+        var TOUCH_START = 'touchstart';
+        if (window.navigator.msPointerEnabled) { // windows phone
+            TOUCH_START = 'MSPointerDown';
+        }
         document.addEventListener('deviceready', this.onDeviceReady, false);
-        refreshButton.addEventListener('touchstart', this.refreshDeviceList, false);
-        sendButton.addEventListener('click', this.sendData, false);
-        disconnectButton.addEventListener('touchstart', this.disconnect, false);
-        deviceList.addEventListener('touchstart', this.connect, false); // assume not scrolling
+        refreshButton.addEventListener(TOUCH_START, this.refreshDeviceList, false);
+        sendButton.addEventListener(TOUCH_START, this.sendData, false);
+        disconnectButton.addEventListener(TOUCH_START, this.disconnect, false);
+        deviceList.addEventListener('touch_start', this.connect, false);
     },
     onDeviceReady: function() {
         app.refreshDeviceList();
@@ -48,8 +53,19 @@ var app = {
             var listItem = document.createElement('li'),
                 html = '<b>' + device.name + '</b><br/>' + device.id;
 
-            listItem.dataset.deviceId = device.id;
             listItem.innerHTML = html;
+
+            if (cordova.platformId === 'windowsphone') {
+              // This is a temporary hack until I get the list tap working
+              var button = document.createElement('button');
+              button.innerHTML = "Connect";
+              button.addEventListener('click', app.connect, false);
+              button.dataset = {};
+              button.dataset.deviceId = device.id;
+              listItem.appendChild(button);
+            } else {
+              listItem.dataset.deviceId = device.id;
+            }
             deviceList.appendChild(listItem);
         });
 
@@ -71,8 +87,7 @@ var app = {
 
     },
     connect: function(e) {
-        var deviceId = e.target.dataset.deviceId,
-            onConnect = function() {
+        var onConnect = function() {
                 // subscribe for incoming data
                 bluetoothSerial.subscribe('\n', app.onData, app.onError);
 
@@ -81,8 +96,9 @@ var app = {
                 app.showDetailPage();
             };
 
+        var deviceId = e.target.dataset.deviceId;
         if (!deviceId) { // try the parent
-            deviceId = e.target.parentNode.dataset.deviceId
+            deviceId = e.target.parentNode.dataset.deviceId;
         }
 
         bluetoothSerial.connect(deviceId, onConnect, app.onError);
@@ -111,12 +127,12 @@ var app = {
         bluetoothSerial.disconnect(app.showMainPage, app.onError);
     },
     showMainPage: function() {
-        mainPage.hidden = false;
-        detailPage.hidden = true;
+        mainPage.style.display = "";
+        detailPage.style.display = "none";
     },
     showDetailPage: function() {
-        mainPage.hidden = true;
-        detailPage.hidden = false;
+        mainPage.style.display = "none";
+        detailPage.style.display = "";
     },
     setStatus: function(message) {
         console.log(message);
