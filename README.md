@@ -490,7 +490,7 @@ I highly recommend [Adafruit's Bluefruit EZ-Link](http://www.adafruit.com/produc
 
 ### iOS
 
-**NOTE: Currently iOS only works with RedBear Labs Hardware, Adafruit Bluefruit LE, Laird BL600, and BlueGiga**
+**NOTE: Currently iOS only works with RedBear Labs Hardware, Adafruit Bluefruit LE, Laird BL600, and BlueGiga UART services**
 
 This plugin was originally developed with Cordova 3.4 using iOS 7.x on an iPhone 5s connecting to a [RedBearLab BLEMini](http://redbearlab.com/blemini). Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_20130313.bin](https://github.com/RedBearLab/Biscuit/tree/master/release).
 
