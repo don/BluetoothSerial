@@ -1,13 +1,15 @@
 package com.megster.cordova;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 // kludgy imports to support 2.9 and 3.0 due to package changes
 import org.apache.cordova.*;
-import org.apache.cordova.api.*;
 // import org.apache.cordova.CordovaArgs;
 // import org.apache.cordova.CordovaPlugin;
 // import org.apache.cordova.CallbackContext;
@@ -40,11 +42,14 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String IS_ENABLED = "isEnabled";
     private static final String IS_CONNECTED = "isConnected";
     private static final String CLEAR = "clear";
+    private static final String SETTINGS = "showBluetoothSettings";
+    private static final String ENABLE = "enable";
 
     // callbacks
     private CallbackContext connectCallback;
     private CallbackContext dataAvailableCallback;
     private CallbackContext rawDataAvailableCallback;
+    private CallbackContext enableBluetoothCallback;
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothSerialService bluetoothSerialService;
@@ -67,6 +72,7 @@ public class BluetoothSerial extends CordovaPlugin {
 
     StringBuffer buffer = new StringBuffer();
     private String delimiter;
+    private static final int REQUEST_ENABLE_BLUETOOTH = 1;
 
     @Override
     public boolean execute(String action, CordovaArgs args, CallbackContext callbackContext) throws JSONException {
@@ -96,7 +102,7 @@ public class BluetoothSerial extends CordovaPlugin {
 
             // see Android docs about Insecure RFCOMM http://goo.gl/1mFjZY
             boolean secure = false;
-            connect(args, false, callbackContext);
+            connect(args, secure, callbackContext);
 
         } else if (action.equals(DISCONNECT)) {
 
@@ -174,13 +180,45 @@ public class BluetoothSerial extends CordovaPlugin {
             buffer.setLength(0);
             callbackContext.success();
 
-        } else {
+        } else if (action.equals(SETTINGS)) {
 
+            Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+            cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+
+        } else if (action.equals(ENABLE)) {
+
+            enableBluetoothCallback = callbackContext;
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            cordova.startActivityForResult(this, intent, REQUEST_ENABLE_BLUETOOTH);
+
+        } else {
             validAction = false;
 
         }
 
         return validAction;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
+
+            if (resultCode == Activity.RESULT_OK) {
+                Log.d(TAG, "User enabled Bluetooth");
+                if (enableBluetoothCallback != null) {
+                    enableBluetoothCallback.success();
+                }
+            } else {
+                Log.d(TAG, "User did *NOT* enable Bluetooth");
+                if (enableBluetoothCallback != null) {
+                    enableBluetoothCallback.error("User did not enable Bluetooth");
+                }
+            }
+            
+            enableBluetoothCallback = null;
+        }
     }
 
     @Override

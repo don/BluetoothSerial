@@ -98,6 +98,14 @@ module.exports = {
     // reads the RSSI of the *connected* peripherial
     readRSSI: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "readRSSI", []);
+    },
+
+    showBluetoothSettings: function (success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "showBluetoothSettings", []);
+    },
+
+    enable: function (success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "enable", []);
     }
 
 };
