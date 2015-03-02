@@ -52,6 +52,10 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.isConnected](#isconnected)
 - [bluetoothSerial.readRSSI](#readrssi)
 
+- [bluetoothSerial.showBluetoothSettings](#showbluetoothsettings)
+- [bluetoothSerial.enable](#enable)
+- [bluetoothSerial.discoverUnpaired](#discoverunpaired)
+
 ## connect
 
 Connect to a Bluetooth device.
@@ -468,6 +472,109 @@ Function `readRSSI` calls the success callback with the rssi.
         }
     );
 
+## showBluetoothSettings
+
+Show the Bluetooth settings on the device.
+
+    bluetoothSerial.showBluetoothSettings(success, failure);
+
+### Description
+
+Function `showBluetoothSettings` opens the Bluetooth settings on the operating systems.
+
+#### iOS
+
+`showBluetoothSettings` is not supported on iOS.
+
+### Parameters
+
+- __success__: Success callback function [optional]
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    bluetoothSerial.showBluetoothSettings();
+
+## enable
+
+Enable Bluetooth on the device.
+
+    bluetoothSerial.enable(success, failure);
+
+### Description
+
+Function `enable` prompts the user to enable Bluetooth.
+
+#### Android
+
+`enable` is only supported on Android and does not work on iOS or Windows Phone.
+
+If `enable` is called when Bluetooth is already enabled, the user will not prompted and the success callback will be invoked.
+
+### Parameters
+
+- __success__: Success callback function, invoked if the user enabled Bluetooth.
+- __failure__: Error callback function, invoked if the user does not enabled Bluetooth.
+
+### Quick Example
+
+    bluetoothSerial.enable(
+        function() {
+            console.log("Bluetooth is enabled");
+        },
+        function() {
+            console.log("The user did *not* enable Bluetooth");
+        }
+    );
+
+## discoverUnpaired
+
+Discover unpaired devices
+
+    bluetoothSerial.discoverUnpaired(success, failure);
+
+### Description
+
+#### Android
+
+Function `discoverUnpaired` discovers unpaired Bluetooth devices. The success callback is called with a list of objects similar to `list`, or an empty list if no unpaired devices are found.
+
+Example list passed to success callback.  
+
+    [{
+        "class": 276,
+        "id": "10:BF:48:CB:00:00",
+        "address": "10:BF:48:CB:00:00",
+        "name": "Nexus 7"
+    }, {
+        "class": 7936,
+        "id": "00:06:66:4D:00:00",
+        "address": "00:06:66:4D:00:00",
+        "name": "RN42"
+    }]
+
+Calling `connect` on an unpaired Bluetooth device should begin the Android pairing process.
+
+#### iOS
+
+`discoverUnpaired` is not supported on iOS. iOS uses Bluetooth Low Energy and `list` discovers devices without pairing.
+
+#### Windows Phone
+
+`discoverUnpaired` is not supported on Windows Phone.
+
+### Parameters
+
+- __success__: Success callback function that is invoked with a list of unpaired devices.
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    bluetoothSerial.discoverUnpaired(function(devices) {
+        devices.forEach(function(device) {
+            console.log(device.id);
+        })
+    }, failure);
 
 # Misc
 
