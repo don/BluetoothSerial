@@ -51,7 +51,6 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.isEnabled](#isenabled)
 - [bluetoothSerial.isConnected](#isconnected)
 - [bluetoothSerial.readRSSI](#readrssi)
-
 - [bluetoothSerial.showBluetoothSettings](#showbluetoothsettings)
 - [bluetoothSerial.enable](#enable)
 - [bluetoothSerial.discoverUnpaired](#discoverunpaired)
@@ -552,6 +551,8 @@ Example list passed to success callback.
         "address": "00:06:66:4D:00:00",
         "name": "RN42"
     }]
+
+The discovery process takes a while to happen. You may want to show a progress indicator while waiting for the sucess callback to be invoked. 
 
 Calling `connect` on an unpaired Bluetooth device should begin the Android pairing process.
 
