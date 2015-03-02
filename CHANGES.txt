@@ -1,3 +1,11 @@
+= 0.4.1 =
+New APIs
+* showBluetoothSettings (Android & WP)
+* enable (Android only)
+* discoverUnpaired (Android only)
+
+Implement isConnected and isEnabled for WP
+
 = 0.4.0 =
 Add Windows Phone 8 #63
 
