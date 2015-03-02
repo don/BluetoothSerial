@@ -51,7 +51,6 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.isEnabled](#isenabled)
 - [bluetoothSerial.isConnected](#isconnected)
 - [bluetoothSerial.readRSSI](#readrssi)
-
 - [bluetoothSerial.showBluetoothSettings](#showbluetoothsettings)
 - [bluetoothSerial.enable](#enable)
 - [bluetoothSerial.discoverUnpaired](#discoverunpaired)
