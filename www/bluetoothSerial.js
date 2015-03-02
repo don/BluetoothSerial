@@ -106,6 +106,10 @@ module.exports = {
 
     enable: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "enable", []);
+    },
+
+    discoverUnpaired: function (success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "discoverUnpaired", []);        
     }
 
 };

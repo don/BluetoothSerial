@@ -198,7 +198,7 @@ public class BluetoothSerial extends CordovaPlugin {
 
         } else if (action.equals(DISCOVER_UNPAIRED)) {
 
-            listOnReach(callbackContext);
+            discoverUnpairedDevices(callbackContext);
 
         } else {
             validAction = false;
@@ -247,6 +247,35 @@ public class BluetoothSerial extends CordovaPlugin {
         callbackContext.success(deviceList);
     }
 
+    private void discoverUnpairedDevices(final CallbackContext callbackContext) throws JSONException {
+
+        final BroadcastReceiver discoverReceiver = new BroadcastReceiver() {
+
+            private JSONArray unpairedDevices = new JSONArray();
+
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    try {
+                        unpairedDevices.put(deviceToJSON(device));
+                    } catch (JSONException e) {
+                        // This shouldn't happen, log and ignore
+                        Log.e(TAG, "Problem converting device to JSON", e);
+                    }
+                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                    callbackContext.success(unpairedDevices);
+                    cordova.getActivity().unregisterReceiver(this);
+                }
+            }
+        };
+
+        Activity activity = cordova.getActivity();
+        activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+        activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+        bluetoothAdapter.startDiscovery();
+    }
+
     private JSONObject deviceToJSON(BluetoothDevice device) throws JSONException {
         JSONObject json = new JSONObject();
         json.put("name", device.getName());
@@ -256,33 +285,6 @@ public class BluetoothSerial extends CordovaPlugin {
             json.put("class", device.getBluetoothClass().getDeviceClass());
         }
         return json;
-    }
-
-    // find unpaired devices - need to rename
-    // manually merging https://github.com/don/BluetoothSerial/pull/100
-    private void listOnReach (final CallbackContext callbackContext) throws JSONException {
-        final BroadcastReceiver discoverReceiver = new BroadcastReceiver() {
-            private JSONArray devicesOnReach = new JSONArray();
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    try {
-                        devicesOnReach.put(deviceToJSON(device));
-                    } catch (JSONException e) {
-                        // This is a really bad idea
-                        throw new RuntimeException(e);
-                    }
-                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                    callbackContext.success(devicesOnReach);
-                    cordova.getActivity().unregisterReceiver(this);
-                }
-            }
-        };
-
-        cordova.getActivity().registerReceiver(discoverReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND)); // Don't forget to unregister during onDestroy
-        cordova.getActivity().registerReceiver(discoverReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
-        bluetoothAdapter.startDiscovery();
     }
 
     private void connect(CordovaArgs args, boolean secure, CallbackContext callbackContext) throws JSONException {
