@@ -29,21 +29,38 @@ public class BluetoothSerial : BaseCommand
     private int MIN_RAW_DATA_COUNT = 6; // queue data until it reaches this count
     private int RAW_DATA_FLUSH_TIMER_MILLIS = 200;
 
+    private Boolean connected = false;
+
     public async void list(string args)
     {
         Debug.WriteLine("Listing Paired Bluetooth Devices");
 
-        PeerFinder.AlternateIdentities["Bluetooth:Paired"] = "";
-        var pairedDevices = await PeerFinder.FindAllPeersAsync();
-
-        if (pairedDevices.Count == 0)
+        PeerFinder.AlternateIdentities["Bluetooth:PairedZ"] = "";
+        try
         {
-            Debug.WriteLine("No paired devices were found.");
+            var pairedDevices = await PeerFinder.FindAllPeersAsync();
+
+            if (pairedDevices.Count == 0)
+            {
+                Debug.WriteLine("No paired devices were found.");
+            }
+
+            // return serializable device info
+            var pairedDeviceList = new List<PairedDeviceInfo>(pairedDevices.Select(x => new PairedDeviceInfo(x)));
+            DispatchCommandResult(new PluginResult(PluginResult.Status.OK, pairedDeviceList));
+        }
+        catch (Exception ex)
+        {
+            if ((uint)ex.HResult == 0x8007048F)
+            {
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "Bluetooth is disabled"));
+            }
+            else
+            {
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, ex.Message));
+            }
         }
 
-        // return serializable device info
-        var pairedDeviceList = new List<PairedDeviceInfo>(pairedDevices.Select(x => new PairedDeviceInfo(x)));
-        DispatchCommandResult(new PluginResult(PluginResult.Status.OK, pairedDeviceList));
     }
 
     public void connect(string args)
@@ -162,8 +179,49 @@ public class BluetoothSerial : BaseCommand
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
-    // TODO new API, need to add JavaScript
-    public void showBluetoothConnectionSettings(string args)
+    public void isConnected(string args)
+    {
+        if (connected)
+        {
+            DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+        }
+        else
+        {
+            DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR));
+        }
+    }
+
+    public async void isEnabled(string args)
+    {
+        string callbackId = JsonHelper.Deserialize<string[]>(args)[0];
+
+        // This is a bad way to do this, improve later
+        // See if we can determine in the Connection Manager
+        // https://msdn.microsoft.com/library/windows/apps/jj207007(v=vs.105).aspx
+        PeerFinder.AlternateIdentities["Bluetooth:Paired"] = "";
+
+        try
+        {
+            var peers = await PeerFinder.FindAllPeersAsync();
+
+            // Handle the result of the FindAllPeersAsync call
+        }
+        catch (Exception ex)
+        {
+            if ((uint)ex.HResult == 0x8007048F)
+            {
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR), callbackId);
+            }
+            else
+            {
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, ex.Message), callbackId);
+            }
+        }
+
+        DispatchCommandResult(new PluginResult(PluginResult.Status.OK), callbackId);
+    }
+
+    public void showBluetoothSettings(string args)
     {
         ConnectionSettingsTask connectionSettingsTask = new ConnectionSettingsTask();
         connectionSettingsTask.ConnectionSettingsType = ConnectionSettingsType.Bluetooth;
@@ -179,6 +237,7 @@ public class BluetoothSerial : BaseCommand
             result.KeepCallback = true;
             DispatchCommandResult(result, connectionCallbackId);
         }
+        connected = true;
     }
 
     private void connectionManager_ConnectionFailure(string reason)
@@ -189,6 +248,7 @@ public class BluetoothSerial : BaseCommand
             result.KeepCallback = true;
             DispatchCommandResult(result, connectionCallbackId);
         }
+        connected = false;
     }
 
     private void connectionManager_ByteReceived(byte data)
