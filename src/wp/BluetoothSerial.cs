@@ -18,7 +18,7 @@ public class BluetoothSerial : BaseCommand
 {
     private ConnectionManager connectionManager;
     private string token; // normally a char like \n  TODO rename to delimiter
-    private string connectionCallbackId;  
+    private string connectionCallbackId;
     private string rawDataCallbackId;
     private string subscribeCallbackId;
 
@@ -35,7 +35,7 @@ public class BluetoothSerial : BaseCommand
     {
         Debug.WriteLine("Listing Paired Bluetooth Devices");
 
-        PeerFinder.AlternateIdentities["Bluetooth:PairedZ"] = "";
+        PeerFinder.AlternateIdentities["Bluetooth:Paired"] = "";
         try
         {
             var pairedDevices = await PeerFinder.FindAllPeersAsync();
@@ -96,7 +96,7 @@ public class BluetoothSerial : BaseCommand
             connectionCallbackId = null;
             connectionManager.Terminate();
         }
-        
+
         DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
     }
 
@@ -271,7 +271,7 @@ public class BluetoothSerial : BaseCommand
 
     }
 
-    // This method is called by the timer delegate. 
+    // This method is called by the timer delegate.
     private void FlushByteBuffer(Object stateInfo)
     {
         SendRawDataToSubscriber();
@@ -281,7 +281,7 @@ public class BluetoothSerial : BaseCommand
     {
         if (byteBuffer.Count > 0)
         {
-            // NOTE an array of 1 gets flattened to an int, we fix in JavaScript 
+            // NOTE an array of 1 gets flattened to an int, we fix in JavaScript
             PluginResult result = new PluginResult(PluginResult.Status.OK, byteBuffer);
             result.KeepCallback = true;
             DispatchCommandResult(result, rawDataCallbackId);
