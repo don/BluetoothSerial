@@ -33,7 +33,7 @@ var app = {
         refreshButton.addEventListener(TOUCH_START, this.refreshDeviceList, false);
         sendButton.addEventListener(TOUCH_START, this.sendData, false);
         disconnectButton.addEventListener(TOUCH_START, this.disconnect, false);
-        deviceList.addEventListener('touch_start', this.connect, false);
+        deviceList.addEventListener('touchstart', this.connect, false);
     },
     onDeviceReady: function() {
         app.refreshDeviceList();
