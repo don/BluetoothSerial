@@ -145,6 +145,10 @@ public class BluetoothSerial extends CordovaPlugin {
         } else if (action.equals(UNSUBSCRIBE)) {
 
             delimiter = null;
+
+            // send no result, so Cordova won't hold onto the data available callback anymore
+            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+            dataAvailableCallback.sendPluginResult(result);
             dataAvailableCallback = null;
 
             callbackContext.success();
