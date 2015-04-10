@@ -110,7 +110,17 @@ module.exports = {
 
     discoverUnpaired: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "discoverUnpaired", []);        
+    },
+
+    pair: function (macAddress, pin, success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "pair", [macAddress, pin]);
+    },
+
+    unpair: function (macAddress, success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "unpair", [macAddress]);
     }
+
+
 
 };
 
