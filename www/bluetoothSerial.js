@@ -110,22 +110,10 @@ module.exports = {
 
     discoverUnpaired: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "discoverUnpaired", []);        
-    },
-
-    setDeviceDiscoveredListener: function (notify) {
-        if (typeof success != 'function')
-            throw 'BluetoothSerial.setDeviceDiscoveredListener: Callback not a function'
-
-        cordova.exec(notify, null, "BluetoothSerial", "setDeviceDiscoveredListener", []);
-    },
-
-    clearDeviceDiscoveredListener: function () {
-        cordova.exec(null, null, "BluetoothSerial", "clearDeviceDiscoveredListener", []);
     }
 
 };
-
-// make sure that the client knows Uint8Array and btoa, if not, create them
+/* make sure that the client knows Uint8Array and btoa, if not, create them */
 (function() {
   try {
     var a = new Uint8Array(1);
@@ -203,7 +191,7 @@ module.exports = {
     return buffer;
   }; 
 })();
-
 var stringToArrayBuffer = function(str) {
-    return windows.btoa(str);
+    return window.btoa(str);
 };
+
