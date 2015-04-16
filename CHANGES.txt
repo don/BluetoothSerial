@@ -1,3 +1,12 @@
+= 0.4.3 =
+New API - Add device callback when scanning for unpaired Bluetooth devices. @shokre #119 #123
+Send NO_RESULT to subscribe callback when unsubscribing #121
+Fix bug in Chat example
+Fix write for Adafruit hardware (CBCharacteristicWriteWithoutResponse)
+
+= 0.4.2 =
+Fix typo in WP8 code
+
 = 0.4.1 =
 New APIs
 * showBluetoothSettings (Android & WP)
