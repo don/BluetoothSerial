@@ -48,12 +48,15 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String SETTINGS = "showBluetoothSettings";
     private static final String ENABLE = "enable";
     private static final String DISCOVER_UNPAIRED = "discoverUnpaired";
+    private static final String SET_DEVICE_DISCOVERED_LISTENER = "setDeviceDiscoveredListener";
+    private static final String CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener";
 
     // callbacks
     private CallbackContext connectCallback;
     private CallbackContext dataAvailableCallback;
     private CallbackContext rawDataAvailableCallback;
     private CallbackContext enableBluetoothCallback;
+    private CallbackContext deviceDiscoveredCallback;
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothSerialService bluetoothSerialService;
@@ -204,6 +207,14 @@ public class BluetoothSerial extends CordovaPlugin {
 
             discoverUnpairedDevices(callbackContext);
 
+        } else if (action.equals(SET_DEVICE_DISCOVERED_LISTENER)) {
+
+            this.deviceDiscoveredCallback = callbackContext;
+
+        } else if (action.equals(CLEAR_DEVICE_DISCOVERED_LISTENER)) {
+
+            this.deviceDiscoveredCallback = null;
+
         } else {
             validAction = false;
 
@@ -253,6 +264,8 @@ public class BluetoothSerial extends CordovaPlugin {
 
     private void discoverUnpairedDevices(final CallbackContext callbackContext) throws JSONException {
 
+        final CallbackContext ddc = deviceDiscoveredCallback;
+
         final BroadcastReceiver discoverReceiver = new BroadcastReceiver() {
 
             private JSONArray unpairedDevices = new JSONArray();
@@ -262,7 +275,13 @@ public class BluetoothSerial extends CordovaPlugin {
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     try {
-                        unpairedDevices.put(deviceToJSON(device));
+                    	JSONObject o = deviceToJSON(device);
+                        unpairedDevices.put(o);
+                        if (ddc != null) {
+                            PluginResult res = new PluginResult(PluginResult.Status.OK, o);
+                            res.setKeepCallback(true);
+                            ddc.sendPluginResult(res);
+                        }
                     } catch (JSONException e) {
                         // This shouldn't happen, log and ignore
                         Log.e(TAG, "Problem converting device to JSON", e);

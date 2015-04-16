@@ -54,6 +54,8 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.showBluetoothSettings](#showbluetoothsettings)
 - [bluetoothSerial.enable](#enable)
 - [bluetoothSerial.discoverUnpaired](#discoverunpaired)
+- [bluetoothSerial.setDeviceDiscoveredListener](#setdevicediscoveredlistener)
+- [bluetoothSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
 
 ## connect
 
@@ -552,7 +554,8 @@ Example list passed to success callback.
         "name": "RN42"
     }]
 
-The discovery process takes a while to happen. You may want to show a progress indicator while waiting for the sucess callback to be invoked. 
+The discovery process takes a while to happen. You can register notify callback with [setDeviceDiscoveredListener](#setdevicediscoveredlistener).
+You may also want to show a progress indicator while waiting for the discover proces to finish, and the sucess callback to be invoked. 
 
 Calling `connect` on an unpaired Bluetooth device should begin the Android pairing process.
 
@@ -576,6 +579,43 @@ Calling `connect` on an unpaired Bluetooth device should begin the Android pairi
             console.log(device.id);
         })
     }, failure);
+
+## setDeviceDiscoveredListener
+
+Register a notify callback function to be called during bluetooth device discovery. For callback to work, discovery process must
+be started with [discoverUnpaired](#discoverunpaired).
+There can be only one registered callback.
+
+Example object passed to notify callback.
+
+    {
+        "class": 276,
+        "id": "10:BF:48:CB:00:00",
+        "address": "10:BF:48:CB:00:00",
+        "name": "Nexus 7"
+    }
+
+#### iOS & Windows Phone
+
+See [discoverUnpaired](#discoverunpaired).
+
+### Parameters
+
+- __notify__: Notify callback function that is invoked when device is discovered during discovery process.
+
+### Quick Example
+
+    bluetoothSerial.setDeviceDiscoveredListener(function(device) {
+		console.log('Found: '+device.id);
+    });
+
+## clearDeviceDiscoveredListener
+
+Clears notify callback function registered with [setDeviceDiscoveredListener](#setdevicediscoveredlistener).
+
+### Quick Example
+
+    bluetoothSerial.clearDeviceDiscoveredListener();
 
 # Misc
 
