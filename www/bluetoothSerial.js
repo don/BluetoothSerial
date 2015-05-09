@@ -81,7 +81,7 @@ module.exports = {
                 data = a.buffer;
             }
             success(data);
-        }
+        };
         cordova.exec(successWrapper, failure, "BluetoothSerial", "subscribeRaw", []);
     },
 
