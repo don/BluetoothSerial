@@ -124,7 +124,7 @@ module.exports = {
     },
 
     setName: function (text) {
-        cordova.exec(text, null, "BluetoothSerial", "setName", []);
+        cordova.exec(null, null, "BluetoothSerial", "setName", [text]);
     }
 
 
