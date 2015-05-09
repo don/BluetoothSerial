@@ -109,7 +109,7 @@ module.exports = {
     },
 
     discoverUnpaired: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothSerial", "discoverUnpaired", []);        
+        cordova.exec(success, failure, "BluetoothSerial", "discoverUnpaired", []);
     },
 
     setDeviceDiscoveredListener: function (notify) {
@@ -121,7 +121,12 @@ module.exports = {
 
     clearDeviceDiscoveredListener: function () {
         cordova.exec(null, null, "BluetoothSerial", "clearDeviceDiscoveredListener", []);
+    },
+
+    setName: function (text) {
+        cordova.exec(text, null, "BluetoothSerial", "setName", []);
     }
+
 
 };
 
