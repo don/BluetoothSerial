@@ -217,6 +217,7 @@ public class BluetoothSerial extends CordovaPlugin {
             this.deviceDiscoveredCallback = null;
 
         } else if (action.equals(SET_NAME)) {
+
             String newName = args.getString(0);
             bluetoothAdapter.setName(newName);
             callbackContext.success();

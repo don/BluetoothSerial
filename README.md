@@ -56,7 +56,7 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.discoverUnpaired](#discoverunpaired)
 - [bluetoothSerial.setDeviceDiscoveredListener](#setdevicediscoveredlistener)
 - [bluetoothSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
-- [bluetoothSerial.addName](#addName)
+- [bluetoothSerial.setName](#setName)
 
 ## connect
 
@@ -610,13 +610,28 @@ See [discoverUnpaired](#discoverunpaired).
 		console.log('Found: '+device.id);
     });
 
-## clearDeviceDiscoveredListener
+## setName
 
-Clears notify callback function registered with [setDeviceDiscoveredListener](#setdevicediscoveredlistener).
+Sets the human readable device name that is broadcasted to other devices.
+
+    bluetoothSerial.setName(newName);
+
+#### Android
+For Android, `setName` takes a String for the new name.
+
+#### iOS
+Not currently implemented.
+
+#### Windows Phone
+Not currently implemented.
+
+### Parameters
+
+- __newName__: Desired name of device.
 
 ### Quick Example
 
-    bluetoothSerial.clearDeviceDiscoveredListener();
+    bluetoothSerial.setName("Really cool name");
 
 # Misc
 
