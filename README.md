@@ -56,7 +56,7 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.discoverUnpaired](#discoverunpaired)
 - [bluetoothSerial.setDeviceDiscoveredListener](#setdevicediscoveredlistener)
 - [bluetoothSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
-- [bluetoothSerial.setName](#setName)
+- [bluetoothSerial.setName](#setname)
 
 ## connect
 
