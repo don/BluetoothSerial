@@ -230,7 +230,7 @@ public class BluetoothSerial extends CordovaPlugin {
             int discoverableDuration = args.getInt(0);
             Intent discoverIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
             discoverIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration);
-            startActivity(discoverIntent);
+            cordova.getActivity().startActivity(discoverIntent);
 
         } else {
             validAction = false;
