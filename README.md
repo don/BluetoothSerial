@@ -57,6 +57,7 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.setDeviceDiscoveredListener](#setdevicediscoveredlistener)
 - [bluetoothSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
 - [bluetoothSerial.setName](#setname)
+- [bluetoothSerial.setDiscoverable](#setdiscoverable)
 
 ## connect
 
@@ -632,6 +633,30 @@ Not currently implemented.
 ### Quick Example
 
     bluetoothSerial.setName("Really cool name");
+
+## setDiscoverable
+
+Makes the device discoverable by other devices.
+
+    bluetoothSerial.setDiscoverable(discoverableDuration);
+
+#### Android
+For Android, `setDiscoverable` takes an int for the amount of time device should be discoverable.
+A time of 0 will make it permanently discoverable.
+
+#### iOS
+Not currently implemented.
+
+#### Windows Phone
+Not currently implemented.
+
+### Parameters
+
+- __discoverableDuration__: Desired time device should be discoverable for.
+
+### Quick Example
+
+    bluetoothSerial.setName(0);
 
 # Misc
 
