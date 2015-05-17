@@ -114,7 +114,7 @@ module.exports = {
 
     setDeviceDiscoveredListener: function (notify) {
         if (typeof notify != 'function')
-            throw 'BluetoothSerial.setDeviceDiscoveredListener: Callback not a function'
+            throw 'BluetoothSerial.setDeviceDiscoveredListener: Callback not a function';
 
         cordova.exec(notify, null, "BluetoothSerial", "setDeviceDiscoveredListener", []);
     },
@@ -125,6 +125,10 @@ module.exports = {
 
     setName: function (newName) {
         cordova.exec(null, null, "BluetoothSerial", "setName", [newName]);
+    },
+
+    setDiscoverable: function (discoverableDuration) {
+        cordova.exec(null, null, "BluetoothSerial", "setDiscoverable", [discoverableDuration]);
     }
 
 
