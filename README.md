@@ -656,7 +656,7 @@ Not currently implemented.
 
 ### Quick Example
 
-    bluetoothSerial.setName(0);
+    bluetoothSerial.setDiscoverable(0);
 
 # Misc
 
