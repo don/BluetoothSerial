@@ -611,6 +611,14 @@ See [discoverUnpaired](#discoverunpaired).
 		console.log('Found: '+device.id);
     });
 
+## clearDeviceDiscoveredListener
+
+Clears notify callback function registered with [setDeviceDiscoveredListener](#setdevicediscoveredlistener).
+
+### Quick Example
+
+    bluetoothSerial.clearDeviceDiscoveredListener();
+
 ## setName
 
 Sets the human readable device name that is broadcasted to other devices.
@@ -641,8 +649,7 @@ Makes the device discoverable by other devices.
     bluetoothSerial.setDiscoverable(discoverableDuration);
 
 #### Android
-For Android, `setDiscoverable` takes an int for the amount of time device should be discoverable.
-A time of 0 will make it permanently discoverable.
+For Android, `setDiscoverable` takes an int for the number of seconds device should be discoverable. A time of 0 will make it permanently discoverable.
 
 #### iOS
 Not currently implemented.
@@ -652,7 +659,7 @@ Not currently implemented.
 
 ### Parameters
 
-- __discoverableDuration__: Desired time device should be discoverable for.
+- __discoverableDuration__: Desired number of seconds device should be discoverable for.
 
 ### Quick Example
 
