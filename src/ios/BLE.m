@@ -176,9 +176,10 @@ CBUUID *writeCharacteristicUUID;
         return;
     }
 
-    if ([serviceUUID isEqual:blueGigaServiceUUID]) {
+    if ((characteristic.properties & CBCharacteristicPropertyWrite) == CBCharacteristicPropertyWrite) {
         [p writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
-    } else {
+    }
+    else if ((characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse) == CBCharacteristicPropertyWriteWithoutResponse) {
         [p writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithoutResponse];
     }
 }
