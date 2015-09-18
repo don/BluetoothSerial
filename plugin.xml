@@ -33,10 +33,6 @@
         <source-file src="src/android/com/megster/cordova/BluetoothSerialService.java"
             target-dir="src/com/megster/cordova"/>
 
-        <!-- kludge for 2.9 -->
-        <source-file src="src/android/org/apache/cordova/api/Dummy.java"
-            target-dir="src/org/apache/cordova/api"/>
-
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.BLUETOOTH" />
             <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />

@@ -11,13 +11,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
-// kludgy imports to support 2.9 and 3.0 due to package changes
-import org.apache.cordova.*;
-// import org.apache.cordova.CordovaArgs;
-// import org.apache.cordova.CordovaPlugin;
-// import org.apache.cordova.CallbackContext;
-// import org.apache.cordova.PluginResult;
-// import org.apache.cordova.LOG;
+import org.apache.cordova.CordovaArgs;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.PluginResult;
+import org.apache.cordova.LOG;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
