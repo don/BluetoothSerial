@@ -23,9 +23,9 @@ Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
 Install with Cordova cli
 
-    $ cordova plugin add com.megster.cordova.bluetoothserial
+    $ cordova plugin add cordova-plugin-bluetooth-serial
 
-This plugin is also available for [PhoneGap Build](https://build.phonegap.com/plugins/366)
+Note that this plugin's id changed from `com.megster.cordova.bluetoothserial` to `cordova-plugin-bluetooth-serial` as part of the migration from the [Cordova plugin repo](http://plugins.cordova.io/) to [npm](https://www.npmjs.com/).
 
 # Examples
 
@@ -555,7 +555,7 @@ Example list passed to success callback.
     }]
 
 The discovery process takes a while to happen. You can register notify callback with [setDeviceDiscoveredListener](#setdevicediscoveredlistener).
-You may also want to show a progress indicator while waiting for the discover proces to finish, and the sucess callback to be invoked. 
+You may also want to show a progress indicator while waiting for the discover proces to finish, and the sucess callback to be invoked.
 
 Calling `connect` on an unpaired Bluetooth device should begin the Android pairing process.
 
