@@ -1,3 +1,9 @@
+= 0.4.4 =
+Move plugin to NPM #160
+Support iOS 9 #154 #161 Thanks amplexdenmark
+Work with Adafruit nRF8001 and newer Bluefruit hardware #157 Thanks legege
+Drop support for Cordova 2.9
+
 = 0.4.3 =
 New API - Add device callback when scanning for unpaired Bluetooth devices. @shokre #119 #123
 Send NO_RESULT to subscribe callback when unsubscribing #121
