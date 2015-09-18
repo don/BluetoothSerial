@@ -25,12 +25,7 @@ static char ADVERTISEMENT_RSSI_IDENTIFER;
 
 -(NSDictionary *)asDictionary {
     
-    NSString *uuidString = NULL;
-    if ([self UUID]) {
-        uuidString = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, self.UUID);
-    } else {
-        uuidString = @"";
-    }
+    NSString *uuidString = self.identifier.UUIDString;
     
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     [dictionary setObject: uuidString forKey: @"uuid"];

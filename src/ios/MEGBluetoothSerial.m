@@ -66,7 +66,7 @@
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
 
     if (_bleShield.activePeripheral) {
-        if(_bleShield.activePeripheral.isConnected)
+        if(_bleShield.activePeripheral.state == CBPeripheralStateConnected)
         {
             [[_bleShield CM] cancelPeripheralConnection:[_bleShield activePeripheral]];
         }
@@ -358,17 +358,9 @@
         NSMutableDictionary *peripheral = [NSMutableDictionary dictionary];
         CBPeripheral *p = [_bleShield.peripherals objectAtIndex:i];
 
-        if (p.UUID != NULL) {
-            // Seriously WTF?
-            CFStringRef s = CFUUIDCreateString(NULL, p.UUID);
-            NSString *uuid = [NSString stringWithCString:CFStringGetCStringPtr(s, 0)
-                                                encoding:(NSStringEncoding)NSUTF8StringEncoding];
-            [peripheral setObject: uuid forKey: @"uuid"];
-            [peripheral setObject: uuid forKey: @"id"];
-        }
-        else {
-            [peripheral setObject: @"" forKey: @"uuid"];
-        }
+        NSString *uuid = p.identifier.UUIDString;
+        [peripheral setObject: uuid forKey: @"uuid"];
+        [peripheral setObject: uuid forKey: @"id"];
 
         NSString *name = [p name];
         if (!name) {
@@ -411,7 +403,7 @@
 
     // disconnect
     if (_bleShield.activePeripheral) {
-        if(_bleShield.activePeripheral.isConnected)
+        if(_bleShield.activePeripheral.state == CBPeripheralStateConnected)
         {
             [[_bleShield CM] cancelPeripheralConnection:[_bleShield activePeripheral]];
             return;
