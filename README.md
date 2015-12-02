@@ -56,6 +56,8 @@ There are some [sample projects](https://github.com/don/BluetoothSerial/tree/mas
 - [bluetoothSerial.discoverUnpaired](#discoverunpaired)
 - [bluetoothSerial.setDeviceDiscoveredListener](#setdevicediscoveredlistener)
 - [bluetoothSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
+- [bluetoothSerial.setName](#setname)
+- [bluetoothSerial.setDiscoverable](#setdiscoverable)
 
 ## connect
 
@@ -68,13 +70,13 @@ Connect to a Bluetooth device.
 Function `connect` connects to a Bluetooth device.  The callback is long running.  Success will be called when the connection is successful.  Failure is called if the connection fails, or later if the connection disconnects. An error message is passed to the failure callback.
 
 #### Android
-For Android, `connect` takes a MAC address of the remote device.  
+For Android, `connect` takes a MAC address of the remote device.
 
 #### iOS
 For iOS, `connect` takes the UUID of the remote device.  Optionally, you can pass an **empty string** and the plugin will connect to the first BLE peripheral.
 
 #### Windows Phone
-For Windows Phone, `connect` takes a MAC address of the remote device. The MAC address can optionally surrounded with parenthesis. e.g. `(AA:BB:CC:DD:EE:FF)`  
+For Windows Phone, `connect` takes a MAC address of the remote device. The MAC address can optionally surrounded with parenthesis. e.g. `(AA:BB:CC:DD:EE:FF)`
 
 
 ### Parameters
@@ -94,7 +96,7 @@ Connect insecurely to a Bluetooth device.
 Function `connectInsecure` works like [connect](#connect), but creates an insecure connection to a Bluetooth device.  See the [Android docs](http://goo.gl/1mFjZY) for more information.
 
 #### Android
-For Android, `connectInsecure` takes a macAddress of the remote device.  
+For Android, `connectInsecure` takes a macAddress of the remote device.
 
 #### iOS
 `connectInsecure` is **not supported** on iOS.
@@ -540,7 +542,7 @@ Discover unpaired devices
 
 Function `discoverUnpaired` discovers unpaired Bluetooth devices. The success callback is called with a list of objects similar to `list`, or an empty list if no unpaired devices are found.
 
-Example list passed to success callback.  
+Example list passed to success callback.
 
     [{
         "class": 276,
@@ -616,6 +618,52 @@ Clears notify callback function registered with [setDeviceDiscoveredListener](#s
 ### Quick Example
 
     bluetoothSerial.clearDeviceDiscoveredListener();
+
+## setName
+
+Sets the human readable device name that is broadcasted to other devices.
+
+    bluetoothSerial.setName(newName);
+
+#### Android
+For Android, `setName` takes a String for the new name.
+
+#### iOS
+Not currently implemented.
+
+#### Windows Phone
+Not currently implemented.
+
+### Parameters
+
+- __newName__: Desired name of device.
+
+### Quick Example
+
+    bluetoothSerial.setName("Really cool name");
+
+## setDiscoverable
+
+Makes the device discoverable by other devices.
+
+    bluetoothSerial.setDiscoverable(discoverableDuration);
+
+#### Android
+For Android, `setDiscoverable` takes an int for the number of seconds device should be discoverable. A time of 0 will make it permanently discoverable.
+
+#### iOS
+Not currently implemented.
+
+#### Windows Phone
+Not currently implemented.
+
+### Parameters
+
+- __discoverableDuration__: Desired number of seconds device should be discoverable for.
+
+### Quick Example
+
+    bluetoothSerial.setDiscoverable(0);
 
 # Misc
 
