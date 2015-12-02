@@ -169,7 +169,8 @@
 
 - (void)available:(CDVInvokedUrlCommand*)command {
     CDVPluginResult *pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:[_buffer length]];
+    // future versions could use messageAsNSInteger, but realistically, int is fine for buffer length
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:(int)[_buffer length]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -178,7 +179,7 @@
     NSString *message = @"";
 
     if ([_buffer length] > 0) {
-        int end = [_buffer length] - 1;
+        long end = [_buffer length] - 1;
         message = [_buffer substringToIndex:end];
         NSRange entireString = NSMakeRange(0, end);
         [_buffer deleteCharactersInRange:entireString];
@@ -199,7 +200,7 @@
 }
 
 - (void)clear:(CDVInvokedUrlCommand*)command {
-    int end = [_buffer length] - 1;
+    long end = [_buffer length] - 1;
     NSRange truncate = NSMakeRange(0, end);
     [_buffer deleteCharactersInRange:truncate];
 }
@@ -341,7 +342,7 @@
 
     if (range.location != NSNotFound) {
 
-        int end = range.location + range.length;
+        long end = range.location + range.length;
         message = [_buffer substringToIndex:end];
 
         NSRange truncate = NSMakeRange(0, end);
@@ -368,7 +369,7 @@
         }
         [peripheral setObject: name forKey: @"name"];
 
-        NSNumber *rssi = [p advertisementRSSI];
+        NSNumber *rssi = [p btsAdvertisementRSSI];
         if (rssi) { // BLEShield doesn't provide advertised RSSI
             [peripheral setObject: rssi forKey:@"rssi"];
         }

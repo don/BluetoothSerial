@@ -46,8 +46,8 @@
 
         <header-file src="src/ios/MEGBluetoothSerial.h" target-dir="BluetoothSerial" />
         <source-file src="src/ios/MEGBluetoothSerial.m" target-dir="BluetoothSerial" />
-        <header-file src="src/ios/CBPeripheral+Extensions.h" target-dir="BluetoothSerial" />
-        <source-file src="src/ios/CBPeripheral+Extensions.m" target-dir="BluetoothSerial" />
+        <header-file src="src/ios/CBPeripheral+BTSExtensions.h" target-dir="BluetoothSerial" />
+        <source-file src="src/ios/CBPeripheral+BTSExtensions.m" target-dir="BluetoothSerial" />
 
         <!-- BLEMini see http://redbearlab.com -->
         <header-file src="src/ios/BLE.h" target-dir="BluetoothSerial" />

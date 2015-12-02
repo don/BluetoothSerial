@@ -201,7 +201,7 @@ CBUUID *writeCharacteristicUUID;
     if (self.CM.state != CBCentralManagerStatePoweredOn)
     {
         NSLog(@"CoreBluetooth not correctly initialized !");
-        NSLog(@"State = %d (%s)\r\n", self.CM.state, [self centralManagerStateToString:self.CM.state]);
+        NSLog(@"State = %ld (%s)\r\n", (long)self.CM.state, [self centralManagerStateToString:self.CM.state]);
         return -1;
     }
 
@@ -436,7 +436,7 @@ CBUUID *writeCharacteristicUUID;
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central
 {
 #if TARGET_OS_IPHONE
-    NSLog(@"Status of CoreBluetooth central manager changed %d (%s)", central.state, [self centralManagerStateToString:central.state]);
+    NSLog(@"Status of CoreBluetooth central manager changed %ld (%s)", (long)central.state, [self centralManagerStateToString:central.state]);
 #else
     [self isLECapableHardware];
 #endif
@@ -451,7 +451,7 @@ CBUUID *writeCharacteristicUUID;
         for(int i = 0; i < self.peripherals.count; i++)
         {
             CBPeripheral *p = [self.peripherals objectAtIndex:i];
-            [p setAdvertisementData:advertisementData RSSI:RSSI];
+            [p bts_setAdvertisementData:advertisementData RSSI:RSSI];
 
             if ((p.identifier == NULL) || (peripheral.identifier == NULL))
                 continue;
