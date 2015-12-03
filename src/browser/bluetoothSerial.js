@@ -15,7 +15,7 @@
 //      buf.input = ""
 // });
 
-// Function emulates a bluetooth device echoing back input
+// Function emulates a Bluetooth device echoing back input
 //
 // var echoProxy = function(buf) {
 //   if (buf && buf.input) {
@@ -27,7 +27,7 @@
 // }
 // bluetoothSerial.register(echoProxy);
 
-window.bluetoothSerial = (function() {
+module.exports = (function() {
     var connected = false;
     var enabled = true;
     var buf = {
@@ -167,23 +167,3 @@ window.bluetoothSerial = (function() {
         },
     }
 })();
-
-module.exports.connect               = window.bluetoothSerial.connect;
-module.exports.register              = window.bluetoothSerial.register;
-module.exports.disconnect            = window.bluetoothSerial.disconnect;
-module.exports.write                 = window.bluetoothSerial.write;
-module.exports.available             = window.bluetoothSerial.available;
-module.exports.read                  = window.bluetoothSerial.read;
-module.exports.readUntil             = window.bluetoothSerial.readUntil;
-module.exports.subscribe             = window.bluetoothSerial.subscribe;
-module.exports.unsubscribe           = window.bluetoothSerial.unsubscribe;
-module.exports.subscribeRawData      = window.bluetoothSerial.subscribeRawData;
-module.exports.unsubscribeRawData    = window.bluetoothSerial.unsubscribeRawData;
-module.exports.clear                 = window.bluetoothSerial.clear;
-module.exports.list                  = window.bluetoothSerial.list;
-module.exports.isConnected           = window.bluetoothSerial.isConnected;
-module.exports.isEnabled             = window.bluetoothSerial.isEnabled;
-module.exports.readRSSI              = window.bluetoothSerial.readRSSI;
-module.exports.showBluetoothSettings = window.bluetoothSerial.showBluetoothSettings;
-module.exports.enable                = window.bluetoothSerial.enable;
-module.exports.discoverUnpaired      = window.bluetoothSerial.discoverUnpaired;
