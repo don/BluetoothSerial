@@ -3,7 +3,7 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-bluetooth-serial"
-    version="0.4.4">
+    version="0.4.5">
 
     <name>Bluetooth Serial</name>
     <description>Bluetooth Serial Communication Plugin</description>
@@ -75,11 +75,11 @@
          <source-file src="src/wp/BluetoothConnectionManager.cs" />
 
     </platform>
-    
+
     <platform name="browser">
         <js-module src="src/browser/bluetoothSerial.js" name="BluetoothSerial_browser">
             <clobbers target="window.bluetoothSerial" />
         </js-module>
-    
+
     </platform>
 </plugin>

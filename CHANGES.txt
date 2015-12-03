@@ -1,6 +1,7 @@
 = 0.4.5 =
 Resolve iOS conflicts with cordova-plugin-ble-central #177
 Add support for broadcasted name when discoverable (Android) #137 Thanks marvinmarnold
+Add a 'browser' target for emulated bluetooth #115 Thanks PhracturedBlue
 
 = 0.4.4 =
 Move plugin to NPM #160
