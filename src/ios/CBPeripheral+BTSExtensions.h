@@ -1,8 +1,8 @@
 //
-//  CBPeripheral+Extensions.h
-//  RFduino Cordova Plugin
+//  CBPeripheral+BTSExtensions.h
+//  BluetoothSerial Cordova Plugin
 //
-//  (c) 2103 Don Coleman
+//  (c) 2103-2015 Don Coleman
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
