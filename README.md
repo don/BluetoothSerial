@@ -9,6 +9,7 @@ Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 * Android
 * iOS with [RedBearLab](http://redbearlab.com) BLE hardware, [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697), [Laird BL600](http://www.lairdtech.com/Products/Embedded-Wireless-Solutions/Bluetooth-Radio-Modules/BL600-Series/#.VBI7AS5dUzI), or [BlueGiga](https://bluegiga.zendesk.com/entries/29185293--BGScript-spp-over-ble-AT-command-SPP-implementation-for-BLE)
 * Windows Phone 8
+* Browser (Testing only. See [comments](https://github.com/don/BluetoothSerial/blob/master/src/browser/bluetoothSerial.js).)
 
 [Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
 
@@ -697,6 +698,8 @@ Most development is now done with iOS 8 with Cordova 4.2 using [RedBear Lab BLE 
 For Bluetooth Low Energy, this plugin supports some hardware running known UART-like services, but can support any Bluetooth Low Energy hardware with a "serial like" service. This means a transmit characteristic that is writable and a receive characteristic that supports notification.
 
 Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your service.
+
+See [Issue 141](https://github.com/don/BluetoothSerial/issues/141#issuecomment-161500473) for details on how to add support for Amp'ed RF Technology BT43H.
 
 ## Props
 
