@@ -1,3 +1,7 @@
+= 0.4.5 =
+Resolve iOS conflicts with cordova-plugin-ble-central #177
+Add support for broadcasted name when discoverable (Android) #137 Thanks marvinmarnold
+
 = 0.4.4 =
 Move plugin to NPM #160
 Support iOS 9 #154 #161 Thanks amplexdenmark
