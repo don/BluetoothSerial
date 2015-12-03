@@ -123,8 +123,18 @@ window.bluetoothSerial = (function() {
             if(success_cb) { success_cb(); }
         },
         list : function(success_cb, fail_cb) {
-            alert("bluetoothSerial.list is not implemented");
-        },
+          var devices = [{
+              "class": 276,
+              "id": "10:BF:48:CB:00:00",
+              "address": "10:BF:48:CB:00:00",
+              "name": "Nexus 7"
+          }, {
+              "class": 7936,
+              "id": "00:06:66:4D:00:00",
+              "address": "00:06:66:4D:00:00",
+              "name": "RN42"
+          }]
+          success_cb(devices);        },
         isConnected : function(success_cb, fail_cb) {
             btlog("bluetoothSerial.isConnected: " + connected);
             if(connected) {
