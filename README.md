@@ -699,6 +699,8 @@ For Bluetooth Low Energy, this plugin supports some hardware running known UART-
 
 Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your service.
 
+See [Issue 141](https://github.com/don/BluetoothSerial/issues/141#issuecomment-161500473) for details on how to add support for Amp'ed RF Technology BT43H.
+
 ## Props
 
 ### Android
