@@ -45,7 +45,7 @@ Edit [assets/www/js/index.js](http://github.com/don/BluetoothSerial/examples/LED
 ### Install Platform and Plugin
 
     $ cordova platform add android
-    $ cordova plugin add ~/BluetoothSerial
+    $ cordova plugin add cordova-plugin-bluetooth-serial
 
 ### Build and Deploy
 

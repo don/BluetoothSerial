@@ -22,7 +22,7 @@ Adding platforms generates the native projects
 
 Install the Bluetooth Serial plugin with cordova
 
-    $ cordova plugin add com.megster.cordova.bluetoothserial
+    $ cordova plugin add cordova-plugin-bluetooth-serial
 
 This code requires an Android device since the emulator does not support Bluetooth. Pair your Android device the Bluetooth modem running on the Arduino.
 
@@ -30,7 +30,7 @@ Build and deploy to an Android device. (Emulate deploys to the connected device.
 
     $ cordova run android
 
-The code requires an iOS device, rather than the emulator, since the emulator doesn't support Bluetooth.  The iOS version uses Bluetooth Low Energy, so there's no need to pair with the remove device.  The iOS code *only* connects to BLE peripherials running a known UART-like services. See [BluetoothSerial](http://github.com/don/BluetoothSerial) the latest list of supported BLE hardware.
+The code requires an iOS device, rather than the emulator, since the emulator doesn't support Bluetooth.  The iOS version uses Bluetooth Low Energy, so there's no need to pair with the remove device.  The iOS code *only* connects to BLE peripherals running a known UART-like services. See [BluetoothSerial](http://github.com/don/BluetoothSerial) the latest list of supported BLE hardware.
 
 Build the code
 

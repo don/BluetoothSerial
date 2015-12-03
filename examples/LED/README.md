@@ -37,7 +37,7 @@ Adding platforms generates the native project
     
 Install the Bluetooth Serial plugin with cordova
 
-    $ cordova plugin add com.megster.cordova.bluetoothserial
+    $ cordova plugin add cordova-plugin-bluetooth-serial
 
 Connect your phone to the computer.
 
@@ -63,7 +63,7 @@ Adding platforms generates the native project
     
 Install the Bluetooth Serial plugin with cordova
 
-    $ cordova plugin add com.megster.cordova.bluetoothserial
+    $ cordova plugin add cordova-plugin-bluetooth-serial
     $ cordova prepare
     $ open platforms/ios/LED.xcodeproj
     

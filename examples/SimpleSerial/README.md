@@ -6,7 +6,7 @@ Edit www/js/index.js and set app.macAddress to the MAC address of the remote Blu
 
 Install the Bluetooth Serial Cordova plugin
 
-    $ cordova plugin add com.megster.cordova.bluetoothserial
+    $ cordova plugin add cordova-plugin-bluetooth-serial
 
 Create an Android project
 
