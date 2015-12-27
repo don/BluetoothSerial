@@ -20,12 +20,147 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Set;
 
 /**
  * PhoneGap Plugin for Serial Communication over Bluetooth
  */
 public class BluetoothSerial extends CordovaPlugin {
+
+
+
+	private class ConnectionContext{
+	
+		// callbacks
+		public CallbackContext connectCallback;
+		public CallbackContext dataAvailableCallback;
+		public CallbackContext rawDataAvailableCallback;
+		
+		
+		public BluetoothSerialService bluetoothSerialService;
+		
+		
+		StringBuffer buffer = new StringBuffer();
+		private String delimiter;
+
+
+        public ConnectionContext()
+        {
+            bluetoothSerialService = new BluetoothSerialService(mHandler);
+        }
+		
+		private void notifyConnectionLost(String error) {
+			if (connectCallback != null) {
+				connectCallback.error(error);
+				connectCallback = null;
+			}
+		}
+
+		private void notifyConnectionSuccess() {
+			if (connectCallback != null) {
+				PluginResult result = new PluginResult(PluginResult.Status.OK);
+				result.setKeepCallback(true);
+				connectCallback.sendPluginResult(result);
+			}
+		}
+
+		private void sendRawDataToSubscriber(byte[] data) {
+			if (data != null && data.length > 0) {
+				PluginResult result = new PluginResult(PluginResult.Status.OK, data);
+				result.setKeepCallback(true);
+				rawDataAvailableCallback.sendPluginResult(result);
+			}
+		}
+
+		private void sendDataToSubscriber() {
+			String data = readUntil(delimiter);
+			if (data != null && data.length() > 0) {
+				PluginResult result = new PluginResult(PluginResult.Status.OK, data);
+				result.setKeepCallback(true);
+				dataAvailableCallback.sendPluginResult(result);
+
+				sendDataToSubscriber();
+			}
+		}
+
+		private int available() {
+			return buffer.length();
+		}
+
+		private String read() {
+			int length = buffer.length();
+			String data = buffer.substring(0, length);
+			buffer.delete(0, length);
+			return data;
+		}
+
+		private String readUntil(String c) {
+			String data = "";
+			int index = buffer.indexOf(c, 0);
+			if (index > -1) {
+				data = buffer.substring(0, index + c.length());
+				buffer.delete(0, index + c.length());
+			}
+			return data;
+		}
+		
+		// The Handler that gets information back from the BluetoothSerialService
+		// Original code used handler for the because it was talking to the UI.
+		// Consider replacing with normal callbacks
+		private final Handler mHandler = new Handler() {
+
+			 public void handleMessage(Message msg) {
+				 switch (msg.what) {
+					 case MESSAGE_READ:
+						buffer.append((String)msg.obj);
+
+						if (dataAvailableCallback != null) {
+							sendDataToSubscriber();
+						}
+
+						break;
+					 case MESSAGE_READ_RAW:
+						if (rawDataAvailableCallback != null) {
+							byte[] bytes = (byte[]) msg.obj;
+							sendRawDataToSubscriber(bytes);
+						}
+						break;
+					 case MESSAGE_STATE_CHANGE:
+
+						if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+						switch (msg.arg1) {
+							case BluetoothSerialService.STATE_CONNECTED:
+								Log.i(TAG, "BluetoothSerialService.STATE_CONNECTED");
+								notifyConnectionSuccess();
+								break;
+							case BluetoothSerialService.STATE_CONNECTING:
+								Log.i(TAG, "BluetoothSerialService.STATE_CONNECTING");
+								break;
+							case BluetoothSerialService.STATE_LISTEN:
+								Log.i(TAG, "BluetoothSerialService.STATE_LISTEN");
+								break;
+							case BluetoothSerialService.STATE_NONE:
+								Log.i(TAG, "BluetoothSerialService.STATE_NONE");
+								break;
+						}
+						break;
+					case MESSAGE_WRITE:
+						//  byte[] writeBuf = (byte[]) msg.obj;
+						//  String writeMessage = new String(writeBuf);
+						//  Log.i(TAG, "Wrote: " + writeMessage);
+						break;
+					case MESSAGE_DEVICE_NAME:
+						Log.i(TAG, msg.getData().getString(DEVICE_NAME));
+						break;
+					case MESSAGE_TOAST:
+						String message = msg.getData().getString(TOAST);
+						notifyConnectionLost(message);
+						break;
+				 }
+			 }
+		};
+	}
 
     // actions
     private static final String LIST = "list";
@@ -51,15 +186,15 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String SET_NAME = "setName";
     private static final String SET_DISCOVERABLE = "setDiscoverable";
 
-    // callbacks
-    private CallbackContext connectCallback;
-    private CallbackContext dataAvailableCallback;
-    private CallbackContext rawDataAvailableCallback;
-    private CallbackContext enableBluetoothCallback;
-    private CallbackContext deviceDiscoveredCallback;
 
     private BluetoothAdapter bluetoothAdapter;
-    private BluetoothSerialService bluetoothSerialService;
+    private HashMap<String,ConnectionContext> connections = new HashMap<String, ConnectionContext>();
+    String defaultMac="";
+
+
+    // callbacks
+    public CallbackContext enableBluetoothCallback;
+    public CallbackContext deviceDiscoveredCallback;
 
     // Debugging
     private static final String TAG = "BluetoothSerial";
@@ -77,8 +212,6 @@ public class BluetoothSerial extends CordovaPlugin {
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
 
-    StringBuffer buffer = new StringBuffer();
-    private String delimiter;
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
 
     @Override
@@ -90,8 +223,16 @@ public class BluetoothSerial extends CordovaPlugin {
             bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
 
-        if (bluetoothSerialService == null) {
-            bluetoothSerialService = new BluetoothSerialService(mHandler);
+        ConnectionContext cc=null;
+
+        if(!defaultMac.isEmpty())
+        {
+            cc=connections.get(defaultMac);
+        }
+        else
+        {
+            //prevent crash if no connect has been called
+            cc = new ConnectionContext();
         }
 
         boolean validAction = true;
@@ -112,61 +253,96 @@ public class BluetoothSerial extends CordovaPlugin {
             connect(args, secure, callbackContext);
 
         } else if (action.equals(DISCONNECT)) {
-
-            connectCallback = null;
-            bluetoothSerialService.stop();
+            if(!args.isNull(0))
+            {
+                cc=connections.get(args.getString(0));
+            }
+            cc.connectCallback = null;
+            cc.bluetoothSerialService.stop();
             callbackContext.success();
 
         } else if (action.equals(WRITE)) {
+            if(!args.isNull(1))
+            {
+                cc=connections.get(args.getString(1));
+            }
 
             byte[] data = args.getArrayBuffer(0);
-            bluetoothSerialService.write(data);
+            cc.bluetoothSerialService.write(data);
             callbackContext.success();
 
         } else if (action.equals(AVAILABLE)) {
+            if(!args.isNull(0))
+            {
+                cc=connections.get(args.getString(0));
+            }
 
-            callbackContext.success(available());
+            callbackContext.success(cc.available());
 
         } else if (action.equals(READ)) {
+            if(!args.isNull(0))
+            {
+                cc=connections.get(args.getString(0));
+            }
 
-            callbackContext.success(read());
+            callbackContext.success(cc.read());
 
         } else if (action.equals(READ_UNTIL)) {
+            if(!args.isNull(1))
+            {
+                cc=connections.get(args.getString(1));
+            }
 
             String interesting = args.getString(0);
-            callbackContext.success(readUntil(interesting));
+            callbackContext.success(cc.readUntil(interesting));
 
         } else if (action.equals(SUBSCRIBE)) {
+            if(!args.isNull(1))
+            {
+                cc=connections.get(args.getString(1));
+            }
 
-            delimiter = args.getString(0);
-            dataAvailableCallback = callbackContext;
+            cc.delimiter = args.getString(0);
+            cc.dataAvailableCallback = callbackContext;
 
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
             result.setKeepCallback(true);
             callbackContext.sendPluginResult(result);
 
         } else if (action.equals(UNSUBSCRIBE)) {
+            if(!args.isNull(0))
+            {
+                cc=connections.get(args.getString(0));
+            }
 
-            delimiter = null;
+            cc.delimiter = null;
 
             // send no result, so Cordova won't hold onto the data available callback anymore
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-            dataAvailableCallback.sendPluginResult(result);
-            dataAvailableCallback = null;
+            cc.dataAvailableCallback.sendPluginResult(result);
+            cc.dataAvailableCallback = null;
 
             callbackContext.success();
 
         } else if (action.equals(SUBSCRIBE_RAW)) {
+            if(!args.isNull(0))
+            {
+                cc=connections.get(args.getString(0));
+            }
 
-            rawDataAvailableCallback = callbackContext;
+            cc.rawDataAvailableCallback = callbackContext;
 
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
             result.setKeepCallback(true);
             callbackContext.sendPluginResult(result);
 
         } else if (action.equals(UNSUBSCRIBE_RAW)) {
+            if(!args.isNull(0))
+            {
+                cc=connections.get(args.getString(0));
+            }
 
-            rawDataAvailableCallback = null;
+            cc.rawDataAvailableCallback = null;
 
             callbackContext.success();
 
@@ -179,16 +355,24 @@ public class BluetoothSerial extends CordovaPlugin {
             }
 
         } else if (action.equals(IS_CONNECTED)) {
+            if(!args.isNull(0))
+            {
+                cc=connections.get(args.getString(0));
+            }
 
-            if (bluetoothSerialService.getState() == BluetoothSerialService.STATE_CONNECTED) {
+            if (cc.bluetoothSerialService.getState() == BluetoothSerialService.STATE_CONNECTED) {
                 callbackContext.success();
             } else {
                 callbackContext.error("Not connected.");
             }
 
         } else if (action.equals(CLEAR)) {
+            if(!args.isNull(0))
+            {
+                cc=connections.get(args.getString(0));
+            }
 
-            buffer.setLength(0);
+            cc.buffer.setLength(0);
             callbackContext.success();
 
         } else if (action.equals(SETTINGS)) {
@@ -260,8 +444,10 @@ public class BluetoothSerial extends CordovaPlugin {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (bluetoothSerialService != null) {
-            bluetoothSerialService.stop();
+        for(ConnectionContext conn : connections.values())
+        {
+            conn.bluetoothSerialService.stop();
+
         }
     }
 
@@ -326,10 +512,15 @@ public class BluetoothSerial extends CordovaPlugin {
     private void connect(CordovaArgs args, boolean secure, CallbackContext callbackContext) throws JSONException {
         String macAddress = args.getString(0);
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
+        defaultMac=macAddress;
+        if (!connections.containsKey(macAddress)) {
+            connections.put(macAddress, new ConnectionContext());
+        }
+        ConnectionContext cc=connections.get(macAddress);
 
         if (device != null) {
-            connectCallback = callbackContext;
-            bluetoothSerialService.connect(device, secure);
+            cc.connectCallback = callbackContext;
+            cc.bluetoothSerialService.connect(device, secure);
 
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
             result.setKeepCallback(true);
@@ -340,114 +531,6 @@ public class BluetoothSerial extends CordovaPlugin {
         }
     }
 
-    // The Handler that gets information back from the BluetoothSerialService
-    // Original code used handler for the because it was talking to the UI.
-    // Consider replacing with normal callbacks
-    private final Handler mHandler = new Handler() {
+    
 
-         public void handleMessage(Message msg) {
-             switch (msg.what) {
-                 case MESSAGE_READ:
-                    buffer.append((String)msg.obj);
-
-                    if (dataAvailableCallback != null) {
-                        sendDataToSubscriber();
-                    }
-
-                    break;
-                 case MESSAGE_READ_RAW:
-                    if (rawDataAvailableCallback != null) {
-                        byte[] bytes = (byte[]) msg.obj;
-                        sendRawDataToSubscriber(bytes);
-                    }
-                    break;
-                 case MESSAGE_STATE_CHANGE:
-
-                    if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-                    switch (msg.arg1) {
-                        case BluetoothSerialService.STATE_CONNECTED:
-                            Log.i(TAG, "BluetoothSerialService.STATE_CONNECTED");
-                            notifyConnectionSuccess();
-                            break;
-                        case BluetoothSerialService.STATE_CONNECTING:
-                            Log.i(TAG, "BluetoothSerialService.STATE_CONNECTING");
-                            break;
-                        case BluetoothSerialService.STATE_LISTEN:
-                            Log.i(TAG, "BluetoothSerialService.STATE_LISTEN");
-                            break;
-                        case BluetoothSerialService.STATE_NONE:
-                            Log.i(TAG, "BluetoothSerialService.STATE_NONE");
-                            break;
-                    }
-                    break;
-                case MESSAGE_WRITE:
-                    //  byte[] writeBuf = (byte[]) msg.obj;
-                    //  String writeMessage = new String(writeBuf);
-                    //  Log.i(TAG, "Wrote: " + writeMessage);
-                    break;
-                case MESSAGE_DEVICE_NAME:
-                    Log.i(TAG, msg.getData().getString(DEVICE_NAME));
-                    break;
-                case MESSAGE_TOAST:
-                    String message = msg.getData().getString(TOAST);
-                    notifyConnectionLost(message);
-                    break;
-             }
-         }
-    };
-
-    private void notifyConnectionLost(String error) {
-        if (connectCallback != null) {
-            connectCallback.error(error);
-            connectCallback = null;
-        }
-    }
-
-    private void notifyConnectionSuccess() {
-        if (connectCallback != null) {
-            PluginResult result = new PluginResult(PluginResult.Status.OK);
-            result.setKeepCallback(true);
-            connectCallback.sendPluginResult(result);
-        }
-    }
-
-    private void sendRawDataToSubscriber(byte[] data) {
-        if (data != null && data.length > 0) {
-            PluginResult result = new PluginResult(PluginResult.Status.OK, data);
-            result.setKeepCallback(true);
-            rawDataAvailableCallback.sendPluginResult(result);
-        }
-    }
-
-    private void sendDataToSubscriber() {
-        String data = readUntil(delimiter);
-        if (data != null && data.length() > 0) {
-            PluginResult result = new PluginResult(PluginResult.Status.OK, data);
-            result.setKeepCallback(true);
-            dataAvailableCallback.sendPluginResult(result);
-
-            sendDataToSubscriber();
-        }
-    }
-
-    private int available() {
-        return buffer.length();
-    }
-
-    private String read() {
-        int length = buffer.length();
-        String data = buffer.substring(0, length);
-        buffer.delete(0, length);
-        return data;
-    }
-
-    private String readUntil(String c) {
-        String data = "";
-        int index = buffer.indexOf(c, 0);
-        if (index > -1) {
-            data = buffer.substring(0, index + c.length());
-            buffer.delete(0, index + c.length());
-        }
-        return data;
-    }
 }

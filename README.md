@@ -116,7 +116,7 @@ For Android, `connectInsecure` takes a macAddress of the remote device.
 
 Disconnect.
 
-    bluetoothSerial.disconnect([success], [failure]);
+    bluetoothSerial.disconnect([success], [failure], [macAddress]);
 
 ### Description
 
@@ -126,12 +126,13 @@ Function `disconnect` disconnects the current connection.
 
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ## write
 
 Writes data to the serial port.
 
-    bluetoothSerial.write(data, success, failure);
+    bluetoothSerial.write(data, success, failure, [macAddress]);
 
 ### Description
 
@@ -144,6 +145,7 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
 - __data__: ArrayBuffer of data
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ### Quick Example
 
@@ -168,7 +170,7 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
 
 Gets the number of bytes of data available.
 
-    bluetoothSerial.available(success, failure);
+    bluetoothSerial.available(success, failure, [macAddress]);
 
 ### Description
 
@@ -178,6 +180,7 @@ Function `available` gets the number of bytes of data available.  The bytes are 
 
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ### Quick Example
 
@@ -189,7 +192,7 @@ Function `available` gets the number of bytes of data available.  The bytes are 
 
 Reads data from the buffer.
 
-    bluetoothSerial.read(success, failure);
+    bluetoothSerial.read(success, failure, [macAddress]);
 
 ### Description
 
@@ -199,6 +202,7 @@ Function `read` reads the data from the buffer. The data is passed to the succes
 
 - __success__: Success callback function that is invoked with the number of bytes available to be read.
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ### Quick Example
 
@@ -210,7 +214,7 @@ Function `read` reads the data from the buffer. The data is passed to the succes
 
 Reads data from the buffer until it reaches a delimiter.
 
-    bluetoothSerial.readUntil('\n', success, failure);
+    bluetoothSerial.readUntil('\n', success, failure, [macAddress]);
 
 ### Description
 
@@ -221,6 +225,7 @@ Function `readUntil` reads the data from the buffer until it reaches a delimiter
 - __delimiter__: delimiter
 - __success__: Success callback function that is invoked with the data.
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ### Quick Example
 
@@ -232,7 +237,7 @@ Function `readUntil` reads the data from the buffer until it reaches a delimiter
 
 Subscribe to be notified when data is received.
 
-    bluetoothSerial.subscribe('\n', success, failure);
+    bluetoothSerial.subscribe('\n', success, failure, [macAddress]);
 
 ### Description
 
@@ -243,6 +248,7 @@ Function `subscribe` registers a callback that is called when data is received. 
 - __delimiter__: delimiter
 - __success__: Success callback function that is invoked with the data.
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ### Quick Example
 
@@ -255,7 +261,7 @@ Function `subscribe` registers a callback that is called when data is received. 
 
 Unsubscribe from a subscription.
 
-    bluetoothSerial.unsubscribe(success, failure);
+    bluetoothSerial.unsubscribe(success, failure, [macAddress]);
 
 ### Description
 
@@ -265,6 +271,7 @@ Function `unsubscribe` removes any notification added by `subscribe` and kills t
 
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ### Quick Example
 
@@ -274,7 +281,7 @@ Function `unsubscribe` removes any notification added by `subscribe` and kills t
 
 Subscribe to be notified when data is received.
 
-    bluetoothSerial.subscribeRawData(success, failure);
+    bluetoothSerial.subscribeRawData(success, failure, [macAddress]);
 
 ### Description
 
@@ -284,6 +291,7 @@ Function `subscribeRawData` registers a callback that is called when data is rec
 
 - __success__: Success callback function that is invoked with the data.
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ### Quick Example
 
@@ -297,7 +305,7 @@ Function `subscribeRawData` registers a callback that is called when data is rec
 
 Unsubscribe from a subscription.
 
-    bluetoothSerial.unsubscribeRawData(success, failure);
+    bluetoothSerial.unsubscribeRawData(success, failure, [macAddress]);
 
 ### Description
 
@@ -307,6 +315,7 @@ Function `unsubscribeRawData` removes any notification added by `subscribeRawDat
 
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ### Quick Example
 
@@ -316,7 +325,7 @@ Function `unsubscribeRawData` removes any notification added by `subscribeRawDat
 
 Clears data in the buffer.
 
-    bluetoothSerial.clear(success, failure);
+    bluetoothSerial.clear(success, failure, [macAddress]);
 
 ### Description
 
@@ -326,6 +335,7 @@ Function `clear` removes any data from the receive buffer.
 
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ## list
 
