@@ -6,9 +6,6 @@ var wsc = Windows.Security.Cryptography;
 var initialized = false;
 var cachedServices = [];
 
-
-// The Id of the Service Name SDP attribute (---> 0x1101 = SERIAL PORT <---)
-var SDP_SERVICE_NAME_ATTRIBUTE_ID = 0x1101;
 var app = WinJS.Application;
 var rfcomm = Windows.Devices.Bluetooth.Rfcomm;
 var sockets = Windows.Networking.Sockets;
@@ -59,7 +56,7 @@ var receiveStringLoop = function(reader) {
 				var tmp = readUntil(delimiter);
 				console.log("Data to send to subscriber: " + tmp);
 
-				subscribeCallback.call(tmp);
+				subscribeCallback(tmp);
 			}
 			
 			WinJS.Promise.timeout().done(function () { return receiveStringLoop(reader); });
