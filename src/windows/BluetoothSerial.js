@@ -6,6 +6,7 @@ var wsc = Windows.Security.Cryptography;
 var initialized = false;
 var cachedServices = [];
 
+
 var app = WinJS.Application;
 var rfcomm = Windows.Devices.Bluetooth.Rfcomm;
 var sockets = Windows.Networking.Sockets;
@@ -23,10 +24,7 @@ var subscribeCallback;
 
 var receiveStringLoop = function(reader) {
 	// Read first byte (length of the subsequent message, 255 or less). 
-	reader.loadAsync(1).done(function (size) {
-		
-		console.log("receiveStringLoop -> size: " + size);
-		
+	reader.loadAsync(1).done(function (size) {		
 		if (size != 1) {
 			bluetoothSerial.disconnect();
 			console.log("The underlying socket was closed before we were able to read the whole data. Client disconnected.", "sample", "status");
@@ -38,7 +36,6 @@ var receiveStringLoop = function(reader) {
 		console.log("messageLength: " + messageLength);
 		
 		reader.loadAsync(messageLength).done(function(actualMessageLength) {
-			console.log("actualMessageLength: " + actualMessageLength);
 			if (messageLength != actualMessageLength)
 			{
 				// The underlying socket was closed before we were able to read the whole data. 
@@ -46,7 +43,7 @@ var receiveStringLoop = function(reader) {
 				return;
 			}
 			
-			// Read the message and process it.
+			// ATTENTION: NEED TO IMPLEMENT readBytes...
 			var message = reader.readString(actualMessageLength);
 			console.log("Message readed: " + message + "\nLength: " + message.length);
 			buffer = message;
