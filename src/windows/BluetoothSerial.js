@@ -1,7 +1,5 @@
 var bluetooth = Windows.Devices.Bluetooth;
-var gatt = Windows.Devices.Bluetooth.GenericAttributeProfile;
 var deviceInfo = Windows.Devices.Enumeration.DeviceInformation;
-var wsc = Windows.Security.Cryptography;
 
 var initialized = false;
 var cachedServices = [];
@@ -20,51 +18,6 @@ var buffer;
 var delimiter;
 var subscribeCallback;
 
-
-
-var receiveStringLoop = function(reader) {
-	// Read first byte (length of the subsequent message, 255 or less). 
-	reader.loadAsync(1).done(function (size) {		
-		if (size != 1) {
-			bluetoothSerial.disconnect();
-			console.log("The underlying socket was closed before we were able to read the whole data. Client disconnected.", "sample", "status");
-			return;
-		}
-
-		// Read the message. 
-		var messageLength = reader.readByte();
-		console.log("messageLength: " + messageLength);
-		
-		reader.loadAsync(messageLength).done(function(actualMessageLength) {
-			if (messageLength != actualMessageLength)
-			{
-				// The underlying socket was closed before we were able to read the whole data. 
-				console.log("The underlying socket was closed before we were able to read the whole data.", "sample", "status");
-				return;
-			}
-			
-			// ATTENTION: NEED TO IMPLEMENT readBytes...
-			var message = reader.readString(actualMessageLength);
-			console.log("Message readed: " + message + "\nLength: " + message.length);
-			buffer = message;
-			
-			if (subscribeCallback && typeof(subscribeCallback) !== "undefined") {
-				console.log("trying to execute the callback..."); //trying to load new data
-				var tmp = readUntil(delimiter);
-				console.log("Data to send to subscriber: " + tmp);
-
-				subscribeCallback(tmp);
-			}
-			
-			WinJS.Promise.timeout().done(function () { return receiveStringLoop(reader); });
-		}, function (error) {
-			console.log("loadAsync -> Failed to read the message, with error: " + error, "sample", "error");
-		});
-	}, function (error) {
-		console.log("Failed to read the message size, with error: " + error, "sample", "error");
-	});
-}
-
 var readUntil = function(chars) {
 	var index = buffer.indexOf(chars);
 	var data = "";
@@ -77,9 +30,50 @@ var readUntil = function(chars) {
 	return data;
 }
 
-
-
 module.exports = {
+	receiveStringLoop: function(reader) {
+		// Read first byte (length of the subsequent message, 255 or less). 
+		reader.loadAsync(1).done(function (size) {		
+			if (size != 1) {
+				bluetoothSerial.disconnect();
+				console.log("The underlying socket was closed before we were able to read the whole data. Client disconnected.", "sample", "status");
+				return;
+			}
+
+			// Read the message. 
+			var messageLength = reader.readByte();
+			console.log("messageLength: " + messageLength);
+			
+			reader.loadAsync(messageLength).done(function(actualMessageLength) {
+				if (messageLength != actualMessageLength)
+				{
+					// The underlying socket was closed before we were able to read the whole data. 
+					console.log("The underlying socket was closed before we were able to read the whole data.", "sample", "status");
+					return;
+				}
+				
+				// ATTENTION: NEED TO IMPLEMENT readBytes...
+				var message = reader.readString(actualMessageLength);
+				
+				console.log("Message readed: " + message + " - Length: " + message.length);
+				buffer = message;
+				
+				if (subscribeCallback && typeof(subscribeCallback) !== "undefined") {
+					//console.log("trying to execute the callback..."); //trying to load new data
+					var tmp = readUntil(delimiter);
+					console.log("Data to send to subscriber: " + tmp);
+
+					subscribeCallback(tmp);
+				}
+				
+				WinJS.Promise.timeout().done(function () { return module.exports.receiveStringLoop(reader); });
+			}, function (error) {
+				console.log("loadAsync -> Failed to read the message, with error: " + error, "sample", "error");
+			});
+		}, function (error) {
+			console.log("Failed to read the message size, with error: " + error, "sample", "error");
+		});
+	},
 	
 	list: function(success, failure, args) {
 		deviceInfo.findAllAsync(
@@ -140,7 +134,8 @@ module.exports = {
 							
 							buffer = [];
 							
-							receiveStringLoop(reader);
+							//receiveStringLoop(reader);
+							module.exports.receiveStringLoop(reader);
 							
 							success("Connected...");
 						});
@@ -178,15 +173,18 @@ module.exports = {
 	},
 	
 	available: function(success, failure, args) {
-		
+		success(buffer.length);
 	},
 	
 	read: function(success, failure, args) {
-
+		var ret = buffer;
+		buffer = "";
+		success(ret);
 	},
 	
 	readUntil: function(success, failure, args) {
-		
+		var delim = args[0];
+		success(readUntil(delim));
 	},
 	
 	write: function(success, failure, args) {
@@ -226,7 +224,7 @@ module.exports = {
 	},
 	
 	clear: function(success, failure, args) {
-		
+		buffer = "";
 	},
 	
 	readRSSI: function(success, failure, args) {
