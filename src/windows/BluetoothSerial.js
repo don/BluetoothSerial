@@ -1,14 +1,10 @@
 var bluetooth = Windows.Devices.Bluetooth;
 var deviceInfo = Windows.Devices.Enumeration.DeviceInformation;
-
-var initialized = false;
-var cachedServices = [];
-
-
 var app = WinJS.Application;
 var rfcomm = Windows.Devices.Bluetooth.Rfcomm;
 var sockets = Windows.Networking.Sockets;
 var streams = Windows.Storage.Streams;
+
 var service;
 var socket;
 var services;
@@ -17,6 +13,9 @@ var reader;
 var buffer;
 var delimiter;
 var subscribeCallback;
+
+
+
 
 var readUntil = function(chars) {
 	var index = buffer.indexOf(chars);
@@ -30,8 +29,11 @@ var readUntil = function(chars) {
 	return data;
 }
 
+
+
 module.exports = {
-	receiveStringLoop: function(reader) {
+	
+	receiveStringLoop:  function(reader) {
 		// Read first byte (length of the subsequent message, 255 or less). 
 		reader.loadAsync(1).done(function (size) {		
 			if (size != 1) {
@@ -42,24 +44,18 @@ module.exports = {
 
 			// Read the message. 
 			var messageLength = reader.readByte();
-			console.log("messageLength: " + messageLength);
-			
 			reader.loadAsync(messageLength).done(function(actualMessageLength) {
 				if (messageLength != actualMessageLength)
 				{
-					// The underlying socket was closed before we were able to read the whole data. 
 					console.log("The underlying socket was closed before we were able to read the whole data.", "sample", "status");
 					return;
 				}
 				
 				// ATTENTION: NEED TO IMPLEMENT readBytes...
 				var message = reader.readString(actualMessageLength);
-				
-				console.log("Message readed: " + message + " - Length: " + message.length);
 				buffer = message;
 				
 				if (subscribeCallback && typeof(subscribeCallback) !== "undefined") {
-					//console.log("trying to execute the callback..."); //trying to load new data
 					var tmp = readUntil(delimiter);
 					console.log("Data to send to subscriber: " + tmp);
 
@@ -134,7 +130,6 @@ module.exports = {
 							
 							buffer = [];
 							
-							//receiveStringLoop(reader);
 							module.exports.receiveStringLoop(reader);
 							
 							success("Connected...");
@@ -151,25 +146,40 @@ module.exports = {
 	},
 	
 	connectInsecure: function(success, failure, args) {
-		
+		console.log("Not yet implemented...");
 	},
 	
-	disconnect: function(success, failure, args) {
+	disconnect: function(success, failure, args) {			
 		if (writer) {
 			writer.detachStream();
 			writer = null;
-		}
+		}		
 
 		if (socket) {
 			socket.close();
 			socket = null;
+			
 		}
 		
-		success({message: "Device disconnected." });
+		success("Device disconnected.");		
 	},
 	
 	isEnabled: function(success, failure, args) {
-		
+		deviceInfo.findAllAsync(
+			Windows.Devices.Bluetooth.Rfcomm.RfcommDeviceService.getDeviceSelector(
+				Windows.Devices.Bluetooth.Rfcomm.RfcommServiceId.serialPort			
+			),
+			null
+		).then(function(devices) {
+			if (devices.length > 0) {
+				console.log("bluetoothSerial -> The bluetooth is enabled");
+				success(1);
+			}
+			else {
+				console.log("bluetoothSerial -> The bluetooth is disabled");
+				success(0);
+			}
+		});
 	},
 	
 	available: function(success, failure, args) {
@@ -184,6 +194,7 @@ module.exports = {
 	
 	readUntil: function(success, failure, args) {
 		var delim = args[0];
+		console.log(delim);
 		success(readUntil(delim));
 	},
 	
@@ -212,43 +223,46 @@ module.exports = {
 	},
 	
 	unsubscribe: function(success, failure, args) {
-		
+		delimiter = "";
+		subscribeCallback = null;
+		success("Unsubscribed");
 	},
 	
 	subscribeRawData: function(success, failure, args) {
-		
+		console.log("Not yet implemented...");
 	},
 	
 	unsubscribeRawData: function(success, failure, args) {
-		
+		console.log("Not yet implemented...");
 	},
 	
 	clear: function(success, failure, args) {
 		buffer = "";
+		success("Buffer cleared");
 	},
 	
 	readRSSI: function(success, failure, args) {
-		
+		console.log("Not yet implemented...");
 	},
 	
 	showBluetoothSettings: function(success, failure, args) {
-		
+		console.log("Not yet implemented...");
 	},
 	
 	setDeviceDiscoveredListener: function(success, failure, args) {
-		
+		console.log("Not yet implemented...");
 	},
 	
 	clearDeviceDiscovered: function(success, failure, args) {
-		
+		console.log("Not yet implemented...");
 	},
 	
 	setName: function(success, failure, args) {
-		
+		console.log("Not yet implemented...");
 	},
 	
 	setDiscoverable: function(success, failure, args) {
-		
+		console.log("Not yet implemented...");
 	}
 }
 
