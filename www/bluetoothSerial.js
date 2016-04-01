@@ -82,7 +82,7 @@ module.exports = {
             }
             success(data);
         };
-        cordova.exec(successWrapper, failure, "BluetoothSerial", "subscribeRaw", []);
+        cordova.exec(successWrapper, failure, "BluetoothSerial", "subscribeRaw", [successWrapper]);
     },
 
     // removes data subscription
