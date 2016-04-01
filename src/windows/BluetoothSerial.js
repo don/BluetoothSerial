@@ -1,20 +1,16 @@
+var app = WinJS.Application;
 var bluetooth = Windows.Devices.Bluetooth;
 var deviceInfo = Windows.Devices.Enumeration.DeviceInformation;
-var app = WinJS.Application;
 var rfcomm = Windows.Devices.Bluetooth.Rfcomm;
 var sockets = Windows.Networking.Sockets;
 var streams = Windows.Storage.Streams;
 
-var service;
 var socket;
-var services;
 var writer;
 var reader;
-var buffer;
+var bufferBytes, buffer;
 var delimiter;
-var subscribeCallback;
-
-
+var subscribeCallback, subscribeRawCallback;
 
 
 var readUntil = function(chars) {
@@ -23,15 +19,33 @@ var readUntil = function(chars) {
 	
 	if (index > -1) {
 		data = buffer.substring(0, index + chars.length);
-		buffer.replace(data, "");
+		buffer = buffer.replace(data, "");
 	}
 	
 	return data;
 }
 
-
+/*
+ * http://stackoverflow.com/questions/17191945/conversion-between-utf-8-arraybuffer-and-string
+ * Niccolò Campolungo's answer
+*/
+var uintToString = function(uintArray) {
+	var encodedString = String.fromCharCode.apply(null, uintArray);
+	var decodedString = decodeURIComponent(escape(encodedString));
+	return decodedString;
+}
 
 module.exports = {
+	sendDataToSubscriber: function() {
+		var data = readUntil(delimiter);
+		
+		if (data && data.length > 0) {
+			subscribeCallback(data);
+			
+			// in case there is more data to send
+			module.exports.sendDataToSubscriber();
+		}
+	},
 	
 	receiveStringLoop:  function(reader) {
 		// Read first byte (length of the subsequent message, 255 or less). 
@@ -43,7 +57,7 @@ module.exports = {
 			}
 
 			// Read the message. 
-			var messageLength = reader.readByte();
+			var messageLength = reader.readByte();			
 			reader.loadAsync(messageLength).done(function(actualMessageLength) {
 				if (messageLength != actualMessageLength)
 				{
@@ -51,15 +65,19 @@ module.exports = {
 					return;
 				}
 				
-				// ATTENTION: NEED TO IMPLEMENT readBytes...
-				var message = reader.readString(actualMessageLength);
-				buffer = message;
+				//var message = reader.readString(actualMessageLength);
+				bufferBytes = new Uint8Array(actualMessageLength);
+				reader.readBytes(bufferBytes);
+				
+				// unfortunately IE doesn't support TextDecoder, so we need another solution...
+				buffer = uintToString(bufferBytes);
+				
+				if (subscribeRawCallback && typeof(subscribeRawCallback) !== "undefined") {
+					subscribeRawCallback(bufferBytes);
+				}
 				
 				if (subscribeCallback && typeof(subscribeCallback) !== "undefined") {
-					var tmp = readUntil(delimiter);
-					console.log("Data to send to subscriber: " + tmp);
-
-					subscribeCallback(tmp);
+					module.exports.sendDataToSubscriber();
 				}
 				
 				WinJS.Promise.timeout().done(function () { return module.exports.receiveStringLoop(reader); });
@@ -90,7 +108,7 @@ module.exports = {
 				success(results);
 			}
 			else {
-				failure({error: "list", message: "No Bluetooth devices found." });
+				failure("No Bluetooth devices found.");
 			}
 		});
 	},
@@ -102,15 +120,7 @@ module.exports = {
 		rfcomm.RfcommDeviceService.fromIdAsync(id).then(
 			function (service) {
 				if (service === null) {
-					var msg = "connect\nservice is null";
-					navigator.notification.alert(
-						msg,  // message
-						function () {
-						},         // callback
-						'Game Over',            // title
-						'Done'                  // buttonName
-					);
-					failure({error: "connect", message: "Access to the device is denied because the application was not granted access.", ids: id });	
+					failure("Access to the device is denied because the application was not granted access.");	
 				}
 				else {					
 					socket = new sockets.StreamSocket();
@@ -128,25 +138,22 @@ module.exports = {
 							reader.unicodeEncoding = streams.UnicodeEncoding.Utf8;
 							reader.byteOrder = streams.ByteOrder.littleEndian;
 							
-							buffer = [];
-							
+							buffer = [];							
 							module.exports.receiveStringLoop(reader);
 							
-							success("Connected...");
+							success("Connected.");
 						});
 					}
 					else {
-						failure({error: "connect->service", message: "asd." });
+						failure("Impossible to determine the HostName or the ServiceName.");
 					}
-					
 				}
-				
 			}
 		);
 	},
 	
 	connectInsecure: function(success, failure, args) {
-		console.log("Not yet implemented...");
+		failure("Not yet implemented...");
 	},
 	
 	disconnect: function(success, failure, args) {			
@@ -172,11 +179,9 @@ module.exports = {
 			null
 		).then(function(devices) {
 			if (devices.length > 0) {
-				console.log("bluetoothSerial -> The bluetooth is enabled");
 				success(1);
 			}
 			else {
-				console.log("bluetoothSerial -> The bluetooth is disabled");
 				success(0);
 			}
 		});
@@ -210,30 +215,31 @@ module.exports = {
 			writer.storeAsync().done(function () {
 				success("Data sent to the device correctly!");
 			}, function (error) {
-				console.log("Failed to send the message to the server, error: " + error, "sample", "error");
+				console.log("Failed to send the message to the server, error: " + error);
 			});
 		} catch (error) {
-			WinJS.log && WinJS.log("Sending message failed with error: " + error);
+			console.log("Sending message failed with error: " + error);
 		}
 	},
 	
 	subscribe: function(success, failure, args) {
 		delimiter = args[0];
-		subscribeCallback = success;
+		subscribeCallback = args[1];
 	},
 	
 	unsubscribe: function(success, failure, args) {
 		delimiter = "";
 		subscribeCallback = null;
-		success("Unsubscribed");
+		success("Unsubscribed.");
 	},
 	
-	subscribeRawData: function(success, failure, args) {
-		console.log("Not yet implemented...");
+	subscribeRaw: function(success, failure, args) {
+		subscribeRawCallback = args[0];
 	},
 	
-	unsubscribeRawData: function(success, failure, args) {
-		console.log("Not yet implemented...");
+	unsubscribeRaw: function(success, failure, args) {
+		subscribeRawCallback = null;
+		success("Unsubscribed from raw data.");
 	},
 	
 	clear: function(success, failure, args) {
@@ -242,27 +248,27 @@ module.exports = {
 	},
 	
 	readRSSI: function(success, failure, args) {
-		console.log("Not yet implemented...");
+		failure("Not yet implemented...");
 	},
 	
 	showBluetoothSettings: function(success, failure, args) {
-		console.log("Not yet implemented...");
+		failure("Not yet implemented...");
 	},
 	
 	setDeviceDiscoveredListener: function(success, failure, args) {
-		console.log("Not yet implemented...");
+		failure("Not yet implemented...");
 	},
 	
 	clearDeviceDiscovered: function(success, failure, args) {
-		console.log("Not yet implemented...");
+		failure("Not yet implemented...");
 	},
 	
 	setName: function(success, failure, args) {
-		console.log("Not yet implemented...");
+		failure("Not yet implemented...");
 	},
 	
 	setDiscoverable: function(success, failure, args) {
-		console.log("Not yet implemented...");
+		failure("Not yet implemented...");
 	}
 }
 
