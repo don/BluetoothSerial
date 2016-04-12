@@ -414,7 +414,7 @@ Example list passed to success callback for Windows Phone.
 
 Reports the connection status.
 
-    bluetoothSerial.isConnected(success, failure);
+    bluetoothSerial.isConnected(success, failure, [macAddress]);
 
 ### Description
 
@@ -424,6 +424,7 @@ Function `isConnected` calls the success callback when connected to a peer and t
 
 - __success__: Success callback function, invoked when device connected.
 - __failure__: Error callback function, invoked when device is NOT connected.
+- __macAddress__: Identifier of the remote device, if not specified the identifier of the last connect or connectInsecure is used. [optional]
 
 ### Quick Example
 

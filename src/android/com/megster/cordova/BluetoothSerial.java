@@ -30,137 +30,137 @@ public class BluetoothSerial extends CordovaPlugin {
 
 
 
-	private class ConnectionContext{
-	
-		// callbacks
-		public CallbackContext connectCallback;
-		public CallbackContext dataAvailableCallback;
-		public CallbackContext rawDataAvailableCallback;
-		
-		
-		public BluetoothSerialService bluetoothSerialService;
-		
-		
-		StringBuffer buffer = new StringBuffer();
-		private String delimiter;
+    private class ConnectionContext{
+
+        // callbacks
+        public CallbackContext connectCallback;
+        public CallbackContext dataAvailableCallback;
+        public CallbackContext rawDataAvailableCallback;
+
+
+        public BluetoothSerialService bluetoothSerialService;
+
+
+        StringBuffer buffer = new StringBuffer();
+        private String delimiter;
 
 
         public ConnectionContext()
         {
             bluetoothSerialService = new BluetoothSerialService(mHandler);
         }
-		
-		private void notifyConnectionLost(String error) {
-			if (connectCallback != null) {
-				connectCallback.error(error);
-				connectCallback = null;
-			}
-		}
 
-		private void notifyConnectionSuccess() {
-			if (connectCallback != null) {
-				PluginResult result = new PluginResult(PluginResult.Status.OK);
-				result.setKeepCallback(true);
-				connectCallback.sendPluginResult(result);
-			}
-		}
+        private void notifyConnectionLost(String error) {
+            if (connectCallback != null) {
+                connectCallback.error(error);
+                connectCallback = null;
+            }
+        }
 
-		private void sendRawDataToSubscriber(byte[] data) {
-			if (data != null && data.length > 0) {
-				PluginResult result = new PluginResult(PluginResult.Status.OK, data);
-				result.setKeepCallback(true);
-				rawDataAvailableCallback.sendPluginResult(result);
-			}
-		}
+        private void notifyConnectionSuccess() {
+            if (connectCallback != null) {
+                PluginResult result = new PluginResult(PluginResult.Status.OK);
+                result.setKeepCallback(true);
+                connectCallback.sendPluginResult(result);
+            }
+        }
 
-		private void sendDataToSubscriber() {
-			String data = readUntil(delimiter);
-			if (data != null && data.length() > 0) {
-				PluginResult result = new PluginResult(PluginResult.Status.OK, data);
-				result.setKeepCallback(true);
-				dataAvailableCallback.sendPluginResult(result);
+        private void sendRawDataToSubscriber(byte[] data) {
+            if (data != null && data.length > 0) {
+                PluginResult result = new PluginResult(PluginResult.Status.OK, data);
+                result.setKeepCallback(true);
+                rawDataAvailableCallback.sendPluginResult(result);
+            }
+        }
 
-				sendDataToSubscriber();
-			}
-		}
+        private void sendDataToSubscriber() {
+            String data = readUntil(delimiter);
+            if (data != null && data.length() > 0) {
+                PluginResult result = new PluginResult(PluginResult.Status.OK, data);
+                result.setKeepCallback(true);
+                dataAvailableCallback.sendPluginResult(result);
 
-		private int available() {
-			return buffer.length();
-		}
+                sendDataToSubscriber();
+            }
+        }
 
-		private String read() {
-			int length = buffer.length();
-			String data = buffer.substring(0, length);
-			buffer.delete(0, length);
-			return data;
-		}
+        private int available() {
+            return buffer.length();
+        }
 
-		private String readUntil(String c) {
-			String data = "";
-			int index = buffer.indexOf(c, 0);
-			if (index > -1) {
-				data = buffer.substring(0, index + c.length());
-				buffer.delete(0, index + c.length());
-			}
-			return data;
-		}
-		
-		// The Handler that gets information back from the BluetoothSerialService
-		// Original code used handler for the because it was talking to the UI.
-		// Consider replacing with normal callbacks
-		private final Handler mHandler = new Handler() {
+        private String read() {
+            int length = buffer.length();
+            String data = buffer.substring(0, length);
+            buffer.delete(0, length);
+            return data;
+        }
 
-			 public void handleMessage(Message msg) {
-				 switch (msg.what) {
-					 case MESSAGE_READ:
-						buffer.append((String)msg.obj);
+        private String readUntil(String c) {
+            String data = "";
+            int index = buffer.indexOf(c, 0);
+            if (index > -1) {
+                data = buffer.substring(0, index + c.length());
+                buffer.delete(0, index + c.length());
+            }
+            return data;
+        }
 
-						if (dataAvailableCallback != null) {
-							sendDataToSubscriber();
-						}
+        // The Handler that gets information back from the BluetoothSerialService
+        // Original code used handler for the because it was talking to the UI.
+        // Consider replacing with normal callbacks
+        private final Handler mHandler = new Handler() {
 
-						break;
-					 case MESSAGE_READ_RAW:
-						if (rawDataAvailableCallback != null) {
-							byte[] bytes = (byte[]) msg.obj;
-							sendRawDataToSubscriber(bytes);
-						}
-						break;
-					 case MESSAGE_STATE_CHANGE:
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case MESSAGE_READ:
+                        buffer.append((String)msg.obj);
 
-						if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-						switch (msg.arg1) {
-							case BluetoothSerialService.STATE_CONNECTED:
-								Log.i(TAG, "BluetoothSerialService.STATE_CONNECTED");
-								notifyConnectionSuccess();
-								break;
-							case BluetoothSerialService.STATE_CONNECTING:
-								Log.i(TAG, "BluetoothSerialService.STATE_CONNECTING");
-								break;
-							case BluetoothSerialService.STATE_LISTEN:
-								Log.i(TAG, "BluetoothSerialService.STATE_LISTEN");
-								break;
-							case BluetoothSerialService.STATE_NONE:
-								Log.i(TAG, "BluetoothSerialService.STATE_NONE");
-								break;
-						}
-						break;
-					case MESSAGE_WRITE:
-						//  byte[] writeBuf = (byte[]) msg.obj;
-						//  String writeMessage = new String(writeBuf);
-						//  Log.i(TAG, "Wrote: " + writeMessage);
-						break;
-					case MESSAGE_DEVICE_NAME:
-						Log.i(TAG, msg.getData().getString(DEVICE_NAME));
-						break;
-					case MESSAGE_TOAST:
-						String message = msg.getData().getString(TOAST);
-						notifyConnectionLost(message);
-						break;
-				 }
-			 }
-		};
-	}
+                        if (dataAvailableCallback != null) {
+                            sendDataToSubscriber();
+                        }
+
+                        break;
+                    case MESSAGE_READ_RAW:
+                        if (rawDataAvailableCallback != null) {
+                            byte[] bytes = (byte[]) msg.obj;
+                            sendRawDataToSubscriber(bytes);
+                        }
+                        break;
+                    case MESSAGE_STATE_CHANGE:
+
+                        if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+                        switch (msg.arg1) {
+                            case BluetoothSerialService.STATE_CONNECTED:
+                                Log.i(TAG, "BluetoothSerialService.STATE_CONNECTED");
+                                notifyConnectionSuccess();
+                                break;
+                            case BluetoothSerialService.STATE_CONNECTING:
+                                Log.i(TAG, "BluetoothSerialService.STATE_CONNECTING");
+                                break;
+                            case BluetoothSerialService.STATE_LISTEN:
+                                Log.i(TAG, "BluetoothSerialService.STATE_LISTEN");
+                                break;
+                            case BluetoothSerialService.STATE_NONE:
+                                Log.i(TAG, "BluetoothSerialService.STATE_NONE");
+                                break;
+                        }
+                        break;
+                    case MESSAGE_WRITE:
+                        //  byte[] writeBuf = (byte[]) msg.obj;
+                        //  String writeMessage = new String(writeBuf);
+                        //  Log.i(TAG, "Wrote: " + writeMessage);
+                        break;
+                    case MESSAGE_DEVICE_NAME:
+                        Log.i(TAG, msg.getData().getString(DEVICE_NAME));
+                        break;
+                    case MESSAGE_TOAST:
+                        String message = msg.getData().getString(TOAST);
+                        notifyConnectionLost(message);
+                        break;
+                }
+            }
+        };
+    }
 
     // actions
     private static final String LIST = "list";
@@ -256,95 +256,150 @@ public class BluetoothSerial extends CordovaPlugin {
             if(!args.isNull(0))
             {
                 cc=connections.get(args.getString(0));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
-            cc.connectCallback = null;
-            cc.bluetoothSerialService.stop();
-            callbackContext.success();
+            if(cc!=null)
+            {
+                cc.connectCallback = null;
+                cc.bluetoothSerialService.stop();
+                callbackContext.success();
+            }
 
         } else if (action.equals(WRITE)) {
             if(!args.isNull(1))
             {
                 cc=connections.get(args.getString(1));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
 
-            byte[] data = args.getArrayBuffer(0);
-            cc.bluetoothSerialService.write(data);
-            callbackContext.success();
+            if(cc!=null) {
+                byte[] data = args.getArrayBuffer(0);
+                cc.bluetoothSerialService.write(data);
+                callbackContext.success();
+            }
 
         } else if (action.equals(AVAILABLE)) {
             if(!args.isNull(0))
             {
                 cc=connections.get(args.getString(0));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
 
-            callbackContext.success(cc.available());
+            if(cc!=null) {
+                callbackContext.success(cc.available());
+            }
 
         } else if (action.equals(READ)) {
             if(!args.isNull(0))
             {
                 cc=connections.get(args.getString(0));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
 
-            callbackContext.success(cc.read());
+            if(cc!=null) {
+                callbackContext.success(cc.read());
+            }
 
         } else if (action.equals(READ_UNTIL)) {
             if(!args.isNull(1))
             {
                 cc=connections.get(args.getString(1));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
 
-            String interesting = args.getString(0);
-            callbackContext.success(cc.readUntil(interesting));
+            if(cc!=null) {
+                String interesting = args.getString(0);
+                callbackContext.success(cc.readUntil(interesting));
+            }
 
         } else if (action.equals(SUBSCRIBE)) {
             if(!args.isNull(1))
             {
                 cc=connections.get(args.getString(1));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
 
-            cc.delimiter = args.getString(0);
-            cc.dataAvailableCallback = callbackContext;
+            if(cc!=null) {
+                cc.delimiter = args.getString(0);
+                cc.dataAvailableCallback = callbackContext;
 
-            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-            result.setKeepCallback(true);
-            callbackContext.sendPluginResult(result);
+                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                result.setKeepCallback(true);
+                callbackContext.sendPluginResult(result);
+            }
 
         } else if (action.equals(UNSUBSCRIBE)) {
             if(!args.isNull(0))
             {
                 cc=connections.get(args.getString(0));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
 
-            cc.delimiter = null;
+            if(cc!=null) {
+                cc.delimiter = null;
 
-            // send no result, so Cordova won't hold onto the data available callback anymore
-            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-            cc.dataAvailableCallback.sendPluginResult(result);
-            cc.dataAvailableCallback = null;
+                // send no result, so Cordova won't hold onto the data available callback anymore
+                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                cc.dataAvailableCallback.sendPluginResult(result);
+                cc.dataAvailableCallback = null;
 
-            callbackContext.success();
+                callbackContext.success();
+            }
 
         } else if (action.equals(SUBSCRIBE_RAW)) {
             if(!args.isNull(0))
             {
                 cc=connections.get(args.getString(0));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
 
-            cc.rawDataAvailableCallback = callbackContext;
+            if(cc!=null) {
+                cc.rawDataAvailableCallback = callbackContext;
 
-            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-            result.setKeepCallback(true);
-            callbackContext.sendPluginResult(result);
+                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                result.setKeepCallback(true);
+                callbackContext.sendPluginResult(result);
+            }
 
         } else if (action.equals(UNSUBSCRIBE_RAW)) {
             if(!args.isNull(0))
             {
                 cc=connections.get(args.getString(0));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
 
-            cc.rawDataAvailableCallback = null;
+            if(cc!=null) {
+                cc.rawDataAvailableCallback = null;
 
-            callbackContext.success();
+                callbackContext.success();
+            }
 
         } else if (action.equals(IS_ENABLED)) {
 
@@ -358,9 +413,10 @@ public class BluetoothSerial extends CordovaPlugin {
             if(!args.isNull(0))
             {
                 cc=connections.get(args.getString(0));
+
             }
 
-            if (cc.bluetoothSerialService.getState() == BluetoothSerialService.STATE_CONNECTED) {
+            if (cc!=null && cc.bluetoothSerialService.getState() == BluetoothSerialService.STATE_CONNECTED) {
                 callbackContext.success();
             } else {
                 callbackContext.error("Not connected.");
@@ -370,10 +426,16 @@ public class BluetoothSerial extends CordovaPlugin {
             if(!args.isNull(0))
             {
                 cc=connections.get(args.getString(0));
+                if(cc==null)
+                {
+                    callbackContext.error("Address " + args.getString(0)+" never used before");
+                }
             }
 
-            cc.buffer.setLength(0);
-            callbackContext.success();
+            if(cc!=null) {
+                cc.buffer.setLength(0);
+                callbackContext.success();
+            }
 
         } else if (action.equals(SETTINGS)) {
 
@@ -474,7 +536,7 @@ public class BluetoothSerial extends CordovaPlugin {
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     try {
-                    	JSONObject o = deviceToJSON(device);
+                        JSONObject o = deviceToJSON(device);
                         unpairedDevices.put(o);
                         if (ddc != null) {
                             PluginResult res = new PluginResult(PluginResult.Status.OK, o);
@@ -531,6 +593,6 @@ public class BluetoothSerial extends CordovaPlugin {
         }
     }
 
-    
+
 
 }
