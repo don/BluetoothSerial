@@ -342,12 +342,18 @@ Function `list` lists the paired Bluetooth devices.  The success callback is cal
 Example list passed to success callback.  See [BluetoothDevice](http://developer.android.com/reference/android/bluetooth/BluetoothDevice.html#getName\(\)) and [BluetoothClass#getDeviceClass](http://developer.android.com/reference/android/bluetooth/BluetoothClass.html#getDeviceClass\(\)).
 
     [{
-        "class": 276,
+        "classMinor": 276,
+        "classMajor": 1276,
+        "rssi": -75,
+        "type": "Classic",
         "id": "10:BF:48:CB:00:00",
         "address": "10:BF:48:CB:00:00",
         "name": "Nexus 7"
     }, {
-        "class": 7936,
+        "classMinor": 7936,
+        "classMajor": 5276,
+        "rssi": -32,
+        "type": "BLE",
         "id": "00:06:66:4D:00:00",
         "address": "00:06:66:4D:00:00",
         "name": "RN42"
@@ -546,17 +552,23 @@ Function `discoverUnpaired` discovers unpaired Bluetooth devices. The success ca
 Example list passed to success callback.
 
     [{
-        "class": 276,
+        "classMinor": 276,
+        "classMajor": 1276,
+        "rssi": -75,
+        "type": "Classic",
         "id": "10:BF:48:CB:00:00",
         "address": "10:BF:48:CB:00:00",
         "name": "Nexus 7"
     }, {
-        "class": 7936,
+        "classMinor": 7936,
+        "classMajor": 5276,
+        "rssi": -32,
+        "type": "BLE",
         "id": "00:06:66:4D:00:00",
         "address": "00:06:66:4D:00:00",
         "name": "RN42"
     }]
-
+    
 The discovery process takes a while to happen. You can register notify callback with [setDeviceDiscoveredListener](#setdevicediscoveredlistener).
 You may also want to show a progress indicator while waiting for the discover proces to finish, and the sucess callback to be invoked.
 
@@ -592,12 +604,15 @@ There can be only one registered callback.
 Example object passed to notify callback.
 
     {
-        "class": 276,
+        "classMinor": 276,
+        "classMajor": 1276,
+        "rssi": -75,
+        "type": "Classic",
         "id": "10:BF:48:CB:00:00",
         "address": "10:BF:48:CB:00:00",
         "name": "Nexus 7"
     }
-
+    
 #### iOS & Windows Phone
 
 See [discoverUnpaired](#discoverunpaired).
