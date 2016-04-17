@@ -49,7 +49,7 @@ public class BluetoothSerialService {
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
-
+    
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
     public static final int STATE_LISTEN = 1;     // now listening for incoming connections
@@ -73,7 +73,7 @@ public class BluetoothSerialService {
     private synchronized void setState(int state) {
         if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
         mState = state;
-
+        
         // Give the new state to the Handler so the UI Activity can update
         mHandler.obtainMessage(BluetoothSerial.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
@@ -83,7 +83,7 @@ public class BluetoothSerialService {
     public synchronized int getState() {
         return mState;
     }
-
+    
     /**
      * Start the chat service. Specifically start AcceptThread to begin a
      * session in listening (server) mode. Called by the Activity onResume() */
@@ -168,6 +168,13 @@ public class BluetoothSerialService {
         bundle.putString(BluetoothSerial.DEVICE_NAME, device.getName());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
+        
+        // Send the MAC address of the connected device back to the UI Activity
+        Message msg2 = mHandler.obtainMessage(BluetoothSerial.MESSAGE_DEVICE_ADDRESS);
+        Bundle bundle2 = new Bundle();
+        bundle2.putString(BluetoothSerial.DEVICE_ADDRESS, device.getAddress());
+        msg2.setData(bundle2);
+        mHandler.sendMessage(msg2);        
 
         setState(STATE_CONNECTED);
     }

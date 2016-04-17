@@ -96,8 +96,13 @@ module.exports = {
     },
 
     // reads the RSSI of the *connected* peripherial
-    readRSSI: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothSerial", "readRSSI", []);
+    //readRSSI: function (success, failure) {
+    //    cordova.exec(success, failure, "BluetoothSerial", "readRSSI", []);
+    //},
+    
+    // address is optional for Android but prefered... iOS reads *connected* device and doesn't need address
+    readRSSI: function (macAddress, success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "readRSSI", [macAddress]);
     },
 
     showBluetoothSettings: function (success, failure) {
