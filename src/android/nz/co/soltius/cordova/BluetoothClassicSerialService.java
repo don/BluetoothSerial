@@ -1,4 +1,4 @@
-package com.megster.cordova;
+package co.nz.soltius.cordova;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,15 +24,15 @@ import android.util.Log;
  * This code was based on the Android SDK BluetoothChat Sample
  * $ANDROID_SDK/samples/android-17/BluetoothChat
  */
-public class BluetoothSerialService {
+public class BluetoothClassicSerialService {
 
     // Debugging
-    private static final String TAG = "BluetoothSerialService";
+    private static final String TAG = "BluetoothClassicSerialService";
     private static final boolean D = true;
 
     // Name for the SDP record when creating server socket
-    private static final String NAME_SECURE = "PhoneGapBluetoothSerialServiceSecure";
-    private static final String NAME_INSECURE = "PhoneGapBluetoothSerialServiceInSecure";
+    private static final String NAME_SECURE = "PhoneGapBluetoothClassicSerialServiceSecure";
+    private static final String NAME_INSECURE = "PhoneGapBluetoothClassicSerialServiceInSecure";
 
     // Unique UUID for this application
     private static final UUID MY_UUID_SECURE = UUID.fromString("7A9C3B55-78D0-44A7-A94E-A93E3FE118CE");
@@ -60,7 +60,7 @@ public class BluetoothSerialService {
      * Constructor. Prepares a new BluetoothSerial session.
      * @param handler  A Handler to send messages back to the UI Activity
      */
-    public BluetoothSerialService(Handler handler) {
+    public BluetoothClassicSerialService(Handler handler) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
         mHandler = handler;
@@ -229,7 +229,7 @@ public class BluetoothSerialService {
         mHandler.sendMessage(msg);
 
         // Start the service over to restart listening mode
-        BluetoothSerialService.this.start();
+        BluetoothClassicSerialService.this.start();
     }
 
     /**
@@ -244,7 +244,7 @@ public class BluetoothSerialService {
         mHandler.sendMessage(msg);
 
         // Start the service over to restart listening mode
-        BluetoothSerialService.this.start();
+        BluetoothClassicSerialService.this.start();
     }
 
     /**
@@ -293,7 +293,7 @@ public class BluetoothSerialService {
 
                 // If a connection was accepted
                 if (socket != null) {
-                    synchronized (BluetoothSerialService.this) {
+                    synchronized (BluetoothClassicSerialService.this) {
                         switch (mState) {
                             case STATE_LISTEN:
                             case STATE_CONNECTING:
@@ -395,7 +395,7 @@ public class BluetoothSerialService {
             }
 
             // Reset the ConnectThread because we're done
-            synchronized (BluetoothSerialService.this) {
+            synchronized (BluetoothClassicSerialService.this) {
                 mConnectThread = null;
             }
 
@@ -466,7 +466,7 @@ public class BluetoothSerialService {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
                     // Start the service over to restart listening mode
-                    BluetoothSerialService.this.start();
+                    BluetoothClassicSerialService.this.start();
                     break;
                 }
             }

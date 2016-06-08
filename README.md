@@ -1,22 +1,19 @@
-# Bluetooth Serial Plugin for PhoneGap
+# Bluetooth Classic Serial Plugin for PhoneGap
 
-This plugin enables serial communication over Bluetooth. It was written for communicating between Android or iOS and an Arduino.
+This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin has been written against the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.
 
-Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
+** Initial Stages - Do not use! **
 
 ## Supported Platforms
 
 * Android
-* iOS with [RedBearLab](http://redbearlab.com) BLE hardware, [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697), [Laird BL600](http://www.lairdtech.com/Products/Embedded-Wireless-Solutions/Bluetooth-Radio-Modules/BL600-Series/#.VBI7AS5dUzI), or [BlueGiga](https://bluegiga.zendesk.com/entries/29185293--BGScript-spp-over-ble-AT-command-SPP-implementation-for-BLE)
+* iOS (devices must be MFi certified (link))
 * Windows Phone 8
 * Browser (Testing only. See [comments](https://github.com/don/BluetoothSerial/blob/master/src/browser/bluetoothSerial.js).)
-
-[Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
 
 ## Limitations
 
  * The phone must initiate the Bluetooth connection
- * iOS Bluetooth Low Energy requires iPhone 4S, iPhone5, iPod 5, or iPad3+
  * Will *not* connect Android to Android[*](https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
  * Will *not* connect iOS to iOS[*](https://github.com/don/BluetoothSerial/issues/75#issuecomment-52591397)
 
@@ -24,47 +21,44 @@ Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
 Install with Cordova cli
 
-    $ cordova plugin add cordova-plugin-bluetooth-serial
+    $ cordova plugin add cordova-plugin-bluetoothClassic-serial
 
-Note that this plugin's id changed from `com.megster.cordova.bluetoothserial` to `cordova-plugin-bluetooth-serial` as part of the migration from the [Cordova plugin repo](http://plugins.cordova.io/) to [npm](https://www.npmjs.com/).
+Note that this plugin's id changed from `cordova-plugin-bluetooth-serial` to 'cordova-plugin-bluetoothClassic-serial' as part of the fork.  An npmjs repository does not yet exist.
 
 # Examples
-
-There are some [sample projects](https://github.com/don/BluetoothSerial/tree/master/examples) included with the plugin.
 
 # API
 
 ## Methods
 
-- [bluetoothSerial.connect](#connect)
-- [bluetoothSerial.connectInsecure](#connectInsecure)
-- [bluetoothSerial.disconnect](#disconnect)
-- [bluetoothSerial.write](#write)
-- [bluetoothSerial.available](#available)
-- [bluetoothSerial.read](#read)
-- [bluetoothSerial.readUntil](#readuntil)
-- [bluetoothSerial.subscribe](#subscribe)
-- [bluetoothSerial.unsubscribe](#unsubscribe)
-- [bluetoothSerial.subscribeRawData](#subscriberawdata)
-- [bluetoothSerial.unsubscribeRawData](#unsubscriberawdata)
-- [bluetoothSerial.clear](#clear)
-- [bluetoothSerial.list](#list)
-- [bluetoothSerial.isEnabled](#isenabled)
-- [bluetoothSerial.isConnected](#isconnected)
-- [bluetoothSerial.readRSSI](#readrssi)
-- [bluetoothSerial.showBluetoothSettings](#showbluetoothsettings)
-- [bluetoothSerial.enable](#enable)
-- [bluetoothSerial.discoverUnpaired](#discoverunpaired)
-- [bluetoothSerial.setDeviceDiscoveredListener](#setdevicediscoveredlistener)
-- [bluetoothSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
-- [bluetoothSerial.setName](#setname)
-- [bluetoothSerial.setDiscoverable](#setdiscoverable)
+- [bluetoothClassicSerial.connect](#connect)
+- [bluetoothClassicSerial.connectInsecure](#connectInsecure)
+- [bluetoothClassicSerial.disconnect](#disconnect)
+- [bluetoothClassicSerial.write](#write)
+- [bluetoothClassicSerial.available](#available)
+- [bluetoothClassicSerial.read](#read)
+- [bluetoothClassicSerial.readUntil](#readuntil)
+- [bluetoothClassicSerial.subscribe](#subscribe)
+- [bluetoothClassicSerial.unsubscribe](#unsubscribe)
+- [bluetoothClassicSerial.subscribeRawData](#subscriberawdata)
+- [bluetoothClassicSerial.unsubscribeRawData](#unsubscriberawdata)
+- [bluetoothClassicSerial.clear](#clear)
+- [bluetoothClassicSerial.list](#list)
+- [bluetoothClassicSerial.isEnabled](#isenabled)
+- [bluetoothClassicSerial.isConnected](#isconnected)
+- [bluetoothClassicSerial.showBluetoothSettings](#showbluetoothsettings)
+- [bluetoothClassicSerial.enable](#enable)
+- [bluetoothClassicSerial.discoverUnpaired](#discoverunpaired)
+- [bluetoothClassicSerial.setDeviceDiscoveredListener](#setdevicediscoveredlistener)
+- [bluetoothClassicSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
+- [bluetoothClassicSerial.setName](#setname)
+- [bluetoothClassicSerial.setDiscoverable](#setdiscoverable)
 
 ## connect
 
 Connect to a Bluetooth device.
 
-    bluetoothSerial.connect(macAddress_or_uuid, connectSuccess, connectFailure);
+    bluetoothClassicSerial.connect(macAddress_or_uuid, connectSuccess, connectFailure);
 
 ### Description
 
@@ -90,7 +84,7 @@ For Windows Phone, `connect` takes a MAC address of the remote device. The MAC a
 
 Connect insecurely to a Bluetooth device.
 
-    bluetoothSerial.connectInsecure(macAddress, connectSuccess, connectFailure);
+    bluetoothClassicSerial.connectInsecure(macAddress, connectSuccess, connectFailure);
 
 ### Description
 
@@ -116,7 +110,7 @@ For Android, `connectInsecure` takes a macAddress of the remote device.
 
 Disconnect.
 
-    bluetoothSerial.disconnect([success], [failure]);
+    bluetoothClassicSerial.disconnect([success], [failure]);
 
 ### Description
 
@@ -131,7 +125,7 @@ Function `disconnect` disconnects the current connection.
 
 Writes data to the serial port.
 
-    bluetoothSerial.write(data, success, failure);
+    bluetoothClassicSerial.write(data, success, failure);
 
 ### Description
 
@@ -148,10 +142,10 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
 ### Quick Example
 
     // string
-    bluetoothSerial.write("hello, world", success, failure);
+    bluetoothClassicSerial.write("hello, world", success, failure);
 
     // array of int (or bytes)
-    bluetoothSerial.write([186, 220, 222], success, failure);
+    bluetoothClassicSerial.write([186, 220, 222], success, failure);
 
     // Typed Array
     var data = new Uint8Array(4);
@@ -159,16 +153,16 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
     data[1] = 0x42;
     data[2] = 0x43;
     data[3] = 0x44;
-    bluetoothSerial.write(data, success, failure);
+    bluetoothClassicSerial.write(data, success, failure);
 
     // Array Buffer
-    bluetoothSerial.write(data.buffer, success, failure);
+    bluetoothClassicSerial.write(data.buffer, success, failure);
 
 ## available
 
 Gets the number of bytes of data available.
 
-    bluetoothSerial.available(success, failure);
+    bluetoothClassicSerial.available(success, failure);
 
 ### Description
 
@@ -181,7 +175,7 @@ Function `available` gets the number of bytes of data available.  The bytes are 
 
 ### Quick Example
 
-    bluetoothSerial.available(function (numBytes) {
+    bluetoothClassicSerial.available(function (numBytes) {
         console.log("There are " + numBytes + " available to read.");
     }, failure);
 
@@ -189,7 +183,7 @@ Function `available` gets the number of bytes of data available.  The bytes are 
 
 Reads data from the buffer.
 
-    bluetoothSerial.read(success, failure);
+    bluetoothClassicSerial.read(success, failure);
 
 ### Description
 
@@ -202,7 +196,7 @@ Function `read` reads the data from the buffer. The data is passed to the succes
 
 ### Quick Example
 
-    bluetoothSerial.read(function (data) {
+    bluetoothClassicSerial.read(function (data) {
         console.log(data);
     }, failure);
 
@@ -210,7 +204,7 @@ Function `read` reads the data from the buffer. The data is passed to the succes
 
 Reads data from the buffer until it reaches a delimiter.
 
-    bluetoothSerial.readUntil('\n', success, failure);
+    bluetoothClassicSerial.readUntil('\n', success, failure);
 
 ### Description
 
@@ -224,7 +218,7 @@ Function `readUntil` reads the data from the buffer until it reaches a delimiter
 
 ### Quick Example
 
-    bluetoothSerial.readUntil('\n', function (data) {
+    bluetoothClassicSerial.readUntil('\n', function (data) {
         console.log(data);
     }, failure);
 
@@ -232,7 +226,7 @@ Function `readUntil` reads the data from the buffer until it reaches a delimiter
 
 Subscribe to be notified when data is received.
 
-    bluetoothSerial.subscribe('\n', success, failure);
+    bluetoothClassicSerial.subscribe('\n', success, failure);
 
 ### Description
 
@@ -247,7 +241,7 @@ Function `subscribe` registers a callback that is called when data is received. 
 ### Quick Example
 
     // the success callback is called whenever data is received
-    bluetoothSerial.subscribe('\n', function (data) {
+    bluetoothClassicSerial.subscribe('\n', function (data) {
         console.log(data);
     }, failure);
 
@@ -255,7 +249,7 @@ Function `subscribe` registers a callback that is called when data is received. 
 
 Unsubscribe from a subscription.
 
-    bluetoothSerial.unsubscribe(success, failure);
+    bluetoothClassicSerial.unsubscribe(success, failure);
 
 ### Description
 
@@ -268,13 +262,13 @@ Function `unsubscribe` removes any notification added by `subscribe` and kills t
 
 ### Quick Example
 
-    bluetoothSerial.unsubscribe();
+    bluetoothClassicSerial.unsubscribe();
 
 ## subscribeRawData
 
 Subscribe to be notified when data is received.
 
-    bluetoothSerial.subscribeRawData(success, failure);
+    bluetoothClassicSerial.subscribeRawData(success, failure);
 
 ### Description
 
@@ -288,7 +282,7 @@ Function `subscribeRawData` registers a callback that is called when data is rec
 ### Quick Example
 
     // the success callback is called whenever data is received
-    bluetoothSerial.subscribeRawData(function (data) {
+    bluetoothClassicSerial.subscribeRawData(function (data) {
         var bytes = new Uint8Array(data);
         console.log(bytes);
     }, failure);
@@ -297,7 +291,7 @@ Function `subscribeRawData` registers a callback that is called when data is rec
 
 Unsubscribe from a subscription.
 
-    bluetoothSerial.unsubscribeRawData(success, failure);
+    bluetoothClassicSerial.unsubscribeRawData(success, failure);
 
 ### Description
 
@@ -310,13 +304,13 @@ Function `unsubscribeRawData` removes any notification added by `subscribeRawDat
 
 ### Quick Example
 
-    bluetoothSerial.unsubscribeRawData();
+    bluetoothClassicSerial.unsubscribeRawData();
 
 ## clear
 
 Clears data in the buffer.
 
-    bluetoothSerial.clear(success, failure);
+    bluetoothClassicSerial.clear(success, failure);
 
 ### Description
 
@@ -331,7 +325,7 @@ Function `clear` removes any data from the receive buffer.
 
 Lists bonded devices
 
-    bluetoothSerial.list(success, failure);
+    bluetoothClassicSerial.list(success, failure);
 
 ### Description
 
@@ -393,7 +387,7 @@ Example list passed to success callback for Windows Phone.
 
 ### Quick Example
 
-    bluetoothSerial.list(function(devices) {
+    bluetoothClassicSerial.list(function(devices) {
         devices.forEach(function(device) {
             console.log(device.id);
         })
@@ -403,7 +397,7 @@ Example list passed to success callback for Windows Phone.
 
 Reports the connection status.
 
-    bluetoothSerial.isConnected(success, failure);
+    bluetoothClassicSerial.isConnected(success, failure);
 
 ### Description
 
@@ -416,7 +410,7 @@ Function `isConnected` calls the success callback when connected to a peer and t
 
 ### Quick Example
 
-    bluetoothSerial.isConnected(
+    bluetoothClassicSerial.isConnected(
         function() {
             console.log("Bluetooth is connected");
         },
@@ -429,7 +423,7 @@ Function `isConnected` calls the success callback when connected to a peer and t
 
 Reports if bluetooth is enabled.
 
-    bluetoothSerial.isEnabled(success, failure);
+    bluetoothClassicSerial.isEnabled(success, failure);
 
 ### Description
 
@@ -442,7 +436,7 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
 
 ### Quick Example
 
-    bluetoothSerial.isEnabled(
+    bluetoothClassicSerial.isEnabled(
         function() {
             console.log("Bluetooth is enabled");
         },
@@ -451,36 +445,11 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
         }
     );
 
-## readRSSI
-
-Reads the RSSI from the connected peripheral.
-
-    bluetoothSerial.readRSSI(success, failure);
-
-### Description
-
-Function `readRSSI` calls the success callback with the rssi.
-
-**BLE only** *This function is experimental and the API may change*
-
-### Parameters
-
-- __success__: Success callback function that is invoked with the rssi value.
-- __failure__: Error callback function, invoked when error occurs. [optional]
-
-### Quick Example
-
-    bluetoothSerial.readRSSI(
-        function(rssi) {
-            console.log(rssi);
-        }
-    );
-
 ## showBluetoothSettings
 
 Show the Bluetooth settings on the device.
 
-    bluetoothSerial.showBluetoothSettings(success, failure);
+    bluetoothClassicSerial.showBluetoothSettings(success, failure);
 
 ### Description
 
@@ -497,13 +466,13 @@ Function `showBluetoothSettings` opens the Bluetooth settings on the operating s
 
 ### Quick Example
 
-    bluetoothSerial.showBluetoothSettings();
+    bluetoothClassicSerial.showBluetoothSettings();
 
 ## enable
 
 Enable Bluetooth on the device.
 
-    bluetoothSerial.enable(success, failure);
+    bluetoothClassicSerial.enable(success, failure);
 
 ### Description
 
@@ -522,7 +491,7 @@ If `enable` is called when Bluetooth is already enabled, the user will not promp
 
 ### Quick Example
 
-    bluetoothSerial.enable(
+    bluetoothClassicSerial.enable(
         function() {
             console.log("Bluetooth is enabled");
         },
@@ -535,7 +504,7 @@ If `enable` is called when Bluetooth is already enabled, the user will not promp
 
 Discover unpaired devices
 
-    bluetoothSerial.discoverUnpaired(success, failure);
+    bluetoothClassicSerial.discoverUnpaired(success, failure);
 
 ### Description
 
@@ -564,7 +533,7 @@ Calling `connect` on an unpaired Bluetooth device should begin the Android pairi
 
 #### iOS
 
-`discoverUnpaired` is not supported on iOS. iOS uses Bluetooth Low Energy and `list` discovers devices without pairing.
+`discoverUnpaired` TBA.
 
 #### Windows Phone
 
@@ -577,7 +546,7 @@ Calling `connect` on an unpaired Bluetooth device should begin the Android pairi
 
 ### Quick Example
 
-    bluetoothSerial.discoverUnpaired(function(devices) {
+    bluetoothClassicSerial.discoverUnpaired(function(devices) {
         devices.forEach(function(device) {
             console.log(device.id);
         })
@@ -608,7 +577,7 @@ See [discoverUnpaired](#discoverunpaired).
 
 ### Quick Example
 
-    bluetoothSerial.setDeviceDiscoveredListener(function(device) {
+    bluetoothClassicSerial.setDeviceDiscoveredListener(function(device) {
 		console.log('Found: '+device.id);
     });
 
@@ -618,13 +587,13 @@ Clears notify callback function registered with [setDeviceDiscoveredListener](#s
 
 ### Quick Example
 
-    bluetoothSerial.clearDeviceDiscoveredListener();
+    bluetoothClassicSerial.clearDeviceDiscoveredListener();
 
 ## setName
 
 Sets the human readable device name that is broadcasted to other devices.
 
-    bluetoothSerial.setName(newName);
+    bluetoothClassicSerial.setName(newName);
 
 #### Android
 For Android, `setName` takes a String for the new name.
@@ -641,13 +610,13 @@ Not currently implemented.
 
 ### Quick Example
 
-    bluetoothSerial.setName("Really cool name");
+    bluetoothClassicSerial.setName("Really cool name");
 
 ## setDiscoverable
 
 Makes the device discoverable by other devices.
 
-    bluetoothSerial.setDiscoverable(discoverableDuration);
+    bluetoothClassicSerial.setDiscoverable(discoverableDuration);
 
 #### Android
 For Android, `setDiscoverable` takes an int for the number of seconds device should be discoverable. A time of 0 will make it permanently discoverable.
@@ -664,7 +633,7 @@ Not currently implemented.
 
 ### Quick Example
 
-    bluetoothSerial.setDiscoverable(0);
+    bluetoothClassicSerial.setDiscoverable(0);
 
 # Misc
 

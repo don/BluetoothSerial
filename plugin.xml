@@ -2,32 +2,32 @@
 <plugin
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-plugin-bluetooth-serial"
+    id="cordova-plugin-bluetoothClassic-serial"
     version="0.4.5">
 
     <name>Bluetooth Serial</name>
     <description>Bluetooth Serial Communication Plugin</description>
     <license>Apache 2.0</license>
-    <keywords>bluetooth, BLE, arduino</keywords>
-    <repo>https://github.com/don/BluetoothSerial.git</repo>
-    <issue>https://github.com/don/BluetoothSerial/issues</issue>
+    <keywords>bluetooth, serial, classic, MFi, arduino</keywords>
+    <repo>https://github.com/soltius/BluetoothClassicSerial.git</repo>
+    <issue>https://github.com/soltius/BluetoothClassicSerial/issues</issue>
 
-    <js-module src="www/bluetoothSerial.js" name="bluetoothSerial">
-        <clobbers target="window.bluetoothSerial" />
+    <js-module src="www/bluetoothClassicSerial.js" name="bluetoothClassicSerial">
+        <clobbers target="window.bluetoothClassicSerial" />
     </js-module>
 
     <platform name="android">
 
         <config-file target="res/xml/config.xml" parent="/widget">
-            <feature name="BluetoothSerial">
-                <param name="android-package" value="com.megster.cordova.BluetoothSerial"/>
+            <feature name="BluetoothClassicSerial">
+                <param name="android-package" value="nz.co.soltius.cordova.BluetoothClassicSerial"/>
             </feature>
         </config-file>
 
-        <source-file src="src/android/com/megster/cordova/BluetoothSerial.java"
-            target-dir="src/com/megster/cordova"/>
-        <source-file src="src/android/com/megster/cordova/BluetoothSerialService.java"
-            target-dir="src/com/megster/cordova"/>
+        <source-file src="src/android/nz/co/soltius/cordova/BluetoothClassicSerial.java"
+            target-dir="src/nz/co/soltius/cordova"/>
+        <source-file src="src/android//nz/co/soltius/cordova/BluetoothClassicSerialService.java"
+            target-dir="src/nz/co/soltius/cordova"/>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.BLUETOOTH" />

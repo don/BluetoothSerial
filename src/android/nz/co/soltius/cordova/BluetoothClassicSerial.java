@@ -1,4 +1,4 @@
-package com.megster.cordova;
+package co.nz.soltius.cordova;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * PhoneGap Plugin for Serial Communication over Bluetooth
  */
-public class BluetoothSerial extends CordovaPlugin {
+public class BluetoothClassicSerial extends CordovaPlugin {
 
     // actions
     private static final String LIST = "list";
@@ -59,13 +59,13 @@ public class BluetoothSerial extends CordovaPlugin {
     private CallbackContext deviceDiscoveredCallback;
 
     private BluetoothAdapter bluetoothAdapter;
-    private BluetoothSerialService bluetoothSerialService;
+    private BluetoothClassicSerialService bluetoothClassicSerialService;
 
     // Debugging
-    private static final String TAG = "BluetoothSerial";
+    private static final String TAG = "BluetoothClassicSerial";
     private static final boolean D = true;
 
-    // Message types sent from the BluetoothSerialService Handler
+    // Message types sent from the BluetoothClassicSerialService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
     public static final int MESSAGE_WRITE = 3;
@@ -90,8 +90,8 @@ public class BluetoothSerial extends CordovaPlugin {
             bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
 
-        if (bluetoothSerialService == null) {
-            bluetoothSerialService = new BluetoothSerialService(mHandler);
+        if (BluetoothClassicSerialService == null) {
+            bluetoothClassicSerialService = new BluetoothClassicSerialService(mHandler);
         }
 
         boolean validAction = true;
@@ -114,13 +114,13 @@ public class BluetoothSerial extends CordovaPlugin {
         } else if (action.equals(DISCONNECT)) {
 
             connectCallback = null;
-            bluetoothSerialService.stop();
+            bluetoothClassicSerialService.stop();
             callbackContext.success();
 
         } else if (action.equals(WRITE)) {
 
             byte[] data = args.getArrayBuffer(0);
-            bluetoothSerialService.write(data);
+            bluetoothClassicSerialService.write(data);
             callbackContext.success();
 
         } else if (action.equals(AVAILABLE)) {
@@ -180,7 +180,7 @@ public class BluetoothSerial extends CordovaPlugin {
 
         } else if (action.equals(IS_CONNECTED)) {
 
-            if (bluetoothSerialService.getState() == BluetoothSerialService.STATE_CONNECTED) {
+            if (bluetoothClassicSerialService.getState() == BluetoothClassicSerialService.STATE_CONNECTED) {
                 callbackContext.success();
             } else {
                 callbackContext.error("Not connected.");
@@ -260,8 +260,8 @@ public class BluetoothSerial extends CordovaPlugin {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (bluetoothSerialService != null) {
-            bluetoothSerialService.stop();
+        if (bluetoothClassicSerialService != null) {
+            bluetoothClassicSerialService.stop();
         }
     }
 
@@ -329,7 +329,7 @@ public class BluetoothSerial extends CordovaPlugin {
 
         if (device != null) {
             connectCallback = callbackContext;
-            bluetoothSerialService.connect(device, secure);
+            bluetoothClassicSerialService.connect(device, secure);
 
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
             result.setKeepCallback(true);
@@ -340,7 +340,7 @@ public class BluetoothSerial extends CordovaPlugin {
         }
     }
 
-    // The Handler that gets information back from the BluetoothSerialService
+    // The Handler that gets information back from the BluetoothClassicSerialService
     // Original code used handler for the because it was talking to the UI.
     // Consider replacing with normal callbacks
     private final Handler mHandler = new Handler() {
@@ -365,18 +365,18 @@ public class BluetoothSerial extends CordovaPlugin {
 
                     if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
                     switch (msg.arg1) {
-                        case BluetoothSerialService.STATE_CONNECTED:
-                            Log.i(TAG, "BluetoothSerialService.STATE_CONNECTED");
+                        case BluetoothClassicSerialService.STATE_CONNECTED:
+                            Log.i(TAG, "BluetoothClassicSerialService.STATE_CONNECTED");
                             notifyConnectionSuccess();
                             break;
-                        case BluetoothSerialService.STATE_CONNECTING:
-                            Log.i(TAG, "BluetoothSerialService.STATE_CONNECTING");
+                        case BluetoothClassicSerialService.STATE_CONNECTING:
+                            Log.i(TAG, "BluetoothClassicSerialService.STATE_CONNECTING");
                             break;
-                        case BluetoothSerialService.STATE_LISTEN:
-                            Log.i(TAG, "BluetoothSerialService.STATE_LISTEN");
+                        case BluetoothClassicSerialService.STATE_LISTEN:
+                            Log.i(TAG, "BluetoothClassicSerialService.STATE_LISTEN");
                             break;
-                        case BluetoothSerialService.STATE_NONE:
-                            Log.i(TAG, "BluetoothSerialService.STATE_NONE");
+                        case BluetoothClassicSerialService.STATE_NONE:
+                            Log.i(TAG, "BluetoothClassicSerialService.STATE_NONE");
                             break;
                     }
                     break;
