@@ -5,7 +5,7 @@
     id="cordova-plugin-bluetoothClassic-serial"
     version="0.4.5">
 
-    <name>Bluetooth Serial</name>
+    <name>Bluetooth Classic Serial</name>
     <description>Bluetooth Serial Communication Plugin</description>
     <license>Apache 2.0</license>
     <keywords>bluetooth, serial, classic, MFi, arduino</keywords>
@@ -26,12 +26,13 @@
 
         <source-file src="src/android/nz/co/soltius/cordova/BluetoothClassicSerial.java"
             target-dir="src/nz/co/soltius/cordova"/>
-        <source-file src="src/android//nz/co/soltius/cordova/BluetoothClassicSerialService.java"
+        <source-file src="src/android/nz/co/soltius/cordova/BluetoothClassicSerialService.java"
             target-dir="src/nz/co/soltius/cordova"/>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.BLUETOOTH" />
             <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+            <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
         </config-file>
 
     </platform>
