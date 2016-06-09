@@ -641,9 +641,9 @@ Not currently implemented.
 
     bluetoothClassicSerial.setDiscoverable(0);
 
-#getinsecureuuid
+#getInsecureUUID
 
-Returns the SPP_UUID used for  [connectInsecure](#connectinsecure)
+Returns the SPP_UUID used for [connectInsecure](#connectinsecure)
 
     bluetoothClassicSerial.getInsecureUUID(success, failure);
 
@@ -663,9 +663,9 @@ Not Implemented for iOS
 
 Not Implemented for Windows
 
-#getsecureuuid
+#getSecureUUID
 
-Returns the SPP_UUID used for  [connect](#connect)
+Returns the SPP_UUID used for [connect](#connect)
 
     bluetoothClassicSerial.getSecureUUID(success, failure);
 
@@ -685,7 +685,7 @@ Not Implemented for iOS
 
 Not Implemented for Windows
 
-#setinsecureuuid
+#setInsecureUUID
 
 Sets the SPP_UUID used for [connectInsecure](#connectinsecure)
 
@@ -707,15 +707,15 @@ Not Implemented for iOS
 
 Not Implemented for Windows
 
-#setsecureuuid
+#setSecureUUID
 
-Sets the SPP_UUID used for  [connect](#connect)
+Sets the SPP_UUID used for [connect](#connect)
 
     bluetoothClassicSerial.setSecureUUID(uuidString, success, failure);
 
 ### Description
 
-Some devices require a non standard SPP_UUID, `setSsecureUUID` allows you to provide a custom SPP_UUID string to be used for an secure connection.  If successful the UUID string will be returned to the success callback function.
+Some devices require a non standard SPP_UUID, `setSecureUUID` allows you to provide a custom SPP_UUID string to be used for an secure connection.  If successful the UUID string will be returned to the success callback function.
 
 #### Android
 
@@ -738,7 +738,7 @@ Not Implemented for Windows
 Current development is done with Cordova 6.2.0 on Android 5. Theoretically this code runs on PhoneGap 2.9 and greater.  It should support Android-10 (2.3.2) and greater, but I only test with Android 5.x+.
 
 Development Devices include
- * Nexus 7 (2013) with Android 6
+ * Nexus 7 (2013) with Android 6.1
  * Samsung Galaxy S6 with Android 6.0
  * Samsung Galaxy S5 with Android 5.0
 
