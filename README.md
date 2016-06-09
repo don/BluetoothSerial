@@ -1,8 +1,9 @@
-# Bluetooth Classic Serial Plugin for PhoneGap
+# Bluetooth Classic Serial Plugin for Cordova
 
-This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin has been written against the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.
+This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin will written against the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.
 
 ** Initial Stages - Do not use! **
+** iOS Implementation not in place! **
 
 ## Supported Platforms
 
@@ -672,13 +673,13 @@ See [Issue 141](https://github.com/don/BluetoothSerial/issues/141#issuecomment-1
 
 ## Props
 
+This project is a fork of Don Coleman's https://github.com/don/BluetoothSerial so all the big props to him.
+
 ### Android
 
 Most of the Bluetooth implementation was borrowed from the Bluetooth Chat example in the Android SDK.
 
 ### iOS
-
-The iOS code uses RedBearLab's [BLE_Framework](https://github.com/RedBearLab/iOS/tree/master/BLEFramework/BLE).
 
 ### API
 
@@ -688,9 +689,9 @@ The API for available, read, readUntil was influenced by the [BtSerial Library f
 
 If you don't need **serial** over Bluetooth, try the [PhoneGap Bluetooth Plugin for Android](https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/Android/Bluetooth/2.2.0) or perhaps [phonegap-plugin-bluetooth](https://github.com/tanelih/phonegap-bluetooth-plugin).
 
-If you need generic Bluetooth Low Energy support checkout my [Cordova BLE Plugin](https://github.com/don/cordova-plugin-ble-central).
+If you need generic Bluetooth Low Energy support checkout Don Colemans's [Cordova BLE Plugin](https://github.com/don/cordova-plugin-ble-central).
 
-If you need BLE for RFduino checkout my [RFduino Plugin](https://github.com/don/cordova-plugin-rfduino).
+If you need BLE for RFduino checkout Don Colemans's [RFduino Plugin](https://github.com/don/cordova-plugin-rfduino).
 
 ## What format should the Mac Address be in?
 An example a properly formatted mac address is ``AA:BB:CC:DD:EE:FF``
