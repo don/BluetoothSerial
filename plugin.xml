@@ -16,6 +16,8 @@
         <clobbers target="window.bluetoothClassicSerial" />
     </js-module>
 
+    <dependency id="cordova-custom-config" version="2.0.0" />
+
     <platform name="android">
 
         <config-file target="res/xml/config.xml" parent="/widget">
@@ -39,23 +41,17 @@
     <platform name="ios">
 
         <config-file target="config.xml" parent="/widget">
-            <feature name="BluetoothSerial">
-                <param name="ios-package" value="MEGBluetoothSerial" onload="true"/>
+            <feature name="BluetoothClassicSerial">
+                <param name="ios-package" value="BluetoothClassicSerial" onload="true"/>
             </feature>
         </config-file>
 
-        <header-file src="src/ios/MEGBluetoothSerial.h" target-dir="BluetoothSerial" />
-        <source-file src="src/ios/MEGBluetoothSerial.m" target-dir="BluetoothSerial" />
-        <header-file src="src/ios/CBPeripheral+BTSExtensions.h" target-dir="BluetoothSerial" />
-        <source-file src="src/ios/CBPeripheral+BTSExtensions.m" target-dir="BluetoothSerial" />
-
-        <!-- BLEMini see http://redbearlab.com -->
-        <header-file src="src/ios/BLE.h" target-dir="BluetoothSerial" />
-        <header-file src="src/ios/BLEDefines.h" target-dir="BluetoothSerial" />
-        <source-file src="src/ios/BLE.m" target-dir="BluetoothSerial" />
+        <header-file src="src/ios/BluetoothClassicSerial.h" target-dir="BluetoothClassicSerial" />
+        <source-file src="src/ios/BluetoothClassicSerial.m" target-dir="BluetoothClassicSerial" />
 
         <!-- frameworks -->
         <framework src="CoreBluetooth.framework" />
+        <framework src="ExternalAccessory.framework" />
 
     </platform>
 
