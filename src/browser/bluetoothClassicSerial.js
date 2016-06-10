@@ -1,16 +1,16 @@
 // This implementation is for testing in the brower. Future implemetations *might* be able to use
 // Chrome Bluetooth APIs https://developer.chrome.com/apps/bluetooth or Web Bluetooth.
 
-// Code from PhracturedBlue https://github.com/don/BluetoothSerial/issues/115
+// Code from PhracturedBlue https://github.com/don/bluetoothClassicSerial/issues/115
 
 // When using the browser, it is necessary to have a processing function that
 // can emulate the bluetooth device.
 
 // Use the 'register' function as follows:
 //
-// bluetoothSerial.register(function(buf) {
-//      //buf.input is the data that was received via bluetoothSerial.write
-//      //buf.output is data that will be transmitted via a bluetoothSerial.read or subscribe
+// bluetoothClassicSerial.register(function(buf) {
+//      //buf.input is the data that was received via bluetoothClassicSerial.write
+//      //buf.output is data that will be transmitted via a bluetoothClassicSerial.read or subscribe
 //      //Do processing here
 //      buf.input = ""
 // });
@@ -25,14 +25,14 @@
 //   }
 //   return buf;
 // }
-// bluetoothSerial.register(echoProxy);
+// bluetoothClassicSerial.register(echoProxy);
 
 module.exports = (function() {
     var connected = false;
     var enabled = true;
     var buf = {
         input: "",
-        output: "",
+        output: ""
         };
     var subscribe_cb = function(value) {};
     var raw_cb = false;
@@ -58,7 +58,7 @@ module.exports = (function() {
     };
     return {
         connect : function(mac, success_cb, fail_cb) {
-            btlog("bluetoothSerial.connect: " + mac);
+            btlog("bluetoothClassicSerial.connect: " + mac);
             connected = true;
             if (success_cb) { success_cb(); }
         },
@@ -67,28 +67,28 @@ module.exports = (function() {
             process_cb = data_cb;
         },
         disconnect : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.disconnect");
+            btlog("bluetoothClassicSerial.disconnect");
             connected = false;
             window.clearInterval(interval);
             if (success_cb) { success_cb(); }
         },
         write : function(data, success_cb, fail_cb) {
-            btlog("bluetoothSerial.write: " + data);
+            btlog("bluetoothClassicSerial.write: " + data);
             buf.input += data;
             if(success_cb) { success_cb(); }
         },
         available : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.available");
+            btlog("bluetoothClassicSerial.available");
             success_cb(buf.output.length);
         },
         read : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.read: " + buf.output);
+            btlog("bluetoothClassicSerial.read: " + buf.output);
             var data = buf.output;
             buf.output = "";
             success_cb(data);
         },
         readUntil : function(delimiter, success_cb, fail_cb) {
-            btlog("bluetoothSerial.readUntil");
+            btlog("bluetoothClassicSerial.readUntil");
             var index = buf.output.indexOf(delimiter);
             if (index == -1) {
                 success_cb("");
@@ -99,26 +99,26 @@ module.exports = (function() {
             }
         },
         subscribe : function(delimiter, success_cb, fail_cb) {
-            btlog("bluetoothSerial.subscribe '"+delimiter+"'");
+            btlog("bluetoothClassicSerial.subscribe '"+delimiter+"'");
             subscribe_cb = success_cb;
             subscribe_delim = delimiter;
         },
         unsubscribe : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.unsubscribe");
+            btlog("bluetoothClassicSerial.unsubscribe");
             subscribe_delim = false;
             if(success_cb) { success_cb(); }
         },
         subscribeRawData : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.subscribeRawData");
+            btlog("bluetoothClassicSerial.subscribeRawData");
             raw_cb = success_cb;
         },
         unsubscribeRawData : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.unsubscribeRawData");
+            btlog("bluetoothClassicSerial.unsubscribeRawData");
             raw_cb = false;
             if(success_cb) { success_cb(); }
         },
         clear : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.clear");
+            btlog("bluetoothClassicSerial.clear");
             buf.output = "";
             if(success_cb) { success_cb(); }
         },
@@ -136,7 +136,7 @@ module.exports = (function() {
           }]
           success_cb(devices);        },
         isConnected : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.isConnected: " + connected);
+            btlog("bluetoothClassicSerial.isConnected: " + connected);
             if(connected) {
                 if(success_cb) { success_cb(); }
             } else {
@@ -144,7 +144,7 @@ module.exports = (function() {
             }
         },
         isEnabled : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.isEnabled: " + enabled);
+            btlog("bluetoothClassicSerial.isEnabled: " + enabled);
             if(enabled) {
                 if(success_cb) { success_cb(); }
             } else {
@@ -152,18 +152,18 @@ module.exports = (function() {
             }
         },
         readRSSI : function(success_cb, fail_cb) {
-            alert("bluetoothSerial.readRSSI is not implemented");
+            alert("bluetoothClassicSerial.readRSSI is not implemented");
         },
         showBluetoothSettings : function(success_cb, fail_cb) {
-            alert("bluetoothSerial.showBluetoothSettings is not implemented");
+            alert("bluetoothClassicSerial.showBluetoothSettings is not implemented");
         },
         enable : function(success_cb, fail_cb) {
-            btlog("bluetoothSerial.enable");
+            btlog("bluetoothClassicSerial.enable");
             enable = true;
             if(success_cb) { success_cb(); }
         },
         discoverUnpaired : function(success_cb, fail_cb) {
-            alert("bluetoothSerial.discoverUnpaired is not implemented");
-        },
+            alert("bluetoothClassicSerial.discoverUnpaired is not implemented");
+        }
     }
 })();

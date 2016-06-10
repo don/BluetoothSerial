@@ -74,8 +74,8 @@
     </platform>
 
     <platform name="browser">
-        <js-module src="src/browser/bluetoothSerial.js" name="BluetoothSerial_browser">
-            <clobbers target="window.bluetoothSerial" />
+        <js-module src="src/browser/BluetoothClassicSerial.js" name="BluetoothSerial_browser">
+            <clobbers target="window.bluetoothClassicSerial" />
         </js-module>
 
     </platform>
