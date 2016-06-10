@@ -1,8 +1,9 @@
-# Bluetooth Classic Serial Plugin for PhoneGap
+# Bluetooth Classic Serial Plugin for Cordova
 
-This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin has been written against the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.
+This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin will written against the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.
 
 ** Initial Stages - Do not use! **
+** iOS Implementation not in place! **
 
 ## Supported Platforms
 
@@ -16,6 +17,7 @@ This plugin enables serial communication over Bluetooth. It is a fork of https:/
  * The phone must initiate the Bluetooth connection
  * Will *not* connect Android to Android[*](https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
  * Will *not* connect iOS to iOS[*](https://github.com/don/BluetoothSerial/issues/75#issuecomment-52591397)
+ * Android Target SDK must be 22 or less.  New Permission model for SDK 23 not implemented
 
 # Installing
 
@@ -53,6 +55,10 @@ Note that this plugin's id changed from `cordova-plugin-bluetooth-serial` to 'co
 - [bluetoothClassicSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
 - [bluetoothClassicSerial.setName](#setname)
 - [bluetoothClassicSerial.setDiscoverable](#setdiscoverable)
+- [bluetoothClassicSerial.getInsecureUUID](#getinsecureuuid)
+- [bluetoothClassicSerial.getSecureUUID](#getsecureuuid)
+- [bluetoothClassicSerial.setInsecureUUID](#setinsecureuuid)
+- [bluetoothClassicSerial.setSecureUUID](#setsecureuuid)
 
 ## connect
 
@@ -635,50 +641,120 @@ Not currently implemented.
 
     bluetoothClassicSerial.setDiscoverable(0);
 
+#getInsecureUUID
+
+Returns the SPP_UUID used for [connectInsecure](#connectinsecure)
+
+    bluetoothClassicSerial.getInsecureUUID(success, failure);
+
+### Description
+
+Some devices require a non standard SPP_UUID, `getInsecureUUID` allows you to check the SPP_UUID which will be used for an insecure connection.
+
+#### Android
+
+Implemented for Android
+
+### iOS
+
+Not Implemented for iOS
+
+### Windows
+
+Not Implemented for Windows
+
+#getSecureUUID
+
+Returns the SPP_UUID used for [connect](#connect)
+
+    bluetoothClassicSerial.getSecureUUID(success, failure);
+
+### Description
+
+Some devices require a non standard SPP_UUID, `getSecureUUID` allows you to check the SPP_UUID which will be used for a secure connection.
+
+#### Android
+
+Implemented for Android
+
+### iOS
+
+Not Implemented for iOS
+
+### Windows
+
+Not Implemented for Windows
+
+#setInsecureUUID
+
+Sets the SPP_UUID used for [connectInsecure](#connectinsecure)
+
+    bluetoothClassicSerial.setInsecureUUID(uuidString, success, failure);
+
+### Description
+
+Some devices require a non standard SPP_UUID, `setInsecureUUID` allows you to provide a custom SPP_UUID string to be used for an insecure connection.  If successful the UUID string will be returned to the success callback function.
+
+#### Android
+
+Implemented for Android
+
+### iOS
+
+Not Implemented for iOS
+
+### Windows
+
+Not Implemented for Windows
+
+#setSecureUUID
+
+Sets the SPP_UUID used for [connect](#connect)
+
+    bluetoothClassicSerial.setSecureUUID(uuidString, success, failure);
+
+### Description
+
+Some devices require a non standard SPP_UUID, `setSecureUUID` allows you to provide a custom SPP_UUID string to be used for an secure connection.  If successful the UUID string will be returned to the success callback function.
+
+#### Android
+
+Implemented for Android
+
+### iOS
+
+Not Implemented for iOS
+
+### Windows
+
+Not Implemented for Windows
+
 # Misc
 
 ## Where does this work?
 
 ### Android
 
-Current development is done with Cordova 4.2 on Android 5. Theoretically this code runs on PhoneGap 2.9 and greater.  It should support Android-10 (2.3.2) and greater, but I only test with Android 4.x+.
+Current development is done with Cordova 6.2.0 on Android 5. Theoretically this code runs on PhoneGap 2.9 and greater.  It should support Android-10 (2.3.2) and greater, but I only test with Android 5.x+.
 
 Development Devices include
- * Nexus 5 with Android 5
- * Samsung Galaxy Tab 10.1 (GT-P7510) with Android 4.0.4 (see [Issue #8](https://github.com/don/BluetoothSerial/issues/8))
- * Google Nexus S with Android 4.1.2
- * Nexus 4 with Android 5
- * Samsung Galaxy S4 with Android 4.3
-
-On the Arduino side I test with [Sparkfun Mate Silver](https://www.sparkfun.com/products/10393) and the [Seeed Studio Bluetooth Shield](http://www.seeedstudio.com/depot/bluetooth-shield-p-866.html?cPath=19_21). The code should be generic and work with most hardware.
-
-I highly recommend [Adafruit's Bluefruit EZ-Link](http://www.adafruit.com/products/1588).
+ * Nexus 7 (2013) with Android 6.1
+ * Samsung Galaxy S6 with Android 6.0
+ * Samsung Galaxy S5 with Android 5.0
 
 ### iOS
 
-**NOTE: Currently iOS only works with RedBear Labs Hardware, Adafruit Bluefruit LE, Laird BL600, and BlueGiga UART services**
-
-This plugin was originally developed with Cordova 3.4 using iOS 7.x on an iPhone 5s connecting to a [RedBearLab BLEMini](http://redbearlab.com/blemini). Ensure that you have update the BLE Mini firmware to at least [Biscuit-UART_20130313.bin](https://github.com/RedBearLab/Biscuit/tree/master/release).
-
-Most development is now done with iOS 8 with Cordova 4.2 using [RedBear Lab BLE Shield](http://redbearlab.com/bleshield/) or [Adafruit Bluefruit LE Friend](https://www.adafruit.com/product/2267).
-
-### Supporting other BLE hardware
-
-For Bluetooth Low Energy, this plugin supports some hardware running known UART-like services, but can support any Bluetooth Low Energy hardware with a "serial like" service. This means a transmit characteristic that is writable and a receive characteristic that supports notification.
-
-Edit [BLEdefines.h](src/ios/BLEDefines.h) and adjust the UUIDs for your service.
-
-See [Issue 141](https://github.com/don/BluetoothSerial/issues/141#issuecomment-161500473) for details on how to add support for Amp'ed RF Technology BT43H.
+TBA
 
 ## Props
+
+This project is a fork of Don Coleman's https://github.com/don/BluetoothSerial so all the big props to him.
 
 ### Android
 
 Most of the Bluetooth implementation was borrowed from the Bluetooth Chat example in the Android SDK.
 
 ### iOS
-
-The iOS code uses RedBearLab's [BLE_Framework](https://github.com/RedBearLab/iOS/tree/master/BLEFramework/BLE).
 
 ### API
 
@@ -688,9 +764,9 @@ The API for available, read, readUntil was influenced by the [BtSerial Library f
 
 If you don't need **serial** over Bluetooth, try the [PhoneGap Bluetooth Plugin for Android](https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/Android/Bluetooth/2.2.0) or perhaps [phonegap-plugin-bluetooth](https://github.com/tanelih/phonegap-bluetooth-plugin).
 
-If you need generic Bluetooth Low Energy support checkout my [Cordova BLE Plugin](https://github.com/don/cordova-plugin-ble-central).
+If you need generic Bluetooth Low Energy support checkout Don Colemans's [Cordova BLE Plugin](https://github.com/don/cordova-plugin-ble-central).
 
-If you need BLE for RFduino checkout my [RFduino Plugin](https://github.com/don/cordova-plugin-rfduino).
+If you need BLE for RFduino checkout Don Colemans's [RFduino Plugin](https://github.com/don/cordova-plugin-rfduino).
 
 ## What format should the Mac Address be in?
 An example a properly formatted mac address is ``AA:BB:CC:DD:EE:FF``

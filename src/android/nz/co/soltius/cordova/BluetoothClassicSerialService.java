@@ -1,4 +1,4 @@
-package co.nz.soltius.cordova;
+package nz.co.soltius.cordova;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,12 +27,12 @@ import android.util.Log;
 public class BluetoothClassicSerialService {
 
     // Debugging
-    private static final String TAG = "BluetoothClassicSerialService";
+    private static final String TAG = "BTCSerialService";
     private static final boolean D = true;
 
     // Name for the SDP record when creating server socket
-    private static final String NAME_SECURE = "PhoneGapBluetoothClassicSerialServiceSecure";
-    private static final String NAME_INSECURE = "PhoneGapBluetoothClassicSerialServiceInSecure";
+    private static final String NAME_SECURE = "CordovaBluetoothClassicSerialServiceSecure";
+    private static final String NAME_INSECURE = "CordovaBluetoothClassicSerialServiceInSecure";
 
     // Unique UUID for this application
     private static final UUID MY_UUID_SECURE = UUID.fromString("7A9C3B55-78D0-44A7-A94E-A93E3FE118CE");
@@ -50,6 +50,10 @@ public class BluetoothClassicSerialService {
     private ConnectedThread mConnectedThread;
     private int mState;
 
+    // Custom UUID_SPPs
+    private UUID mUuidSecure;
+    private UUID mUuidInsecure;
+
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
     public static final int STATE_LISTEN = 1;     // now listening for incoming connections
@@ -64,6 +68,10 @@ public class BluetoothClassicSerialService {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
         mHandler = handler;
+
+        // Set the default UUID
+        mUuidSecure = MY_UUID_SECURE;
+        mUuidInsecure = MY_UUID_INSECURE;
     }
 
     /**
@@ -75,7 +83,7 @@ public class BluetoothClassicSerialService {
         mState = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(BluetoothSerial.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
     /**
@@ -83,6 +91,30 @@ public class BluetoothClassicSerialService {
     public synchronized int getState() {
         return mState;
     }
+
+    /**
+     * Set a new UUID for Secure Connection from string. */
+     public synchronized void setSecureUUID(String secureUuidString) {
+       mUuidSecure = UUID.fromString(secureUuidString);
+     }
+
+    /**
+     * Set a new UUID for Insecure Connection from string. */
+     public synchronized void setInsecureUUID(String insecureUuidString) {
+      mUuidInsecure = UUID.fromString(insecureUuidString);
+     }
+
+     /**
+      * Get the UUID for Secure Connection from string. */
+      public synchronized String getSecureUUID() {
+        return mUuidSecure.toString();
+      }
+
+     /**
+      * Get the UUID for Insecure Connection from string. */
+      public synchronized String getInsecureUUID() {
+       return mUuidInsecure.toString();
+      }
 
     /**
      * Start the chat service. Specifically start AcceptThread to begin a
@@ -163,9 +195,9 @@ public class BluetoothClassicSerialService {
         mConnectedThread.start();
 
         // Send the name of the connected device back to the UI Activity
-        Message msg = mHandler.obtainMessage(BluetoothSerial.MESSAGE_DEVICE_NAME);
+        Message msg = mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
-        bundle.putString(BluetoothSerial.DEVICE_NAME, device.getName());
+        bundle.putString(BluetoothClassicSerial.DEVICE_NAME, device.getName());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -222,9 +254,9 @@ public class BluetoothClassicSerialService {
      */
     private void connectionFailed() {
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(BluetoothSerial.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(BluetoothSerial.TOAST, "Unable to connect to device");
+        bundle.putString(BluetoothClassicSerial.TOAST, "Unable to connect to device");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -237,9 +269,9 @@ public class BluetoothClassicSerialService {
      */
     private void connectionLost() {
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(BluetoothSerial.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(BluetoothSerial.TOAST, "Device connection was lost");
+        bundle.putString(BluetoothClassicSerial.TOAST, "Device connection was lost");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -264,9 +296,9 @@ public class BluetoothClassicSerialService {
             // Create a new listening server socket
             try {
                 if (secure) {
-                    tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, MY_UUID_SECURE);
+                    tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, mUuidSecure);
                 } else {
-                    tmp = mAdapter.listenUsingInsecureRfcommWithServiceRecord(NAME_INSECURE, MY_UUID_INSECURE);
+                    tmp = mAdapter.listenUsingInsecureRfcommWithServiceRecord(NAME_INSECURE, mUuidInsecure);
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "listen() failed", e);
@@ -348,10 +380,10 @@ public class BluetoothClassicSerialService {
             try {
                 if (secure) {
                     // tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
-                    tmp = device.createRfcommSocketToServiceRecord(UUID_SPP);
+                    tmp = device.createRfcommSocketToServiceRecord(mUuidSecure);
                 } else {
                     //tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
-                    tmp = device.createInsecureRfcommSocketToServiceRecord(UUID_SPP);
+                    tmp = device.createInsecureRfcommSocketToServiceRecord(mUuidInsecure);
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
@@ -452,14 +484,14 @@ public class BluetoothClassicSerialService {
                     String data = new String(buffer, 0, bytes);
 
                     // Send the new data String to the UI Activity
-                    mHandler.obtainMessage(BluetoothSerial.MESSAGE_READ, data).sendToTarget();
+                    mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ, data).sendToTarget();
 
                     // Send the raw bytestream to the UI Activity.
                     // We make a copy because the full array can have extra data at the end
                     // when / if we read less than its size.
                     if (bytes > 0) {
                         byte[] rawdata = Arrays.copyOf(buffer, bytes);
-                        mHandler.obtainMessage(BluetoothSerial.MESSAGE_READ_RAW, rawdata).sendToTarget();
+                        mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ_RAW, rawdata).sendToTarget();
                     }
 
                 } catch (IOException e) {
@@ -481,7 +513,7 @@ public class BluetoothClassicSerialService {
                 mmOutStream.write(buffer);
 
                 // Share the sent message back to the UI Activity
-                mHandler.obtainMessage(BluetoothSerial.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
+                mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
 
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
