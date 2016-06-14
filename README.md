@@ -55,10 +55,8 @@ Note that this plugin's id changed from `cordova-plugin-bluetooth-serial` to 'co
 - [bluetoothClassicSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
 - [bluetoothClassicSerial.setName](#setname)
 - [bluetoothClassicSerial.setDiscoverable](#setdiscoverable)
-- [bluetoothClassicSerial.getInsecureUUID](#getinsecureuuid)
-- [bluetoothClassicSerial.getSecureUUID](#getsecureuuid)
-- [bluetoothClassicSerial.setInsecureUUID](#setinsecureuuid)
-- [bluetoothClassicSerial.setSecureUUID](#setsecureuuid)
+- [bluetoothClassicSerial.getConnectUUID](#getconnectuuid)
+- [bluetoothClassicSerial.setConnectUUID](#setconnectuuid)
 
 ## connect
 
@@ -641,15 +639,15 @@ Not currently implemented.
 
     bluetoothClassicSerial.setDiscoverable(0);
 
-#getInsecureUUID
+## getConnectUUID
 
-Returns the SPP_UUID used for [connectInsecure](#connectinsecure)
+Returns the SPP_UUID used for making the Android Connection
 
-    bluetoothClassicSerial.getInsecureUUID(success, failure);
+    bluetoothClassicSerial.getConnectUUID(success, failure);
 
 ### Description
 
-Some devices require a non standard SPP_UUID, `getInsecureUUID` allows you to check the SPP_UUID which will be used for an insecure connection.
+Some devices require a non standard SPP_UUID, `getConnectUUID` allows you to check the SPP_UUID which will be used for the connection.
 
 #### Android
 
@@ -663,59 +661,15 @@ Not Implemented for iOS
 
 Not Implemented for Windows
 
-#getSecureUUID
+## setConnectUUID
 
-Returns the SPP_UUID used for [connect](#connect)
+Sets the SPP_UUID used for [connect](#connect)  and [connectInsecure](#connectinsecure)
 
-    bluetoothClassicSerial.getSecureUUID(success, failure);
-
-### Description
-
-Some devices require a non standard SPP_UUID, `getSecureUUID` allows you to check the SPP_UUID which will be used for a secure connection.
-
-#### Android
-
-Implemented for Android
-
-### iOS
-
-Not Implemented for iOS
-
-### Windows
-
-Not Implemented for Windows
-
-#setInsecureUUID
-
-Sets the SPP_UUID used for [connectInsecure](#connectinsecure)
-
-    bluetoothClassicSerial.setInsecureUUID(uuidString, success, failure);
+    bluetoothClassicSerial.setConnectUUID(uuidString, success, failure);
 
 ### Description
 
-Some devices require a non standard SPP_UUID, `setInsecureUUID` allows you to provide a custom SPP_UUID string to be used for an insecure connection.  If successful the UUID string will be returned to the success callback function.
-
-#### Android
-
-Implemented for Android
-
-### iOS
-
-Not Implemented for iOS
-
-### Windows
-
-Not Implemented for Windows
-
-#setSecureUUID
-
-Sets the SPP_UUID used for [connect](#connect)
-
-    bluetoothClassicSerial.setSecureUUID(uuidString, success, failure);
-
-### Description
-
-Some devices require a non standard SPP_UUID, `setSecureUUID` allows you to provide a custom SPP_UUID string to be used for an secure connection.  If successful the UUID string will be returned to the success callback function.
+Some devices require a non standard SPP_UUID, `setConnectUUID` allows you to provide a custom SPP_UUID string to be used for a connection.  If successful the UUID string will be returned to the success callback function.
 
 #### Android
 

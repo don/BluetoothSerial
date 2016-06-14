@@ -131,20 +131,12 @@ module.exports = {
         cordova.exec(null, null, "BluetoothClassicSerial", "setDiscoverable", [discoverableDuration]);
     },
 
-    getInsecureUUID: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "getInsecureUUID", []);
+    getConnectUUID: function (success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "getConnectUUID", []);
     },
 
-    getSecureUUID: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "getSecureUUID", []);
-    },
-
-    setInsecureUUID: function (uuidString, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "setInsecureUUID", [uuidString]);
-    },
-
-    setSecureUUID: function (uuidString, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "setSecureUUID", [uuidString]);
+    setConnectUUID: function (uuidString, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "setConnectUUID", [uuidString]);
     }
 
 };
