@@ -51,8 +51,7 @@ public class BluetoothClassicSerialService {
     private int mState;
 
     // Custom UUID_SPPs
-    private UUID mUuidSecure;
-    private UUID mUuidInsecure;
+    private UUID mUuidConnect;
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
@@ -70,8 +69,7 @@ public class BluetoothClassicSerialService {
         mHandler = handler;
 
         // Set the default UUID
-        mUuidSecure = MY_UUID_SECURE;
-        mUuidInsecure = MY_UUID_INSECURE;
+        mUuidConnect = UUID_SPP;
     }
 
     /**
@@ -94,26 +92,14 @@ public class BluetoothClassicSerialService {
 
     /**
      * Set a new UUID for Secure Connection from string. */
-     public synchronized void setSecureUUID(String secureUuidString) {
-       mUuidSecure = UUID.fromString(secureUuidString);
+     public synchronized void setConnectUUID(String secureUuidString) {
+       mUuidConnect = UUID.fromString(secureUuidString);
      }
 
-    /**
-     * Set a new UUID for Insecure Connection from string. */
-     public synchronized void setInsecureUUID(String insecureUuidString) {
-      mUuidInsecure = UUID.fromString(insecureUuidString);
-     }
-
-     /**
+   /**
       * Get the UUID for Secure Connection from string. */
-      public synchronized String getSecureUUID() {
-        return mUuidSecure.toString();
-      }
-
-     /**
-      * Get the UUID for Insecure Connection from string. */
-      public synchronized String getInsecureUUID() {
-       return mUuidInsecure.toString();
+      public synchronized String getConnectUUID() {
+        return mUuidConnect.toString();
       }
 
     /**
@@ -296,9 +282,9 @@ public class BluetoothClassicSerialService {
             // Create a new listening server socket
             try {
                 if (secure) {
-                    tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, mUuidSecure);
+                    tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, MY_UUID_SECURE);
                 } else {
-                    tmp = mAdapter.listenUsingInsecureRfcommWithServiceRecord(NAME_INSECURE, mUuidInsecure);
+                    tmp = mAdapter.listenUsingInsecureRfcommWithServiceRecord(NAME_INSECURE, MY_UUID_INSECURE);
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "listen() failed", e);
@@ -380,10 +366,10 @@ public class BluetoothClassicSerialService {
             try {
                 if (secure) {
                     // tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
-                    tmp = device.createRfcommSocketToServiceRecord(mUuidSecure);
+                    tmp = device.createRfcommSocketToServiceRecord(mUuidConnect);
                 } else {
                     //tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
-                    tmp = device.createInsecureRfcommSocketToServiceRecord(mUuidInsecure);
+                    tmp = device.createInsecureRfcommSocketToServiceRecord(mUuidConnect);
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);

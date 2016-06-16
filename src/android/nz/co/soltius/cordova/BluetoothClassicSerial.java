@@ -50,10 +50,8 @@ public class BluetoothClassicSerial extends CordovaPlugin {
     private static final String CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener";
     private static final String SET_NAME = "setName";
     private static final String SET_DISCOVERABLE = "setDiscoverable";
-    private static final String GET_UUID_INSECURE = "getInsecureUUID";
-    private static final String GET_UUID_SECURE = "getSecureUUID";
-    private static final String SET_UUID_INSECURE = "setInsecureUUID";
-    private static final String SET_UUID_SECURE = "setSecureUUID";
+    private static final String GET_UUID_CONNECT = "getConnectUUID";
+    private static final String SET_UUID_CONNECT = "setConnectUUID";
 
     // callbacks
     private CallbackContext connectCallback;
@@ -232,25 +230,15 @@ public class BluetoothClassicSerial extends CordovaPlugin {
             discoverIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration);
             cordova.getActivity().startActivity(discoverIntent);
 
-        } else if (action.equals(GET_UUID_INSECURE)) {
+        } else if (action.equals(GET_UUID_CONNECT)) {
 
-            callbackContext.success(bluetoothClassicSerialService.getInsecureUUID());
+            callbackContext.success(bluetoothClassicSerialService.getConnectUUID());
 
-        } else if (action.equals(GET_UUID_SECURE)) {
-
-          callbackContext.success(bluetoothClassicSerialService.getSecureUUID());
-
-        } else if (action.equals(SET_UUID_INSECURE)) {
+        } else if (action.equals(SET_UUID_CONNECT)) {
 
           String newUUID = args.getString(0);
-          bluetoothClassicSerialService.setInsecureUUID(newUUID);
-          callbackContext.success(bluetoothClassicSerialService.getInsecureUUID());
-
-        } else if (action.equals(SET_UUID_SECURE)) {
-
-          String newUUID = args.getString(0);
-          bluetoothClassicSerialService.setSecureUUID(newUUID);
-          callbackContext.success(bluetoothClassicSerialService.getSecureUUID());
+          bluetoothClassicSerialService.setConnectUUID(newUUID);
+          callbackContext.success(bluetoothClassicSerialService.getConnectUUID());
 
         } else {
             validAction = false;
