@@ -355,6 +355,9 @@
  */
 - (void)subscribe:(CDVInvokedUrlCommand *)command {
 //    [self.commandDelegate runInBackground:^{
+
+        // TODO - Handle delimiter.
+
         NSLog(@"Subscribing to device notifications");
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionDataReceived:) name:self.SessionDataReceivedNotification object:nil];
 //    }];
@@ -371,6 +374,22 @@
 }
 
 /**
+ Subscribe to be notified when data is received from the device
+ */
+- (void)subscribeRawData:(CDVInvokedUrlCommand *)command {
+    NSLog(@"Subscribing to raw data device notifications");
+    [self subscribe:command];
+}
+
+/**
+ Unsubscribe from the data received notification
+ */
+- (void)unsubscribeRawData:(CDVInvokedUrlCommand *)command {
+    NSLog(@"Unsubscribing from raw data device notifications");
+    [self unsubscribe:command];
+}
+
+/**
  Anytime data is read from the device this method will fire and the data can then be read and sent back to the Javascript API callback.
  */
 - (void)sessionDataReceived:(NSNotification *)notification {
@@ -383,6 +402,7 @@
         if (data) {
             NSString* newStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             NSLog(@"Data received = %@", newStr);
+            // TODO - Handle getting this back to the JS API.
         }
     }
 }
@@ -472,7 +492,6 @@
         }
 
         case NSStreamEventHasSpaceAvailable: {
-            NSLog(@"Stream has space avaiable");
             [self writeSessionData];
             break;
         }

@@ -38,6 +38,12 @@
 // Unsubscribe from the read data notifications
 - (void)unsubscribe:(CDVInvokedUrlCommand *)command;
 
+// Subscribe to raw data notifications
+- (void)subscribeRawData:(CDVInvokedUrlCommand *)command;
+
+// Unsubscribe raw data notifications
+- (void)unsubscribeRawData:(CDVInvokedUrlCommand *)command;
+
 @property (nonatomic, strong) EASession *session;
 @property (nonatomic, strong) EAAccessory *accessory;
 @property (nonatomic, strong) NSMutableArray *accessoriesList;
