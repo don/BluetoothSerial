@@ -32,22 +32,28 @@
 // Write to the device
 - (void)write:(CDVInvokedUrlCommand *)command;
 
+// Read all the data in the buffer
+- (void)read:(CDVInvokedUrlCommand *)command;
+
 // Subscribe to the read data notifications
 - (void)subscribe:(CDVInvokedUrlCommand *)command;
 
 // Unsubscribe from the read data notifications
 - (void)unsubscribe:(CDVInvokedUrlCommand *)command;
 
-// Subscribe to raw data notifications
-- (void)subscribeRawData:(CDVInvokedUrlCommand *)command;
+// Set the device discovered listener callback
+- (void)setDeviceDiscoveredListener:(CDVInvokedUrlCommand *)command;
 
-// Unsubscribe raw data notifications
-- (void)unsubscribeRawData:(CDVInvokedUrlCommand *)command;
+// Clear the device discovered listener callback
+- (void)clearDeviceDiscoveredListener:(CDVInvokedUrlCommand *)command;
+
+// Clear the input stream data buffer
+- (void)clear:(CDVInvokedUrlCommand *)command;
 
 @property (nonatomic, strong) EASession *session;
 @property (nonatomic, strong) EAAccessory *accessory;
-@property (nonatomic, strong) NSMutableArray *accessoriesList;
 @property (nonatomic, strong) NSString *deviceDiscoveredCallbackID;
+@property (nonatomic, strong) NSString *sessionDataReadCallbackID;
 @property (nonatomic, strong) NSMutableData *readData;
 @property (nonatomic, strong) NSMutableData *writeData;
 @property (nonatomic, strong) NSString *protocolString;
