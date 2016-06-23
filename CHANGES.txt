@@ -1,3 +1,9 @@
+= 0.9.0 =
+Beta Release
+Added Set UUID Method for Android for Connecting to Customer UUID
+Removed Bluetooth LE support for iOS
+Added Apple Accessory Framework Support to Classic Bluetooth on iOS
+
 = 0.4.5 =
 Resolve iOS conflicts with cordova-plugin-ble-central #177
 Add support for broadcasted name when discoverable (Android) #137 Thanks marvinmarnold
