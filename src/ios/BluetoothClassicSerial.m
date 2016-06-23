@@ -59,13 +59,10 @@
     if (delimiter != nil) {
         self.readDelimiter = delimiter;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sendDataToSubscriber:) name:self.SessionDataReceivedNotification object:nil];
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Delimiter was null"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
-
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-
 
 }
 
@@ -313,22 +310,28 @@
 
 - (void)read:(CDVInvokedUrlCommand *)command {
 
-    NSUInteger bytesAvailable = 0;
-    NSMutableString *dataOuput = [[NSMutableString alloc] init];
+    CDVPluginResult *pluginResult = nil;
 
-    while ((bytesAvailable = [self.readData length]) > 0) {
-        NSData *data = [self readHighData:bytesAvailable];
-        if (data) {
+    if ([self isCommunicationSessionOpen]) {
+        NSUInteger bytesAvailable = 0;
+        NSMutableString *dataOuput = [[NSMutableString alloc] init];
 
-            NSString* dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            [dataOuput appendString:dataString];
+        while ((bytesAvailable = [self.readData length]) > 0) {
+            NSData *data = [self readHighData:bytesAvailable];
+            if (data) {
 
+                NSString* dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                [dataOuput appendString:dataString];
+
+            }
         }
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataOuput];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Communication session not open. Call connect() prior to using this method."];
     }
 
-    CDVPluginResult *pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataOuput];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
 
 }
 
@@ -336,28 +339,31 @@
 - (void)readUntil:(CDVInvokedUrlCommand*)command {
 
     CDVPluginResult *pluginResult = nil;
-    NSString *delimiter = [command.arguments objectAtIndex:0];
 
-    if (delimiter != nil) {
-        NSString *message = [self readUntilDelimiter:delimiter];
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    if ([self isCommunicationSessionOpen]) {
+        NSString *delimiter = [command.arguments objectAtIndex:0];
+
+        if (delimiter != nil) {
+            NSString *message = [self readUntilDelimiter:delimiter];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Delimiter was null"];
+        }
     } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Delimiter was null"];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Communication session not open. Call connect() prior to using this method."];
     }
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
 
 }
 
 #pragma mark - Internal implementation methods
 
-/**
- Read the input stream until a delimiter is found.
- */
-- (NSString*)readUntilDelimiter: (NSString*) delimiter {
+- (NSString*)readUntilDelimiter:(NSString*)delimiter {
 
     NSString *dataString = [[NSString alloc] initWithData:self.readData encoding:NSUTF8StringEncoding];
-    NSRange range = [dataString rangeOfString: delimiter];
+    NSRange range = [dataString rangeOfString:delimiter];
     NSString *message = @"";
 
     if (range.location != NSNotFound) {
@@ -373,11 +379,6 @@
 }
 
 
-/**
- Low level write method. Writes NSData to the outputstream.
- If a write error occurs it is saved as a property against the object so that higher level plugin
- methods can use that error to determine the appropriate state for return to the JS API.
- */
 -(void)writeSessionData {
 
     // Default write error state. Set to error if outputStream doesn't have space available or or the data length is 0.
@@ -400,55 +401,12 @@
 
 }
 
-/**
- Checks the Core Bluetooth Central Manager state to determine if Bluetooth is enabled or not.
- */
-- (void)centralManagerDidUpdateState:(CBCentralManager *)central {
-
-    if([central state] == CBCentralManagerStatePoweredOn) {
-        self.bluetoothEnabled = true;
-    } else {
-        self.bluetoothEnabled = false;
-    }
-}
-
 - (bool)isCommunicationSessionOpen {
     return self.session != nil && self.accessory != nil && self.accessory.isConnected;
 }
 
-/**
- Listener to watch for the appearance of a device and try to reestablish a connection to the device.
- */
-- (void)accessoryConnected:(NSNotification *)notification {
-
-    NSLog(@"EAController::accessoryConnected");
-
-    // If we don't already have an accessory or if we have an accessory but it's not connected
-    if (self.accessory == nil || ![self.accessory isConnected]) {
-
-        NSLog(@"Setting the newly connected accessory");
-
-        // Get the freshly connected accessory and set the connection ID
-        self.accessory = [[notification userInfo] objectForKey:EAAccessoryKey];
-
-        // If there's a device discovered listener then send back the device details
-        if (self.deviceDiscoveredCallbackID != nil) {
-
-            NSLog(@"Attempting to fire device discovered callback");
-            [self fireDeviceDiscoveredListener:self.accessory];
-
-        }
-
-    }
-
-}
-
-/**
- Close the session with the accessory.
- */
 - (void)closeSession {
 
-    NSLog(@"Closing session");
     if (self.session != nil) {
 
         // Close off the input and output streams
@@ -468,32 +426,10 @@
     // Remove data references
     self.readData = nil;
     self.accessory = nil;
+    self.writeData = nil;
 
 }
 
--(void)fireDeviceDiscoveredListener:(EAAccessory *)accessory {
-
-    // Copy the connected accessory details into an array and return it to the device discovered callback.
-    NSArray *accessoryDetailsArray = [self accessoryDetails:accessory].copy;
-    CDVPluginResult *pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:accessoryDetailsArray];
-    [pluginResult setKeepCallbackAsBool:true];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.deviceDiscoveredCallbackID];
-
-}
-
-/**
- Will listen to determine if the accessory disconnects and then close the session.
- */
-- (void)accessoryDisconnected:(NSNotification *)notification {
-    NSLog(@"EAController::accessoryDisconnected");
-    [self closeSession];
-}
-
-/**
- Open a communication session with an accessory based on a provided
- protocol string.
- */
 - (bool)openSessionForConnectionId:(NSUInteger)connectionId {
 
     NSArray *accessories = [[EAAccessoryManager sharedAccessoryManager]
@@ -541,9 +477,7 @@
 
 }
 
-/**
- Build a dictionary of accessory details
- */
+
 - (NSMutableDictionary*)accessoryDetails:(EAAccessory *)accessory {
 
     NSMutableDictionary *accessoryDict = [[NSMutableDictionary alloc] init];
@@ -562,12 +496,78 @@
 
 }
 
-/**
- Anytime data is read from the device this method will fire and the data can then be read and sent back to the Javascript API callback.
- */
-- (void)sendDataToSubscriber:(NSNotification *)notification {
 
-    NSLog(@"Session data received");
+- (NSData *)readHighData:(NSUInteger)bytesToRead {
+    NSData *data = nil;
+    if ([self.readData length] >= bytesToRead) {
+        NSRange range = NSMakeRange(0, bytesToRead);
+        data = [self.readData subdataWithRange:range];
+        [self.readData replaceBytesInRange:range withBytes:NULL length:0];
+    }
+    return data;
+}
+
+
+- (void)readSessionData {
+
+    uint8_t buf[self.inputBufferSize];
+    while ([[self.session inputStream] hasBytesAvailable])
+    {
+        NSInteger bytesRead = [[self.session inputStream] read:buf maxLength:self.inputBufferSize];
+        if (self.readData == nil) {
+            self.readData = [[NSMutableData alloc] init];
+        }
+        [self.readData appendBytes:(void *)buf length:bytesRead];
+    }
+
+    // When data is read in from the session send to the received notification.
+    [[NSNotificationCenter defaultCenter] postNotificationName:self.SessionDataReceivedNotification object:self userInfo:nil];
+}
+
+
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central {
+
+    if([central state] == CBCentralManagerStatePoweredOn) {
+        self.bluetoothEnabled = true;
+    } else {
+        self.bluetoothEnabled = false;
+    }
+}
+
+- (void)accessoryConnected:(NSNotification *)notification {
+
+    // If we don't already have an accessory or if we have an accessory but it's not connected
+    if (self.accessory == nil || ![self.accessory isConnected]) {
+
+        // Get the freshly connected accessory and set the connection ID
+        self.accessory = [[notification userInfo] objectForKey:EAAccessoryKey];
+
+        // If there's a device discovered listener then send back the device details
+        if (self.deviceDiscoveredCallbackID != nil) {
+            [self fireDeviceDiscoveredListener:self.accessory];
+        }
+
+    }
+
+}
+
+-(void)fireDeviceDiscoveredListener:(EAAccessory *)accessory {
+
+    // Copy the connected accessory details into an array and return it to the device discovered callback.
+    NSArray *accessoryDetailsArray = [self accessoryDetails:accessory].copy;
+    CDVPluginResult *pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:accessoryDetailsArray];
+    [pluginResult setKeepCallbackAsBool:true];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.deviceDiscoveredCallbackID];
+
+}
+
+- (void)accessoryDisconnected:(NSNotification *)notification {
+    [self closeSession];
+}
+
+
+- (void)sendDataToSubscriber:(NSNotification *)notification {
 
     // Make sure we have a callback method to fire
     if (self.sessionDataReadCallbackID != nil) {
@@ -588,52 +588,11 @@
     }
 }
 
-/**
- High level read data method. Accepts the number of bytes to read and reads those bytes from self.readData property.
- */
-- (NSData *)readHighData:(NSUInteger)bytesToRead
-{
-    NSData *data = nil;
-    if ([self.readData length] >= bytesToRead) {
-        NSRange range = NSMakeRange(0, bytesToRead);
-        data = [self.readData subdataWithRange:range];
-        [self.readData replaceBytesInRange:range withBytes:NULL length:0];
-    }
-    return data;
-}
 
-/**
- Low level read data method
- Reads data in from the inputStream if the stream has bytes available.
- */
-- (void)readSessionData {
-
-    NSLog(@"Reading session data");
-    uint8_t buf[self.inputBufferSize];
-    while ([[self.session inputStream] hasBytesAvailable])
-    {
-        NSInteger bytesRead = [[self.session inputStream] read:buf maxLength:self.inputBufferSize];
-        if (self.readData == nil) {
-            self.readData = [[NSMutableData alloc] init];
-        }
-        [self.readData appendBytes:(void *)buf length:bytesRead];
-    }
-
-    // When data is read in from the session send to the received notification.
-    [[NSNotificationCenter defaultCenter] postNotificationName:self.SessionDataReceivedNotification object:self userInfo:nil];
-}
-
-
-/**
- Session stream object reports events to this method.
- Anytime an input or output stream event occurs it is handled by this method.
- */
 - (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)eventCode {
-    NSLog(@"stream:handleEvent: is invoked...");
     switch(eventCode) {
         case NSStreamEventErrorOccurred:
         case NSStreamEventEndEncountered: {
-            NSLog(@"Stream error. Closing stream");
             [stream close];
             [stream removeFromRunLoop:[NSRunLoop currentRunLoop]
                               forMode:NSDefaultRunLoopMode];

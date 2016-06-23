@@ -101,16 +101,17 @@
 
 /*!
  @brief Read all data in the input stream
+ @discussion If the communication session is not open the failCallback will be called
 
  @code
- bluetoothClassicSerial.read(successCallback);
+ bluetoothClassicSerial.read(successCallback, failCallback);
  @endcode
  */
 - (void)read:(CDVInvokedUrlCommand *)command;
 
 /*!
  @brief Read data in the input stream until the specified delimiter occurs
- @discussion This method is passed a delimiter via the JavaScript API. If no delimiter is specified then the failCallback will fire.
+ @discussion This method is passed a delimiter via the JavaScript API. If no delimiter is specified then the failCallback will fire. Or if the communication session is not open the failCallback will be called.
 
  @code
  bluetoothClassicSerial.readUntil(delimiter, successCallback, failCallback);
@@ -175,8 +176,88 @@
 - (void)clear:(CDVInvokedUrlCommand *)command;
 
 
-// close a connected session
+/*!
+ @brief Read the input stream until a delimiter is hit
+ @return NSString - either an empty string or the string up until the delimiter.
+ */
+- (NSString*)readUntilDelimiter:(NSString*)delimiter;
+
+/*!
+ @brief Low level write method to write data to the session outputstream
+ */
+-(void)writeSessionData;
+
+/*!
+ @brief Determines if a communication session is open with the connected accessory
+ @return Boolean - True for session open. False for not.
+ */
+- (bool)isCommunicationSessionOpen;
+
+/*!
+ @brief Close the communication session with the connected device.
+ */
 - (void)closeSession;
+
+/*!
+ @brief Open a communication session for an accessory with a given connectionID
+ @discussion If the connectionID is passed in as 0 then the method will attempt to open a session with the first connected device that matches the supported communication protocols.
+ @return Boolean - True for session open. False for not
+ */
+- (bool)openSessionForConnectionId:(NSUInteger)connectionId;
+
+/*!
+ @brief Get all the details for a given accessory
+ @return Dictionary of accessory details
+ */
+- (NSMutableDictionary*)accessoryDetails:(EAAccessory *)accessory;
+
+/*!
+ @brief High level read data method. Accepts the number of bytes to read and reads those bytes from the input stream
+ @return NSData - the data read matching the number of bytes passed in.
+ */
+- (NSData *)readHighData:(NSUInteger)bytesToRead;
+
+/*!
+ @brief  Low level read data method. Reads data in from the inputStream if the stream has bytes available.
+ @discussion After each read a session data received notification is sent which will trigger the subscribe callback, if the user has asked to subscribe to the read data feed.
+ */
+- (void)readSessionData;
+
+/*!
+ @brief Checks the core bluetooth manager to see if Bluetooth is active and enabled.
+ @discussion If bluetooth is active and enabled the bluetoothEnabled property is set to true.
+ */
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central;
+
+/*!
+ @brief An external accessory framework notification
+ @discussion This will trigger whenever a device connects via the External Accessory Framework
+ */
+- (void)accessoryConnected:(NSNotification *)notification;
+
+/*!
+ @brief To fire the device discovered listener if one has been set by the user via setDeviceDiscoveredListener
+ */
+-(void)fireDeviceDiscoveredListener:(EAAccessory *)accessory;
+
+/*!
+ @brief An External Accessory Framework notification that fires whenever a connected accessory disconnects from the device.
+ @discussion When this triggers any open communication session with a device is closed.
+ */
+- (void)accessoryDisconnected:(NSNotification *)notification;
+
+/*!
+ @brief Notification method that gets fired when a user subscribe to a data feed.
+ @discussion It will send data back to the JavaScript API everytime a delimiter is read from the input stream.
+ */
+- (void)sendDataToSubscriber:(NSNotification *)notification;
+
+
+/*!
+ @brief  Session stream object reports events to this method. Anytime an input or output stream event occurs it is handled by this method.
+ */
+- (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)eventCode;
+
 
 @property (nonatomic, strong) EASession *session;
 @property (nonatomic, strong) EAAccessory *accessory;
