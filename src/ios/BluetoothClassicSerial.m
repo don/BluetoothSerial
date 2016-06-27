@@ -482,15 +482,10 @@
 
     NSMutableDictionary *accessoryDict = [[NSMutableDictionary alloc] init];
 
-    [accessoryDict setValue:[NSNumber numberWithBool:accessory.connected] forKeyPath:@"connected"];
-    [accessoryDict setValue:[NSNumber numberWithLong:accessory.connectionID] forKeyPath:@"connectionID"];
+    [accessoryDict setValue:[NSNumber numberWithLong:accessory.connectionID] forKeyPath:@"address"];
+    [accessoryDict setValue:[NSNumber numberWithLong:accessory.connectionID] forKeyPath:@"id"];
     [accessoryDict setValue:accessory.name forKey:@"name"];
-    [accessoryDict setValue:accessory.manufacturer forKeyPath:@"manufacturer"];
-    [accessoryDict setValue:accessory.modelNumber forKeyPath:@"modelNumber"];
-    [accessoryDict setValue:accessory.serialNumber forKeyPath:@"serialNumber"];
-    [accessoryDict setValue:accessory.firmwareRevision forKeyPath:@"firmwareRevision"];
-    [accessoryDict setValue:accessory.hardwareRevision forKeyPath:@"hardwareRevision"];
-    [accessoryDict setValue:accessory.protocolStrings forKeyPath:@"protocols"];
+    [accessoryDict setValue:@"" forKeyPath:@"class"];
 
     return accessoryDict;
 
