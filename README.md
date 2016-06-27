@@ -2,8 +2,7 @@
 
 This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin will written against the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.
 
-** Initial Stages - Do not use! **
-** iOS Implementation not in place! **
+** Beta Release **
 
 ## Supported Platforms
 
@@ -15,7 +14,7 @@ This plugin enables serial communication over Bluetooth. It is a fork of https:/
 ## Limitations
 
  * The phone must initiate the Bluetooth connection
- * Will *not* connect Android to Android[*](https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
+ * Will *not* connect Android to Android (https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
  * Will *not* connect iOS to iOS[*](https://github.com/don/BluetoothSerial/issues/75#issuecomment-52591397)
  * Android Target SDK must be 22 or less.  New Permission model for SDK 23 not implemented
 

@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-bluetoothClassic-serial",
-  "version": "0.4.5",
+  "version": "0.9.0",
   "description": "Bluetooth Serial Communication Plugin",
   "cordova": {
     "id": "cordova-plugin-bluetoothClassic-serial",
@@ -21,7 +21,7 @@
     "arduino",
     "ecosystem:cordova"
   ],
-  "author": "Don Coleman <don.coleman@gmail.com>",
+  "author": "Soltius New Zealand <steve.campbell@soltius.co.nz>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/soltius/BluetoothClassicSerial/issues"
