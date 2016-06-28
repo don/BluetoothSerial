@@ -270,6 +270,8 @@
 @property CBCentralManager* bluetoothManager;
 @property (nonatomic) bool bluetoothEnabled;
 @property (nonatomic) bool writeError;
+@property (nonatomic, strong) NSMutableArray *connectionError;
+@property (nonatomic, strong) NSMutableDictionary *connectionErrorDetails;
 @property (nonatomic) uint8_t inputBufferSize;
 @property (nonatomic, strong) NSString *SessionDataReceivedNotification;
 @property (nonatomic, strong) NSString *readDelimiter;

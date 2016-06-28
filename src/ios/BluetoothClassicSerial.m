@@ -16,6 +16,8 @@
     self.deviceDiscoveredCallbackID = nil;
     self.sessionDataReadCallbackID = nil;
     self.readDelimiter = nil;
+    self.connectionErrorDetails = nil;
+    self.connectionError = nil;
 
     // Initialise base bluetooth settings
     self.bluetoothEnabled = false;
@@ -166,6 +168,14 @@
     CDVPluginResult *pluginResult = nil;
     bool inError = false;
 
+    if (self.connectionError == nil) {
+        self.connectionError = [[NSMutableArray alloc] init];
+    }
+
+    if (self.connectionErrorDetails == nil) {
+        self.connectionErrorDetails = [[NSMutableDictionary alloc] init];
+    }
+
     /* Set the connection ID. If a blank connectionID has been passed set it to 0.
      This will allow the connect method to instead connect to the first connected device that contains the correct protocol string.
      */
@@ -181,6 +191,7 @@
         @catch (NSException *e) {
             // If we've got any exception passing the connectionID into an integer then set in error
             inError = true;
+            [self.connectionErrorDetails setValue:@"Error converting connection ID to a valid integer value" forKey:@"error"];
         }
 
     }
@@ -189,10 +200,16 @@
     if (!inError && [self openSessionForConnectionId:connectionId]) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:true];
     } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsBool:false];
+        [self.connectionErrorDetails setValue:[NSNumber numberWithLong:connectionId] forKeyPath:@"id"];
+        [self.connectionErrorDetails setValue:self.protocolString forKeyPath:@"protocolString"];
+        [self.connectionError insertObject:self.connectionErrorDetails atIndex:0];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsArray:self.connectionError];
     }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+    self.connectionErrorDetails = nil;
+    self.connectionError = nil;
 
 
 }
@@ -455,6 +472,10 @@
 
     }
 
+    if (self.connectionErrorDetails == nil) {
+        self.connectionErrorDetails = [[NSMutableDictionary alloc] init];
+    }
+
     // If we've found an accessory then open a communication stream
     if (self.accessory != nil){
         [self.accessory setDelegate:self];
@@ -470,7 +491,11 @@
             [[_session outputStream] scheduleInRunLoop:[NSRunLoop currentRunLoop]
                                                forMode:NSDefaultRunLoopMode];
             [[_session outputStream] open];
+        } else {
+            [self.connectionErrorDetails setValue:@"Could not create a communication session for the found accessory" forKey:@"error"];
         }
+    } else {
+        [self.connectionErrorDetails setValue:@"Could not find accessory with matching connectionID and protocol string" forKey:@"error"];
     }
 
     return [self isCommunicationSessionOpen];
