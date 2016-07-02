@@ -25,11 +25,11 @@
  @brief Connect to the device by opening a communication session
  @discussion This methods opens a communication session with the device enabling reading and writing to and from the device.
 
- The JavaScript API accepts a unique connectionID which can be used to select a particular device that adheres to the supported communication protocol. If no connectionID is provided then the method will attempt to connect to the first paired device it finds that adheres to the supported communication protocol.
+ The JavaScript API accepts a unique connectionID which can be used to select a particular device that adheres to the provided communication protocol. The communication protocol should be specified as the second parameter. If no connectionID is provided then the method will attempt to connect to the first paired device it finds that adheres to the supported communication protocol.
 
  JavaScript API:
  @code
- bluetoothClassicSerial.connect(connectionID, successCallback, failCallback);
+ bluetoothClassicSerial.connect(connectionID, protocolString, successCallback, failCallback);
  @endcode
  */
 - (void)connect:(CDVInvokedUrlCommand *)command;
@@ -131,6 +131,26 @@
 - (void)subscribe:(CDVInvokedUrlCommand *)command;
 
 /*!
+ @brief Subscribe to be notified when raw data is received from the device.
+
+ JavaScript API:
+ @code
+ bluetoothClassicSerial.subscribeRawData(successCallback, failCallback);
+ @encode
+ */
+- (void)subscribeRaw:(CDVInvokedUrlCommand *)command;
+
+/*!
+ @brief Unsubscribe from notifications that raw data has been received from the device.
+
+ JavaScript API:
+ @code
+ bluetoothClassicSerial.unsubscribeRawData(successCallback, failCallback);
+ @encode
+ */
+- (void)unsubscribeRaw:(CDVInvokedUrlCommand *)command;
+
+/*!
  @brief Unsubscribe from the sendDataToSubscriber callback function.
 
  JavaScript API:
@@ -144,9 +164,9 @@
  @brief Set a callback that gets fired whenever a device is discovered for connection.
  @discussion Once set this notification callback will be fired under the following conditions:
 
-    1. There is currently no other accessory connected in the plugin instance.
+ 1. There is currently no other accessory connected in the plugin instance.
 
-    2. The External Accessory Framework detects that a device has connected to the application. This happens if a previously unconnected device is selected via the device picker or a previously paired device connects automatically while the app is running.
+ 2. The External Accessory Framework detects that a device has connected to the application. This happens if a previously unconnected device is selected via the device picker or a previously paired device connects automatically while the app is running.
 
  JavaScript API:
  @code
@@ -199,11 +219,11 @@
 - (void)closeSession;
 
 /*!
- @brief Open a communication session for an accessory with a given connectionID
- @discussion If the connectionID is passed in as 0 then the method will attempt to open a session with the first connected device that matches the supported communication protocols.
+ @brief Open a communication session for an accessory with a given connectionID and a given protocolString
+ @discussion If the connectionID is passed in as 0 then the method will attempt to open a session with the first connected device that matches the provided communication protocol.
  @return Boolean - True for session open. False for not
  */
-- (bool)openSessionForConnectionId:(NSUInteger)connectionId;
+- (bool)openSessionForConnectionIdAndProtocolString:(NSUInteger)connectionId :(NSString *)protocolString;
 
 /*!
  @brief Get all the details for a given accessory
@@ -263,9 +283,9 @@
 @property (nonatomic, strong) EAAccessory *accessory;
 @property (nonatomic, strong) NSString *deviceDiscoveredCallbackID;
 @property (nonatomic, strong) NSString *sessionDataReadCallbackID;
+@property (nonatomic, strong) NSString *subscribeRawDataCallbackID;
 @property (nonatomic, strong) NSMutableData *readData;
 @property (nonatomic, strong) NSMutableData *writeData;
-@property (nonatomic, strong) NSString *protocolString;
 @property (nonatomic, strong) CDVInvokedUrlCommand *sessionCommand;
 @property CBCentralManager* bluetoothManager;
 @property (nonatomic) bool bluetoothEnabled;

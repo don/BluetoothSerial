@@ -7,7 +7,6 @@
     // Initialise properties
     self.accessory = nil;
     self.session = nil;
-    self.protocolString = nil;
     self.writeData = nil;
     self.writeError = nil;
     self.readData = nil;
@@ -18,6 +17,7 @@
     self.readDelimiter = nil;
     self.connectionErrorDetails = nil;
     self.connectionError = nil;
+    self.subscribeRawDataCallbackID = nil;
 
     // Initialise base bluetooth settings
     self.bluetoothEnabled = false;
@@ -29,12 +29,6 @@
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(accessoryConnected:) name:EAAccessoryDidConnectNotification object:nil];
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(accessoryDisconnected:) name:EAAccessoryDidDisconnectNotification object:nil];
     [[EAAccessoryManager sharedAccessoryManager] registerForLocalNotifications];
-
-    // Grab the available protocol strings from the plist and set the highest one as the default protocol string
-    NSArray *protocolStrings = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UISupportedExternalAccessoryProtocols"];
-    if (protocolStrings.count > 0) {
-        self.protocolString = protocolStrings[0];
-    }
 
 }
 
@@ -73,6 +67,22 @@
     // Remove the notification and the callback ID
     [[NSNotificationCenter defaultCenter] removeObserver:self name:self.SessionDataReceivedNotification object:nil];
     self.sessionDataReadCallbackID = nil;
+
+    // Fire the success callback
+    CDVPluginResult *pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+}
+
+- (void)subscribeRaw:(CDVInvokedUrlCommand *)command {
+    NSLog(@"Subscribe raw fired");
+    self.subscribeRawDataCallbackID = command.callbackId;
+}
+
+- (void)unsubscribeRaw:(CDVInvokedUrlCommand *)command {
+    NSLog(@"Unsubscribe raw fired");
+    self.subscribeRawDataCallbackID = nil;
 
     // Fire the success callback
     CDVPluginResult *pluginResult = nil;
@@ -180,6 +190,7 @@
      This will allow the connect method to instead connect to the first connected device that contains the correct protocol string.
      */
     NSUInteger connectionId;
+    NSString *protocolString = [command.arguments objectAtIndex:1];
 
     if ([command.arguments objectAtIndex:0] == (id)[NSNull null]) {
         connectionId = 0;
@@ -197,11 +208,11 @@
     }
 
     // If we're not in error then try and open a communication session
-    if (!inError && [self openSessionForConnectionId:connectionId]) {
+    if (!inError && [self openSessionForConnectionIdAndProtocolString:connectionId:protocolString]) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:true];
     } else {
         [self.connectionErrorDetails setValue:[NSNumber numberWithLong:connectionId] forKeyPath:@"id"];
-        [self.connectionErrorDetails setValue:self.protocolString forKeyPath:@"protocolString"];
+        [self.connectionErrorDetails setValue:protocolString forKeyPath:@"protocolString"];
         [self.connectionError insertObject:self.connectionErrorDetails atIndex:0];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsArray:self.connectionError];
     }
@@ -447,7 +458,7 @@
 
 }
 
-- (bool)openSessionForConnectionId:(NSUInteger)connectionId {
+- (bool)openSessionForConnectionIdAndProtocolString:(NSUInteger)connectionId :(NSString *)protocolString {
 
     NSArray *accessories = [[EAAccessoryManager sharedAccessoryManager]
                             connectedAccessories];
@@ -458,12 +469,12 @@
         if (
             (
              [obj connectionID] == connectionId
-             && [[obj protocolStrings] containsObject:self.protocolString]
+             && [[obj protocolStrings] containsObject:protocolString]
              )
             ||
             (
              connectionId == 0
-             && [[obj protocolStrings] containsObject:self.protocolString]
+             && [[obj protocolStrings] containsObject:protocolString]
              )
             ){
             self.accessory = obj;
@@ -480,7 +491,7 @@
     if (self.accessory != nil){
         [self.accessory setDelegate:self];
         self.session = [[EASession alloc] initWithAccessory:self.accessory
-                                                forProtocol:self.protocolString];
+                                                forProtocol:protocolString];
         if (self.session) {
             [[_session inputStream] setDelegate:self];
             [[_session inputStream] scheduleInRunLoop:[NSRunLoop currentRunLoop]
@@ -511,6 +522,7 @@
     [accessoryDict setValue:[NSNumber numberWithLong:accessory.connectionID] forKeyPath:@"id"];
     [accessoryDict setValue:accessory.name forKey:@"name"];
     [accessoryDict setValue:@"" forKeyPath:@"class"];
+    [accessoryDict setValue:accessory.protocolStrings forKeyPath:@"protocols"];
 
     return accessoryDict;
 
@@ -530,6 +542,11 @@
 
 - (void)readSessionData {
 
+    NSMutableData *rawDataRead = nil;
+    if (self.subscribeRawDataCallbackID != nil) {
+        rawDataRead = [[NSMutableData alloc] init];
+    }
+
     uint8_t buf[self.inputBufferSize];
     while ([[self.session inputStream] hasBytesAvailable])
     {
@@ -538,6 +555,18 @@
             self.readData = [[NSMutableData alloc] init];
         }
         [self.readData appendBytes:(void *)buf length:bytesRead];
+
+        if (self.subscribeRawDataCallbackID != nil) {
+            [rawDataRead appendBytes:(void *)buf length:bytesRead];
+        }
+
+    }
+
+    // If someone is listening for raw data send that back.
+    if (self.subscribeRawDataCallbackID != nil && rawDataRead != nil) {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArrayBuffer:rawDataRead];
+        [pluginResult setKeepCallbackAsBool:true];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.subscribeRawDataCallbackID];
     }
 
     // When data is read in from the session send to the received notification.
