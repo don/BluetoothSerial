@@ -1,3 +1,9 @@
+= 0.9.3 =
+Connect Methods have new interfaceId parameter.  When calling the interfaceId must be provide.  This is the SPP_UUID string for Android and the Protocol String for iOS.
+Removed the Server Socket from the Android implementation as the mobile device initiates the connection, not the bluetooth device.
+Removed Windows Phone support
+Removed Examples (not applicable to new method parameters)
+
 ﻿= 0.9.2 =
 Added additional logging to iOS connect method
 

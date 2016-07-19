@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * PhoneGap Plugin for Serial Communication over Bluetooth
@@ -48,10 +49,6 @@ public class BluetoothClassicSerial extends CordovaPlugin {
     private static final String DISCOVER_UNPAIRED = "discoverUnpaired";
     private static final String SET_DEVICE_DISCOVERED_LISTENER = "setDeviceDiscoveredListener";
     private static final String CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener";
-    private static final String SET_NAME = "setName";
-    private static final String SET_DISCOVERABLE = "setDiscoverable";
-    private static final String GET_UUID_CONNECT = "getConnectUUID";
-    private static final String SET_UUID_CONNECT = "setConnectUUID";
 
     // callbacks
     private CallbackContext connectCallback;
@@ -217,29 +214,6 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
             this.deviceDiscoveredCallback = null;
 
-        } else if (action.equals(SET_NAME)) {
-
-            String newName = args.getString(0);
-            bluetoothAdapter.setName(newName);
-            callbackContext.success();
-
-        } else if (action.equals(SET_DISCOVERABLE)) {
-
-            int discoverableDuration = args.getInt(0);
-            Intent discoverIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration);
-            cordova.getActivity().startActivity(discoverIntent);
-
-        } else if (action.equals(GET_UUID_CONNECT)) {
-
-            callbackContext.success(bluetoothClassicSerialService.getConnectUUID());
-
-        } else if (action.equals(SET_UUID_CONNECT)) {
-
-          String newUUID = args.getString(0);
-          bluetoothClassicSerialService.setConnectUUID(newUUID);
-          callbackContext.success(bluetoothClassicSerialService.getConnectUUID());
-
         } else {
             validAction = false;
 
@@ -337,11 +311,13 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
     private void connect(CordovaArgs args, boolean secure, CallbackContext callbackContext) throws JSONException {
         String macAddress = args.getString(0);
+        String stringConnectUuid = args.getString(1);
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
+        UUID connectUuid = UUID.fromString(stringConnectUuid);
 
         if (device != null) {
             connectCallback = callbackContext;
-            bluetoothClassicSerialService.connect(device, secure);
+            bluetoothClassicSerialService.connect(device, connectUuid, secure);
 
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
             result.setKeepCallback(true);

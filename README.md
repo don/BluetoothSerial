@@ -1,22 +1,21 @@
 # Bluetooth Classic Serial Plugin for Cordova
 
-This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin will written against the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.
+This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin is written using the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.  Windows Phone 8 Support has been removed in the fork.
 
 ** Beta Release **
 
 ## Supported Platforms
 
 * Android
-* iOS (devices must be MFi certified (link))
-* Windows Phone 8
+* iOS (devices must be MFi certified)
 * Browser (Testing only. See [comments](https://github.com/don/BluetoothSerial/blob/master/src/browser/bluetoothSerial.js).)
 
 ## Limitations
 
  * The phone must initiate the Bluetooth connection
  * Will *not* connect Android to Android (https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
- * Will *not* connect iOS to iOS[*](https://github.com/don/BluetoothSerial/issues/75#issuecomment-52591397)
- * Android Target SDK must be 22 or less.  New Permission model for SDK 23 not implemented
+ * Will *not* connect iOS to iOS
+ * Android Target SDK must be 22 or less.  New Permission model for SDK 23 (Android 6.0) not yet implemented
 
 # Installing
 
@@ -59,45 +58,39 @@ config.xml Example (TBC)
 - [bluetoothClassicSerial.discoverUnpaired](#discoverunpaired)
 - [bluetoothClassicSerial.setDeviceDiscoveredListener](#setdevicediscoveredlistener)
 - [bluetoothClassicSerial.clearDeviceDiscoveredListener](#cleardevicediscoveredlistener)
-- [bluetoothClassicSerial.setName](#setname)
-- [bluetoothClassicSerial.setDiscoverable](#setdiscoverable)
-- [bluetoothClassicSerial.getConnectUUID](#getconnectuuid)
-- [bluetoothClassicSerial.setConnectUUID](#setconnectuuid)
 
 ## connect
 
 Connect to a Bluetooth device.
 
-    bluetoothClassicSerial.connect(macAddress_or_uuid, connectSuccess, connectFailure);
+    bluetoothClassicSerial.connect(deviceId, interfaceId, connectSuccess, connectFailure);
 
 ### Description
 
 Function `connect` connects to a Bluetooth device.  The callback is long running.  Success will be called when the connection is successful.  Failure is called if the connection fails, or later if the connection disconnects. An error message is passed to the failure callback.
 
+### Parameters
+
+- __connectSuccess__: Success callback function that is invoked when the connection is successful.
+- __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
+
 #### Android
 
-For Android, `connect` takes a MAC address of the remote device.
+- __deviceId__: Identifier of the remote device. For Android this is the MAC address.
+- __interfaceId__: This identifies the serial port to connect to. For Android this is the SPP_UUID. A common SPP_UUID string is "00001101-0000-1000-8000-00805F9B34FB".  The device doumentation should provide the SPP_UUID.
 
 #### iOS
 
-For iOS, `connect` uses the devices xxxx property.  TBC
+- __deviceId__: For iOS this is the connection ID
+- __interfaceId__: This identifies the serial port to connect to. For iOS the interfaceId is the Protocol String. The Protocol String must be one of those specified in your config.xml.
 
-#### Windows Phone
-
-For Windows Phone, `connect` takes a MAC address of the remote device. The MAC address can optionally surrounded with parenthesis. e.g. `(AA:BB:CC:DD:EE:FF)`
-
-
-### Parameters
-
-- __macAddress_or_uuid__: Identifier of the remote device.
-- __connectSuccess__: Success callback function that is invoked when the connection is successful.
-- __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
+For iOS, `connect` takes the ConnectionID as the deviceID, and the Protocol String as the interfaceId.
 
 ## connectInsecure
 
 Connect insecurely to a Bluetooth device.
 
-    bluetoothClassicSerial.connectInsecure(macAddress, connectSuccess, connectFailure);
+    bluetoothClassicSerial.connectInsecure(deviceId, interfaceId, connectSuccess, connectFailure);
 
 ### Description
 
@@ -105,19 +98,16 @@ Function `connectInsecure` works like [connect](#connect), but creates an insecu
 
 #### Android
 
-For Android, `connectInsecure` takes a macAddress of the remote device.
+For Android, see [connect](#connect).
 
 #### iOS
 
 `connectInsecure` is **not supported**.
 
-#### Windows Phone
-
-`connectInsecure` is **not supported**.
-
 ### Parameters
 
-- __macAddress__: Identifier of the remote device.
+- __deviceId__: Identifier of the remote device. For Android this is the MAC address.
+- __interfaceId__: This identifies the serial port to connect to. For Android this is the SPP_UUID. A common SPP_UUID string is "00001101-0000-1000-8000-00805F9B34FB".  The device doumentation should provide the SPP_UUID.
 - __connectSuccess__: Success callback function that is invoked when the connection is successful.
 - __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
 
@@ -294,10 +284,6 @@ Subscribe to be notified when data is received.
 
 Function `subscribeRawData` registers a callback that is called when data is received. The callback is called immediately when data is received. The data is sent to callback as an ArrayBuffer. The callback is a long running callback and will exist until `unsubscribeRawData` is called.
 
-#### iOS
-
-`subscribeRawData` is **not supported**.
-
 ### Parameters
 
 - __success__: Success callback function that is invoked with the data.
@@ -320,10 +306,6 @@ Unsubscribe from a subscription.
 ### Description
 
 Function `unsubscribeRawData` removes any notification added by `subscribeRawData` and kills the callback.
-
-#### iOS
-
-`unsubscribeRawData` is **not supported**.
 
 ### Parameters
 
@@ -383,23 +365,9 @@ Example list passed to success callback for iOS.
 
     TBC
 
-#### Windows Phone
-
-Function `list` lists the paired Bluetooth devices.  The success callback is called with a list of objects.
-
-Example list passed to success callback for Windows Phone.
-
-    [{
-        "id": "(10:BF:48:CB:00:00)",
-        "name": "Nexus 7"
-    }, {
-        "id": "(00:06:66:4D:00:00)",
-        "name": "RN42"
-    }]
-
 ### Note
 
-`id` is the generic name for `uuid` or [mac]`address` so that code can be platform independent.
+`id` is the generic name for `connection Id` or [mac]`address` so that code can be platform independent.
 
 ### Parameters
 
@@ -503,11 +471,7 @@ Function `enable` prompts the user to enable Bluetooth. If `enable` is called wh
 
 `enable` is **not supported**.
 
-#### Windows Phone
-
-`enable` is **not supported**.
-
-`enable` is only supported on Android and does not work on iOS or Windows Phone.
+`enable` is only supported on Android and does not work on iOS.
 
 If `enable` is called when Bluetooth is already enabled, the user will not prompted and the success callback will be invoked.
 
@@ -564,10 +528,6 @@ Calling `connect` on an unpaired Bluetooth device should begin the Android pairi
 
 Function `discoverUnpaired` will launch a native iOS window showing all devices which match the protocol string defined in the application's cordova config.xml file.  Choosing a device from the list will initiate pairing and the details of that device will be returned to the success callback function.  Once paired the device is available for connection.
 
-#### Windows Phone
-
-`discoverUnpaired` is **not supported**.
-
 ### Parameters
 
 - __success__: Success callback function that is invoked with a list of unpaired devices.
@@ -606,10 +566,6 @@ Example object passed to notify callback.
 
 When a device is paired from the [discoverUnpaired](#discoverunpaired) function it's details will be passed to the callback function.  Unlike Android this will only be fired once for the selected device, not for all the available devices.
 
-#### Windows Phone
-
-`setDeviceDiscoveredListener` is **not supported**.
-
 ### Parameters
 
 - __notify__: Notify callback function that is invoked when device is discovered during discovery process.
@@ -628,100 +584,11 @@ Clears notify callback function registered with [setDeviceDiscoveredListener](#s
 
     bluetoothClassicSerial.clearDeviceDiscoveredListener();
 
-## setName
-
-Sets the human readable device name that is broadcasted to other devices.
-
-    bluetoothClassicSerial.setName(newName);
-
-#### Android
-
-For Android, `setName` takes a String for the new name.
-
-#### iOS
-
-`setName` is **not supported**.
-
-#### Windows Phone
-
-`setName` is **not supported**.
-
-### Parameters
-
-- __newName__: Desired name of device.
-
-### Quick Example
-
-    bluetoothClassicSerial.setName("Really cool name");
-
-## setDiscoverable
-
-Makes the device discoverable by other devices.
-
-    bluetoothClassicSerial.setDiscoverable(discoverableDuration);
-
-#### Android
-For Android, `setDiscoverable` takes an int for the number of seconds device should be discoverable. A time of 0 will make it permanently discoverable.
-
-#### iOS
-
-`setDiscoverable` is **not supported**.
-
-#### Windows Phone
-
-`setDiscoverable` is **not supported**.
-
-### Parameters
-
-- __discoverableDuration__: Desired number of seconds device should be discoverable for.
-
-### Quick Example
-
-    bluetoothClassicSerial.setDiscoverable(0);
-
-## getConnectUUID
-
-Returns the SPP_UUID used for making the Android Connection
-
-    bluetoothClassicSerial.getConnectUUID(success, failure);
-
-### Description
-
-Some devices require a non standard SPP_UUID, `getConnectUUID` allows you to check the SPP_UUID which will be used for the connection.
-
-### iOS
-
-`getConnectUUID` is **not supported**.
-
-### Windows
-
-`getConnectUUID` is **not supported**.
-
-## setConnectUUID
-
-Sets the SPP_UUID used for [connect](#connect)  and [connectInsecure](#connectinsecure)
-
-    bluetoothClassicSerial.setConnectUUID(uuidString, success, failure);
-
-### Description
-
-Some devices require a non standard SPP_UUID, `setConnectUUID` allows you to provide a custom SPP_UUID string to be used for a connection.  If successful the UUID string will be returned to the success callback function.
-
-### iOS
-
-`setConnectUUID` is not supported.
-
-### Windows
-
-`setConnectUUID` is **not supported**.
-
 # Misc
 
 ## Where does this work?
 
 ### Android
-
-Current development is done with Cordova 6.2.0 on Android 5. Theoretically this code runs on PhoneGap 2.9 and greater.  It should support Android-10 (2.3.2) and greater, but I only test with Android 5.x+.
 
 Development Devices include
  * Nexus 7 (2013) with Android 6.1
@@ -756,8 +623,10 @@ If you need generic Bluetooth Low Energy support checkout Don Colemans's [Cordov
 
 If you need BLE for RFduino checkout Don Colemans's [RFduino Plugin](https://github.com/don/cordova-plugin-rfduino).
 
+For Windows Phone 8 support see the original project, Don Coleman's [Cordova BluetoothSerial Plugin](https://github.com/don/BluetoothSerial)
+
 ## What format should the Mac Address be in?
-An example a properly formatted mac address is ``AA:BB:CC:DD:EE:FF``
+An example a properly formatted mac address is "AA:BB:CC:DD:EE:FF"
 
 ## Feedback
 

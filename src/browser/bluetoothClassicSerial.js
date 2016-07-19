@@ -1,7 +1,7 @@
 // This implementation is for testing in the brower. Future implemetations *might* be able to use
 // Chrome Bluetooth APIs https://developer.chrome.com/apps/bluetooth or Web Bluetooth.
 
-// Code from PhracturedBlue https://github.com/don/bluetoothClassicSerial/issues/115
+// Code from PhracturedBlue https://github.com/don/bluetoothSerial/issues/115
 
 // When using the browser, it is necessary to have a processing function that
 // can emulate the bluetooth device.
@@ -57,8 +57,8 @@ module.exports = (function() {
         }
     };
     return {
-        connect : function(mac, success_cb, fail_cb) {
-            btlog("bluetoothClassicSerial.connect: " + mac);
+        connect : function(deviceId, interfaceId, success_cb, fail_cb) {
+            btlog("bluetoothClassicSerial.connect: " + deviceId + "," + interfaceId);
             connected = true;
             if (success_cb) { success_cb(); }
         },
@@ -150,9 +150,6 @@ module.exports = (function() {
             } else {
                 if(fail_cb) { fail_cb(); }
             }
-        },
-        readRSSI : function(success_cb, fail_cb) {
-            alert("bluetoothClassicSerial.readRSSI is not implemented");
         },
         showBluetoothSettings : function(success_cb, fail_cb) {
             alert("bluetoothClassicSerial.showBluetoothSettings is not implemented");

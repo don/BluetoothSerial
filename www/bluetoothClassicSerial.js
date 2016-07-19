@@ -1,13 +1,13 @@
 /*global cordova*/
 module.exports = {
 
-    connect: function (macAddress, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "connect", [macAddress]);
+    connect: function (deviceId, interfaceId, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "connect", [deviceId, interfaceId]);
     },
 
     // Android only - see http://goo.gl/1mFjZY
-    connectInsecure: function (macAddress, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "connectInsecure", [macAddress]);
+    connectInsecure: function (deviceId, interfaceId, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "connectInsecure", [deviceId, interfaceId]);
     },
 
     disconnect: function (success, failure) {
@@ -121,22 +121,6 @@ module.exports = {
 
     clearDeviceDiscoveredListener: function () {
         cordova.exec(null, null, "BluetoothClassicSerial", "clearDeviceDiscoveredListener", []);
-    },
-
-    setName: function (newName) {
-        cordova.exec(null, null, "BluetoothClassicSerial", "setName", [newName]);
-    },
-
-    setDiscoverable: function (discoverableDuration) {
-        cordova.exec(null, null, "BluetoothClassicSerial", "setDiscoverable", [discoverableDuration]);
-    },
-
-    getConnectUUID: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "getConnectUUID", []);
-    },
-
-    setConnectUUID: function (uuidString, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "setConnectUUID", [uuidString]);
     }
 
 };

@@ -88,7 +88,7 @@ namespace BluetoothConnectionManager
         /// <param name="deviceHostName">The host device name.</param>
         public async void Connect(HostName deviceHostName)
         {
-            if (socket != null) 
+            if (socket != null)
             {
                 try
                 {
@@ -156,4 +156,3 @@ namespace BluetoothConnectionManager
         }
     }
 }
-
