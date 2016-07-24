@@ -76,12 +76,10 @@
 }
 
 - (void)subscribeRaw:(CDVInvokedUrlCommand *)command {
-    NSLog(@"Subscribe raw fired");
     self.subscribeRawDataCallbackID = command.callbackId;
 }
 
 - (void)unsubscribeRaw:(CDVInvokedUrlCommand *)command {
-    NSLog(@"Unsubscribe raw fired");
     self.subscribeRawDataCallbackID = nil;
 
     // Fire the success callback
@@ -95,7 +93,7 @@
 
     CDVPluginResult *pluginResult = nil;
 
-    // If we have a session read and discard of everything in the inputStream.
+    // If we have a session - read and discard of everything in the inputStream.
     if (self.session) {
 
         uint8_t buf[self.inputBufferSize];
@@ -308,10 +306,7 @@
 
     if (self.session != nil) {
 
-        NSString* rawMessage = [[NSString alloc] initWithData:[command.arguments objectAtIndex:0] encoding:NSUTF8StringEncoding];
-
-        NSString *formattedMessage = [rawMessage stringByAppendingString:@"\r\n"];
-        NSData *data = [formattedMessage dataUsingEncoding:NSASCIIStringEncoding];
+        NSData *data = [command.arguments objectAtIndex:0];
 
         if (self.writeData == nil) {
             self.writeData = [[NSMutableData alloc] init];
@@ -342,18 +337,27 @@
 
     if ([self isCommunicationSessionOpen]) {
         NSUInteger bytesAvailable = 0;
-        NSMutableString *dataOuput = [[NSMutableString alloc] init];
+        NSMutableString *dataOutput = [[NSMutableString alloc] init];
+
+        // Clone the readData to be sent back as raw in the cases where it can't be read as a string.
+        NSMutableData *rawDataRead = [[NSMutableData alloc] initWithData:self.readData];
 
         while ((bytesAvailable = [self.readData length]) > 0) {
             NSData *data = [self readHighData:bytesAvailable];
             if (data) {
 
                 NSString* dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                [dataOuput appendString:dataString];
+                if (dataString != nil) {
+                    [dataOutput appendString:dataString];
+                }
 
             }
         }
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataOuput];
+        if ([dataOutput length] == 0) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArrayBuffer:rawDataRead];
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataOutput];
+        }
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Communication session not open. Call connect() prior to using this method."];
     }
@@ -551,13 +555,14 @@
     while ([[self.session inputStream] hasBytesAvailable])
     {
         NSInteger bytesRead = [[self.session inputStream] read:buf maxLength:self.inputBufferSize];
-        if (self.readData == nil) {
-            self.readData = [[NSMutableData alloc] init];
-        }
-        [self.readData appendBytes:(void *)buf length:bytesRead];
 
         if (self.subscribeRawDataCallbackID != nil) {
             [rawDataRead appendBytes:(void *)buf length:bytesRead];
+        } else {
+            if (self.readData == nil) {
+                self.readData = [[NSMutableData alloc] init];
+            }
+            [self.readData appendBytes:(void *)buf length:bytesRead];
         }
 
     }
@@ -567,10 +572,11 @@
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArrayBuffer:rawDataRead];
         [pluginResult setKeepCallbackAsBool:true];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.subscribeRawDataCallbackID];
+    } else {
+        // When data is read in from the session send to the received notification.
+        [[NSNotificationCenter defaultCenter] postNotificationName:self.SessionDataReceivedNotification object:self userInfo:nil];
     }
 
-    // When data is read in from the session send to the received notification.
-    [[NSNotificationCenter defaultCenter] postNotificationName:self.SessionDataReceivedNotification object:self userInfo:nil];
 }
 
 
