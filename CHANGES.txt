@@ -1,3 +1,6 @@
+= 0.9.4 =
+Set iOS accessory to nil prior to connection discovery
+
 = 0.9.3 =
 Connect Methods have new interfaceId parameter.  When calling the interfaceId must be provide.  This is the SPP_UUID string for Android and the Protocol String for iOS.
 Removed the Server Socket from the Android implementation as the mobile device initiates the connection, not the bluetooth device.
