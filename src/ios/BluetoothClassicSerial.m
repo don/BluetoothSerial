@@ -339,9 +339,6 @@
         NSUInteger bytesAvailable = 0;
         NSMutableString *dataOutput = [[NSMutableString alloc] init];
 
-        // Clone the readData to be sent back as raw in the cases where it can't be read as a string.
-        NSMutableData *rawDataRead = [[NSMutableData alloc] initWithData:self.readData];
-
         while ((bytesAvailable = [self.readData length]) > 0) {
             NSData *data = [self readHighData:bytesAvailable];
             if (data) {
@@ -353,11 +350,9 @@
 
             }
         }
-        if ([dataOutput length] == 0) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArrayBuffer:rawDataRead];
-        } else {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataOutput];
-        }
+
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataOutput];
+
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Communication session not open. Call connect() prior to using this method."];
     }
@@ -555,14 +550,14 @@
     while ([[self.session inputStream] hasBytesAvailable])
     {
         NSInteger bytesRead = [[self.session inputStream] read:buf maxLength:self.inputBufferSize];
+        if (self.readData == nil) {
+            self.readData = [[NSMutableData alloc] init];
+        }
+        [self.readData appendBytes:(void *)buf length:bytesRead];
+
 
         if (self.subscribeRawDataCallbackID != nil) {
             [rawDataRead appendBytes:(void *)buf length:bytesRead];
-        } else {
-            if (self.readData == nil) {
-                self.readData = [[NSMutableData alloc] init];
-            }
-            [self.readData appendBytes:(void *)buf length:bytesRead];
         }
 
     }
@@ -572,10 +567,10 @@
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArrayBuffer:rawDataRead];
         [pluginResult setKeepCallbackAsBool:true];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.subscribeRawDataCallbackID];
-    } else {
-        // When data is read in from the session send to the received notification.
-        [[NSNotificationCenter defaultCenter] postNotificationName:self.SessionDataReceivedNotification object:self userInfo:nil];
     }
+
+    // When data is read in from the session send to the received notification.
+    [[NSNotificationCenter defaultCenter] postNotificationName:self.SessionDataReceivedNotification object:self userInfo:nil];
 
 }
 
