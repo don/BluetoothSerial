@@ -6,7 +6,7 @@
     "id": "cordova-plugin-bluetoothClassic-serial",
     "platforms": [
       "android",
-      "ios",
+      "ios"
     ]
   },
   "repository": {
