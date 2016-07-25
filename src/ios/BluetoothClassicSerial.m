@@ -462,6 +462,9 @@
     NSArray *accessories = [[EAAccessoryManager sharedAccessoryManager]
                             connectedAccessories];
 
+    // Set the accessory back to nil
+    self.accessory = nil;
+
     // Loop through the connected accessories. If we find one with the connectionID and the appropriate protocol. Connect.
     for (EAAccessory *obj in accessories) {
 
