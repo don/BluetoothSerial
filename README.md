@@ -16,6 +16,7 @@ This plugin enables serial communication over Bluetooth. It is a fork of https:/
  * Will *not* connect Android to Android (https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
  * Will *not* connect iOS to iOS
  * Android Target SDK must be 22 or less.  New Permission model for SDK 23 (Android 6.0) not yet implemented
+ * iOS does not work with the Phonegap Build service. The required plugin [cordova-custom-config](https://github.com/dpa99c/cordova-custom-config) which adds plist entries is unable to do this for Phonegap build.  See discussions on that plugin's githib page..
 
 # Installing
 
@@ -23,11 +24,13 @@ Install with Cordova cli
 
     $ cordova plugin add cordova-plugin-bluetoothClassic-serial
 
-Note that this plugin's id changed from `cordova-plugin-bluetooth-serial` to 'cordova-plugin-bluetoothClassic-serial' as part of the fork.
+Note that this plugin's id changed from 'cordova-plugin-bluetooth-serial' to 'cordova-plugin-bluetoothClassic-serial' as part of the fork.
 
 ## iOS Notes
 
-iOS requires that the device's protocol string is in the p-list.  This plugin has a dependency on cordova-custom-config which enables plist entries to be created from entries the application's cordova config.xml file.
+iOS requires that the device's protocol string is in the p-list.  This plugin has a dependency on [cordova-custom-config](https://github.com/dpa99c/cordova-custom-config) which enables plist entries to be created from entries the application's cordova config.xml file.
+
+iOS does not work with the Phonegap Build service.  This is due to the [cordova-custom-config](https://github.com/dpa99c/cordova-custom-config) not being able to get required build hooks on the Phonegap Build service.  See discussion on their page.
 
 ### Example
 config.xml Example (TBC)
