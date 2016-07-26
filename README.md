@@ -16,7 +16,6 @@ This plugin enables serial communication over Bluetooth. It is a fork of https:/
  * Will *not* connect Android to Android (https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
  * Will *not* connect iOS to iOS
  * Android Target SDK must be 22 or less.  New Permission model for SDK 23 (Android 6.0) not yet implemented
- * iOS does not work with the Phonegap Build service. The required plugin [cordova-custom-config](https://github.com/dpa99c/cordova-custom-config) which adds plist entries is unable to do this for Phonegap build.  See discussions on that plugin's githib page..
 
 # Installing
 
@@ -30,9 +29,35 @@ Note that this plugin's id changed from 'cordova-plugin-bluetooth-serial' to 'co
 
 iOS requires that the device's protocol string is in the p-list.  This plugin has a dependency on [cordova-custom-config](https://github.com/dpa99c/cordova-custom-config) which enables plist entries to be created from entries the application's cordova config.xml file.
 
-iOS does not work with the Phonegap Build service.  This is due to the [cordova-custom-config](https://github.com/dpa99c/cordova-custom-config) not being able to get required build hooks on the Phonegap Build service.  See discussion on their page.
+The Phonegap Build service doesn't use this plugin, and instead appears to have it's own method for passing entries into the iOS plist.  Examples below.
 
-### Example
+### Examples
+
+Replace the text 'first.device.protocol.string' with the protocol string for the Bluetooth accessory you are connecting to. Create a new line for each protocol string.  Some devices may have more than one.  The plugin only allows for connection to one device and one protocol.  If you need to connect to another, disconnect, then connect to the required device and protocol.
+
+#### Cordova Command Line config.xml entry for Supported Accessories
+
+```xml
+<platform name="ios">
+    <config-file target="*-Info.plist" parent="UISupportedExternalAccessoryProtocols">
+        <array>
+            <string>first.device.protocol.string</string>
+            <string>second.device.protocol.string</string>
+         </array>
+    </config-file>
+</platform>```
+
+
+#### Phonegap Build config.xml entry for Supported Accessories
+
+```xml
+<config-file platform="ios" parent="UISupportedExternalAccessoryProtocols">
+    <array>
+        <string>first.device.protocol.string</string>
+         <string>second.device.protocol.string</string>
+    </array>
+</config-file>```
+
 config.xml Example (TBC)
 
 # Examples
