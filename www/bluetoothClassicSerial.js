@@ -1,13 +1,23 @@
 /*global cordova*/
 module.exports = {
 
-    connect: function (deviceId, interfaceId, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "connect", [deviceId, interfaceId]);
+    connect: function (deviceId, interfaceArray, success, failure) {
+
+      if (typeof interfaceArray === 'string') {
+        interfaceArray = [interfaceArray];
+      }
+
+        cordova.exec(success, failure, "BluetoothClassicSerial", "connect", [deviceId, interfaceArray]);
     },
 
     // Android only - see http://goo.gl/1mFjZY
-    connectInsecure: function (deviceId, interfaceId, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "connectInsecure", [deviceId, interfaceId]);
+    connectInsecure: function (deviceId, interfaceArray, success, failure) {
+
+        if (typeof interfaceArray === 'string') {
+          interfaceArray = [interfaceArray];
+        }
+
+        cordova.exec(success, failure, "BluetoothClassicSerial", "connectInsecure", [deviceId, interfaceArray]);
     },
 
     disconnect: function (success, failure) {
