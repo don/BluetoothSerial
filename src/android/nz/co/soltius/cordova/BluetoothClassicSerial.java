@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaPlugin;
@@ -120,111 +121,123 @@ public class BluetoothClassicSerial extends CordovaPlugin {
             bluetoothClassicSerialService.stop();
             callbackContext.success();
 
-        } else if (action.equals(WRITE)) {
-
-            byte[] data = args.getArrayBuffer(0);
-            bluetoothClassicSerialService.write(data);
-            callbackContext.success();
-
-        } else if (action.equals(AVAILABLE)) {
-
-            callbackContext.success(available());
-
-        } else if (action.equals(READ)) {
-
-            callbackContext.success(read());
-
-        } else if (action.equals(READ_UNTIL)) {
-
-            String delim = args.getString(0);
-            MsgObject mo = new MsgObject();
-
-            // TODO set the Delimiter for an interfaceId
-
-            callbackContext.success(readUntil(mo));
-
-        } else if (action.equals(SUBSCRIBE)) {
-
-            delimiter = args.getString(0);
-            dataAvailableCallback = callbackContext;
-
-            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-            result.setKeepCallback(true);
-            callbackContext.sendPluginResult(result);
-
-        } else if (action.equals(UNSUBSCRIBE)) {
-
-            delimiter = null;
-
-            // send no result, so Cordova won't hold onto the data available callback anymore
-            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-            dataAvailableCallback.sendPluginResult(result);
-            dataAvailableCallback = null;
-
-            callbackContext.success();
-
-        } else if (action.equals(SUBSCRIBE_RAW)) {
-
-            rawDataAvailableCallback = callbackContext;
-
-            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-            result.setKeepCallback(true);
-            callbackContext.sendPluginResult(result);
-
-        } else if (action.equals(UNSUBSCRIBE_RAW)) {
-
-            rawDataAvailableCallback = null;
-
-            callbackContext.success();
-
-        } else if (action.equals(IS_ENABLED)) {
-
-            if (bluetoothAdapter.isEnabled()) {
-                callbackContext.success();
-            } else {
-                callbackContext.error("Bluetooth is disabled.");
-            }
-
-        } else if (action.equals(IS_CONNECTED)) {
-
-            if (bluetoothClassicSerialService.getState() == BluetoothClassicSerialService.STATE_CONNECTED) {
-                callbackContext.success();
-            } else {
-                callbackContext.error("Not connected.");
-            }
-
-        } else if (action.equals(CLEAR)) {
-
-            buffer.setLength(0);
-            callbackContext.success();
-
-        } else if (action.equals(SETTINGS)) {
-
-            Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
-            cordova.getActivity().startActivity(intent);
-            callbackContext.success();
-
-        } else if (action.equals(ENABLE)) {
-
-            enableBluetoothCallback = callbackContext;
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            cordova.startActivityForResult(this, intent, REQUEST_ENABLE_BLUETOOTH);
-
-        } else if (action.equals(DISCOVER_UNPAIRED)) {
-
-            discoverUnpairedDevices(callbackContext);
-
-        } else if (action.equals(SET_DEVICE_DISCOVERED_LISTENER)) {
-
-            this.deviceDiscoveredCallback = callbackContext;
-
-        } else if (action.equals(CLEAR_DEVICE_DISCOVERED_LISTENER)) {
-
-            this.deviceDiscoveredCallback = null;
-
         } else {
-            validAction = false;
+            if (action.equals(WRITE)) {
 
+                String deviceId = args.getString(0);
+                String interfaceId = args.getString(1);
+                byte[] data = args.getArrayBuffer(2);
+
+                InterfaceContext ic;
+
+                ic = connections.get(interfaceId);
+                if (ic != null) {
+                    ic.bluetoothClassicSerialService.write(data);
+                    callbackContext.success();
+                } else {
+                    callbackContext.error("No Interface");
+                }
+
+            } else if (action.equals(AVAILABLE)) {
+
+                callbackContext.success(available());
+
+            } else if (action.equals(READ)) {
+
+                callbackContext.success(read());
+
+            } else if (action.equals(READ_UNTIL)) {
+
+                String delim = args.getString(0);
+                MsgObject mo = new MsgObject();
+
+                // TODO set the Delimiter for an interfaceId
+
+                callbackContext.success(readUntil(mo));
+
+            } else if (action.equals(SUBSCRIBE)) {
+
+                delimiter = args.getString(0);
+                dataAvailableCallback = callbackContext;
+
+                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                result.setKeepCallback(true);
+                callbackContext.sendPluginResult(result);
+
+            } else if (action.equals(UNSUBSCRIBE)) {
+
+                delimiter = null;
+
+                // send no result, so Cordova won't hold onto the data available callback anymore
+                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                dataAvailableCallback.sendPluginResult(result);
+                dataAvailableCallback = null;
+
+                callbackContext.success();
+
+            } else if (action.equals(SUBSCRIBE_RAW)) {
+
+                rawDataAvailableCallback = callbackContext;
+
+                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                result.setKeepCallback(true);
+                callbackContext.sendPluginResult(result);
+
+            } else if (action.equals(UNSUBSCRIBE_RAW)) {
+
+                rawDataAvailableCallback = null;
+
+                callbackContext.success();
+
+            } else if (action.equals(IS_ENABLED)) {
+
+                if (bluetoothAdapter.isEnabled()) {
+                    callbackContext.success();
+                } else {
+                    callbackContext.error("Bluetooth is disabled.");
+                }
+
+            } else if (action.equals(IS_CONNECTED)) {
+
+                if (bluetoothClassicSerialService.getState() == BluetoothClassicSerialService.STATE_CONNECTED) {
+                    callbackContext.success();
+                } else {
+                    callbackContext.error("Not connected.");
+                }
+
+            } else if (action.equals(CLEAR)) {
+
+                buffer.setLength(0);
+                callbackContext.success();
+
+            } else if (action.equals(SETTINGS)) {
+
+                Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+                cordova.getActivity().startActivity(intent);
+                callbackContext.success();
+
+            } else if (action.equals(ENABLE)) {
+
+                enableBluetoothCallback = callbackContext;
+                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                cordova.startActivityForResult(this, intent, REQUEST_ENABLE_BLUETOOTH);
+
+            } else if (action.equals(DISCOVER_UNPAIRED)) {
+
+                discoverUnpairedDevices(callbackContext);
+
+            } else if (action.equals(SET_DEVICE_DISCOVERED_LISTENER)) {
+
+                this.deviceDiscoveredCallback = callbackContext;
+
+            } else if (action.equals(CLEAR_DEVICE_DISCOVERED_LISTENER)) {
+
+                this.deviceDiscoveredCallback = null;
+
+            } else {
+                validAction = false;
+
+            }
         }
 
         return validAction;
@@ -459,6 +472,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
         JSONObject json;
         PluginResult result;
+        String encodedB64;
 
         if (msgObject != null && msgObject.byteData.length > 0) {
 
@@ -467,7 +481,8 @@ public class BluetoothClassicSerial extends CordovaPlugin {
                 json.put("deviceId", msgObject.deviceId);
                 json.put("interfaceId", msgObject.interfaceId);
                 json.put("stringData", msgObject.stringData);
-                json.put("data", msgObject.byteData);
+                encodedB64 = Base64.encodeToString(msgObject.byteData,Base64.NO_WRAP);
+                json.put("rawDataB64", encodedB64);
                 result = new PluginResult(PluginResult.Status.OK, json);
             } catch (JSONException e) {
                 result = new PluginResult(PluginResult.Status.ERROR, e.getMessage());
