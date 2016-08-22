@@ -49,6 +49,8 @@
 
         <header-file src="src/ios/BluetoothClassicSerial.h" target-dir="BluetoothClassicSerial" />
         <source-file src="src/ios/BluetoothClassicSerial.m" target-dir="BluetoothClassicSerial" />
+        <header-file src="src/ios/CommunicationSession.h" target-dir="CommunicationSession" />
+        <source-file src="src/ios/CommunicationSession.m" target-dir="CommunicationSession" />
 
         <!-- frameworks -->
         <framework src="CoreBluetooth.framework" />
