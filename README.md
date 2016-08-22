@@ -3,6 +3,8 @@
 This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin is written using the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.  Windows Phone 8 Support has been removed in the fork.
 
 ** Beta Release **
+** Breaking API Changes with version 0.9.5 MultiInterface **
+** Data returned in the callbacks is changed **
 
 ## Supported Platforms
 
@@ -16,6 +18,7 @@ This plugin enables serial communication over Bluetooth. It is a fork of https:/
  * Will *not* connect Android to Android (https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
  * Will *not* connect iOS to iOS
  * Android Target SDK must be 22 or less.  New Permission model for SDK 23 (Android 6.0) not yet implemented
+ * Does not connect to multiple devices, however with 0.9.5 and above multiple interfaces (serial ports) on the same device are supported.
 
 # Installing
 
@@ -91,11 +94,11 @@ config.xml Example (TBC)
 
 Connect to a Bluetooth device.
 
-    bluetoothClassicSerial.connect(deviceId, interfaceId, connectSuccess, connectFailure);
+    bluetoothClassicSerial.connect(deviceId, interfaceIdArray, connectSuccess, connectFailure);
 
 ### Description
 
-Function `connect` connects to a Bluetooth device.  The callback is long running.  Success will be called when the connection is successful.  Failure is called if the connection fails, or later if the connection disconnects. An error message is passed to the failure callback.
+Function `connect` connects to a Bluetooth device.  The callback is long running.  Success will be called when the connection is successful.  Failure is called if the connection fails, or later if the connection disconnects. An error message is passed to the failure callback.  If a device has multiple interfaces then you can connect to them by providind the inteface Ids.
 
 ### Parameters
 
@@ -105,12 +108,12 @@ Function `connect` connects to a Bluetooth device.  The callback is long running
 #### Android
 
 - __deviceId__: Identifier of the remote device. For Android this is the MAC address.
-- __interfaceId__: This identifies the serial port to connect to. For Android this is the SPP_UUID. A common SPP_UUID string is "00001101-0000-1000-8000-00805F9B34FB".  The device doumentation should provide the SPP_UUID.
+- __interfaceIdArray__: This identifies the serial port to connect to. For Android this is the SPP_UUID. A common SPP_UUID string is "00001101-0000-1000-8000-00805F9B34FB".  The device doumentation should provide the SPP_UUID.
 
 #### iOS
 
 - __deviceId__: For iOS this is the connection ID
-- __interfaceId__: This identifies the serial port to connect to. For iOS the interfaceId is the Protocol String. The Protocol String must be one of those specified in your config.xml.
+- __interfaceIdArray__: This identifies the serial port to connect to. For iOS the interfaceId is the Protocol String. The Protocol String must be one of those specified in your config.xml.
 
 For iOS, `connect` takes the ConnectionID as the deviceID, and the Protocol String as the interfaceId.
 
@@ -118,7 +121,7 @@ For iOS, `connect` takes the ConnectionID as the deviceID, and the Protocol Stri
 
 Connect insecurely to a Bluetooth device.
 
-    bluetoothClassicSerial.connectInsecure(deviceId, interfaceId, connectSuccess, connectFailure);
+    bluetoothClassicSerial.connectInsecure(deviceId, interfaceIdArray, connectSuccess, connectFailure);
 
 ### Description
 
@@ -135,10 +138,9 @@ For Android, see [connect](#connect).
 ### Parameters
 
 - __deviceId__: Identifier of the remote device. For Android this is the MAC address.
-- __interfaceId__: This identifies the serial port to connect to. For Android this is the SPP_UUID. A common SPP_UUID string is "00001101-0000-1000-8000-00805F9B34FB".  The device doumentation should provide the SPP_UUID.
+- __interfaceIdArray__: This identifies the serial port to connect to. For Android this is the SPP_UUID. A common SPP_UUID string is "00001101-0000-1000-8000-00805F9B34FB".  The device documentation should provide the SPP_UUID.
 - __connectSuccess__: Success callback function that is invoked when the connection is successful.
 - __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
-
 
 ## disconnect
 
@@ -159,7 +161,7 @@ Function `disconnect` disconnects the current connection.
 
 Writes data to the serial port.
 
-    bluetoothClassicSerial.write(data, success, failure);
+    bluetoothClassicSerial.write(interfaceId, data, success, failure);
 
 ### Description
 
@@ -169,6 +171,7 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
 
 ### Parameters
 
+- __interfaceId__: The interface to send the data to
 - __data__: ArrayBuffer of data
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
@@ -176,10 +179,10 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
 ### Quick Example
 
     // string
-    bluetoothClassicSerial.write("hello, world", success, failure);
+    bluetoothClassicSerial.write("00001101-0000-1000-8000-00805F9B34FB", "hello, world", success, failure);
 
     // array of int (or bytes)
-    bluetoothClassicSerial.write([186, 220, 222], success, failure);
+    bluetoothClassicSerial.write("00001101-0000-1000-8000-00805F9B34FB", [186, 220, 222], success, failure);
 
     // Typed Array
     var data = new Uint8Array(4);
@@ -187,16 +190,16 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
     data[1] = 0x42;
     data[2] = 0x43;
     data[3] = 0x44;
-    bluetoothClassicSerial.write(data, success, failure);
+    bluetoothClassicSerial.write(interfaceId, data, success, failure);
 
     // Array Buffer
-    bluetoothClassicSerial.write(data.buffer, success, failure);
+    bluetoothClassicSerial.write(interfaceId, data.buffer, success, failure);
 
 ## available
 
 Gets the number of bytes of data available.
 
-    bluetoothClassicSerial.available(success, failure);
+    bluetoothClassicSerial.available(interfaceId, success, failure);
 
 ### Description
 
@@ -208,12 +211,13 @@ Function `available` gets the number of bytes of data available.  The bytes are 
 
 ### Parameters
 
+- __interfaceId__: The interface to check
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
 
-    bluetoothClassicSerial.available(function (numBytes) {
+    bluetoothClassicSerial.available("00001101-0000-1000-8000-00805F9B34FB", function (numBytes) {
         console.log("There are " + numBytes + " available to read.");
     }, failure);
 
@@ -221,7 +225,7 @@ Function `available` gets the number of bytes of data available.  The bytes are 
 
 Reads data from the buffer.
 
-    bluetoothClassicSerial.read(success, failure);
+    bluetoothClassicSerial.read(interfaceId, success, failure);
 
 ### Description
 
@@ -229,12 +233,13 @@ Function `read` reads the data from the buffer. The data is passed to the succes
 
 ### Parameters
 
+- __interfaceId__: The interface to read
 - __success__: Success callback function that is invoked with the number of bytes available to be read.
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
 
-    bluetoothClassicSerial.read(function (data) {
+    bluetoothClassicSerial.read(interfaceId, function (data) {
         console.log(data);
     }, failure);
 
@@ -242,7 +247,7 @@ Function `read` reads the data from the buffer. The data is passed to the succes
 
 Reads data from the buffer until it reaches a delimiter.
 
-    bluetoothClassicSerial.readUntil('\n', success, failure);
+    bluetoothClassicSerial.readUntil(interfaceId, '\n', success, failure);
 
 ### Description
 
@@ -250,13 +255,14 @@ Function `readUntil` reads the data from the buffer until it reaches a delimiter
 
 ### Parameters
 
+- __interfaceId__: The interface to read
 - __delimiter__: delimiter
 - __success__: Success callback function that is invoked with the data.
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
 
-    bluetoothClassicSerial.readUntil('\n', function (data) {
+    bluetoothClassicSerial.readUntil(interfaceId, '\n', function (data) {
         console.log(data);
     }, failure);
 
@@ -264,7 +270,7 @@ Function `readUntil` reads the data from the buffer until it reaches a delimiter
 
 Subscribe to be notified when data is received.
 
-    bluetoothClassicSerial.subscribe('\n', success, failure);
+    bluetoothClassicSerial.subscribe(interfaceId, '\n', success, failure);
 
 ### Description
 
@@ -272,6 +278,7 @@ Function `subscribe` registers a callback that is called when data is received. 
 
 ### Parameters
 
+- __interfaceId__: The interface to subscribe to
 - __delimiter__: delimiter
 - __success__: Success callback function that is invoked with the data.
 - __failure__: Error callback function, invoked when error occurs. [optional]
@@ -279,7 +286,7 @@ Function `subscribe` registers a callback that is called when data is received. 
 ### Quick Example
 
     // the success callback is called whenever data is received
-    bluetoothClassicSerial.subscribe('\n', function (data) {
+    bluetoothClassicSerial.subscribe(interfaceId, '\n', function (data) {
         console.log(data);
     }, failure);
 
@@ -287,7 +294,7 @@ Function `subscribe` registers a callback that is called when data is received. 
 
 Unsubscribe from a subscription.
 
-    bluetoothClassicSerial.unsubscribe(success, failure);
+    bluetoothClassicSerial.unsubscribe(interfaceId, success, failure);
 
 ### Description
 
@@ -348,7 +355,7 @@ Function `unsubscribeRawData` removes any notification added by `subscribeRawDat
 
 Clears data in the buffer.
 
-    bluetoothClassicSerial.clear(success, failure);
+    bluetoothClassicSerial.clear(interfaceId, success, failure);
 
 ### Description
 

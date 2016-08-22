@@ -15,6 +15,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * This class does all the work for setting up and managing Bluetooth
  * connections with other devices. It has a thread that listens for
@@ -24,6 +27,7 @@ import android.util.Log;
  * This code was based on the Android SDK BluetoothChat Sample
  * $ANDROID_SDK/samples/android-17/BluetoothChat
  */
+
 public class BluetoothClassicSerialService {
 
     // Debugging
@@ -54,6 +58,8 @@ public class BluetoothClassicSerialService {
     public static final int STATE_LISTEN = 1;     // now listening for incoming connections
     public static final int STATE_CONNECTING = 2; // now initiating an outgoing connection
     public static final int STATE_CONNECTED = 3;  // now connected to a remote device
+
+    public String connectedUUID;
 
     /**
      * Constructor. Prepares a new BluetoothSerial session.
@@ -107,6 +113,8 @@ public class BluetoothClassicSerialService {
      */
     public synchronized void connect(BluetoothDevice device, UUID uuidConnect, boolean secure) {
         if (D) Log.d(TAG, "connect to: " + device);
+
+        connectedUUID = uuidConnect.toString();
 
         // Cancel any thread attempting to make a connection
         if (mState == STATE_CONNECTING) {
@@ -166,6 +174,7 @@ public class BluetoothClassicSerialService {
             mConnectedThread = null;
         }
 
+        connectedUUID = "";
         setState(STATE_NONE);
     }
 
@@ -331,6 +340,11 @@ public class BluetoothClassicSerialService {
             byte[] buffer = new byte[1024];
             int bytes;
 
+            MsgObject msgObject;
+            JSONObject jsonObject;
+
+            //TODO
+
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
@@ -338,15 +352,24 @@ public class BluetoothClassicSerialService {
                     bytes = mmInStream.read(buffer);
                     String data = new String(buffer, 0, bytes);
 
+                    msgObject = new MsgObject();
+                    msgObject.deviceId = mmSocket.getRemoteDevice().toString();
+                    msgObject.interfaceId = connectedUUID;
+                    msgObject.stringData = data;
+                    msgObject.byteData = null;
+
                     // Send the new data String to the UI Activity
-                    mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ, data).sendToTarget();
+                    mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ, msgObject).sendToTarget();
 
                     // Send the raw bytestream to the UI Activity.
                     // We make a copy because the full array can have extra data at the end
                     // when / if we read less than its size.
                     if (bytes > 0) {
                         byte[] rawdata = Arrays.copyOf(buffer, bytes);
-                        mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ_RAW, rawdata).sendToTarget();
+
+                        msgObject.byteData = rawdata;
+
+                        mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ_RAW, msgObject).sendToTarget();
                     }
 
                 } catch (IOException e) {

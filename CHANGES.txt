@@ -1,3 +1,6 @@
+= 0.9.5 =
+Multi interfaces on single device - Breaking Change.
+
 = 0.9.4 =
 Set iOS accessory to nil prior to connection discovery
 
