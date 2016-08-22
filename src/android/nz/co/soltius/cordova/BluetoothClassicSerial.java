@@ -21,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.HashMap;
@@ -54,13 +55,13 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
     // callbacks
     private CallbackContext connectCallback;
-    private CallbackContext dataAvailableCallback;
+    // private CallbackContext dataAvailableCallback;
     private CallbackContext rawDataAvailableCallback;
     private CallbackContext enableBluetoothCallback;
     private CallbackContext deviceDiscoveredCallback;
 
     private BluetoothAdapter bluetoothAdapter;
-    private BluetoothClassicSerialService bluetoothClassicSerialService;
+    // private BluetoothClassicSerialService bluetoothClassicSerialService;
 
     // Debugging
     private static final String TAG = "BluetoothClassicSerial";
@@ -78,12 +79,13 @@ public class BluetoothClassicSerial extends CordovaPlugin {
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
 
-    StringBuffer buffer = new StringBuffer();
-    private String delimiter;
+    //StringBuffer buffer = new StringBuffer();
+    //private String delimiter;
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
 
     //Container for interfaces (Index = interfaceID)
-    private HashMap<String,InterfaceContext> connections = new HashMap<String, InterfaceContext>();
+    private HashMap<String, InterfaceContext> connections = new HashMap<String, InterfaceContext>();
+    private String deviceId;
 
     @Override
     public boolean execute(String action, CordovaArgs args, CallbackContext callbackContext) throws JSONException {
@@ -94,9 +96,9 @@ public class BluetoothClassicSerial extends CordovaPlugin {
             bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
 
-        if (bluetoothClassicSerialService == null) {
-            bluetoothClassicSerialService = new BluetoothClassicSerialService(mHandler);
-        }
+//        if (bluetoothClassicSerialService == null) {
+//            bluetoothClassicSerialService = new BluetoothClassicSerialService(mHandler);
+//        }
 
         boolean validAction = true;
 
@@ -117,20 +119,22 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
         } else if (action.equals(DISCONNECT)) {
 
-            connectCallback = null;
-            bluetoothClassicSerialService.stop();
-            callbackContext.success();
+            disconnect(callbackContext);
+
+//            connectCallback = null;
+//            bluetoothClassicSerialService.stop();
+//            callbackContext.success();
 
         } else {
             if (action.equals(WRITE)) {
 
-                String deviceId = args.getString(0);
-                String interfaceId = args.getString(1);
-                byte[] data = args.getArrayBuffer(2);
+                String interfaceId = args.getString(0);
+                byte[] data = args.getArrayBuffer(1);
 
                 InterfaceContext ic;
 
-                ic = connections.get(interfaceId);
+                ic = getInterfaceContext(interfaceId);
+
                 if (ic != null) {
                     ic.bluetoothClassicSerialService.write(data);
                     callbackContext.success();
@@ -140,25 +144,51 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
             } else if (action.equals(AVAILABLE)) {
 
-                callbackContext.success(available());
+                String interfaceId = args.getString(0);
+                InterfaceContext ic = getInterfaceContext(interfaceId);
+                int available = 0;
+
+                if (ic != null) {
+                    available = ic.available();
+                }
+
+                callbackContext.success(available);
 
             } else if (action.equals(READ)) {
 
-                callbackContext.success(read());
+                String interfaceId = args.getString(0);
+                String delim = args.getString(1);
+                InterfaceContext ic = getInterfaceContext(interfaceId);
+                String data = "";
+
+                if (ic != null) {
+                    data = ic.read();
+                }
+                callbackContext.success(data);
 
             } else if (action.equals(READ_UNTIL)) {
 
-                String delim = args.getString(0);
-                MsgObject mo = new MsgObject();
+                String interfaceId = args.getString(0);
+                String delim = args.getString(1);
+                String readText = "";
+                InterfaceContext ic;
 
-                // TODO set the Delimiter for an interfaceId
+                ic = getInterfaceContext(interfaceId);
 
-                callbackContext.success(readUntil(mo));
+                if (ic != null) {
+                    readText = ic.readUntil(delim);
+                }
+
+                callbackContext.success(readText);
 
             } else if (action.equals(SUBSCRIBE)) {
 
-                delimiter = args.getString(0);
-                dataAvailableCallback = callbackContext;
+                String interfaceId = args.getString(0);
+                String delim = args.getString(1);
+
+                setContextSubscribe(interfaceId, callbackContext, delim);
+
+                //dataAvailableCallback = callbackContext;
 
                 PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
                 result.setKeepCallback(true);
@@ -166,12 +196,14 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
             } else if (action.equals(UNSUBSCRIBE)) {
 
-                delimiter = null;
+                String deviceId = args.getString(0);
+                String interfaceId = args.getString(1);
+
+                setContextSubscribe(interfaceId, null, null);
 
                 // send no result, so Cordova won't hold onto the data available callback anymore
                 PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-                dataAvailableCallback.sendPluginResult(result);
-                dataAvailableCallback = null;
+                callbackContext.sendPluginResult(result);
 
                 callbackContext.success();
 
@@ -199,7 +231,12 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
             } else if (action.equals(IS_CONNECTED)) {
 
-                if (bluetoothClassicSerialService.getState() == BluetoothClassicSerialService.STATE_CONNECTED) {
+                String interfaceId = args.getString(0);
+                InterfaceContext ic;
+
+                ic = getInterfaceContext(interfaceId);
+
+                if (ic != null && ic.bluetoothClassicSerialService.getState() == BluetoothClassicSerialService.STATE_CONNECTED) {
                     callbackContext.success();
                 } else {
                     callbackContext.error("Not connected.");
@@ -207,7 +244,14 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
             } else if (action.equals(CLEAR)) {
 
-                buffer.setLength(0);
+                String interfaceId = args.getString(0);
+                InterfaceContext ic;
+
+                ic = getInterfaceContext(interfaceId);
+                if (ic != null) {
+                    ic.clearBuffer();
+                }
+
                 callbackContext.success();
 
             } else if (action.equals(SETTINGS)) {
@@ -267,9 +311,12 @@ public class BluetoothClassicSerial extends CordovaPlugin {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (bluetoothClassicSerialService != null) {
-            bluetoothClassicSerialService.stop();
-        }
+
+        destroy();
+
+//        if (bluetoothClassicSerialService != null) {
+//            bluetoothClassicSerialService.stop();
+//        }
     }
 
     // Object to Hold Connected Interfaces
@@ -278,12 +325,147 @@ public class BluetoothClassicSerial extends CordovaPlugin {
         public BluetoothClassicSerialService bluetoothClassicSerialService;
         public StringBuffer buffer;
         public String delimiter;
+        public String deviceId;
+        public String interfaceId;
+        public CallbackContext dataAvailableCallback;
 
-        public InterfaceContext() {
-            bluetoothClassicSerialService = new BluetoothClassicSerialService(mHandler);
-            buffer = new StringBuffer();
+        // The Handler that gets information back from the BluetoothClassicSerialService
+        // Original code used handler for the because it was talking to the UI.
+        // Consider replacing with normal callbacks
+        private final Handler mHandler;
+
+        public InterfaceContext(String interfaceId) {
+
+            this.mHandler = new Handler() {
+
+                public void handleMessage(Message msg) {
+
+                    byte[] byteArray;
+                    Object dataObject;
+                    MsgObject msgObject;
+
+                    switch (msg.what) {
+                        case MESSAGE_READ:
+
+                            dataObject = msg.obj;
+
+                            if (dataObject instanceof MsgObject) {
+                                msgObject = (MsgObject)dataObject;
+                                buffer.append(msgObject.stringData);
+
+                                if (dataAvailableCallback != null) {
+                                    sendDataToSubscriber(msgObject);
+                                }
+                            }
+
+                            break;
+
+                        case MESSAGE_READ_RAW:
+                            if (rawDataAvailableCallback != null) {
+
+                                dataObject = msg.obj;
+
+                                if (dataObject instanceof MsgObject) {
+                                    msgObject = (MsgObject)dataObject;
+                                    sendRawDataToSubscriber(msgObject);
+                                }
+
+                            }
+                            break;
+
+                        case MESSAGE_STATE_CHANGE:
+
+                            if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+                            switch (msg.arg1) {
+                                case BluetoothClassicSerialService.STATE_CONNECTED:
+                                    Log.i(TAG, "BluetoothClassicSerialService.STATE_CONNECTED");
+                                    notifyConnectionSuccess();
+                                    break;
+                                case BluetoothClassicSerialService.STATE_CONNECTING:
+                                    Log.i(TAG, "BluetoothClassicSerialService.STATE_CONNECTING");
+                                    break;
+                                case BluetoothClassicSerialService.STATE_LISTEN:
+                                    Log.i(TAG, "BluetoothClassicSerialService.STATE_LISTEN");
+                                    break;
+                                case BluetoothClassicSerialService.STATE_NONE:
+                                    Log.i(TAG, "BluetoothClassicSerialService.STATE_NONE");
+                                    break;
+                            }
+                            break;
+
+                        case MESSAGE_WRITE:
+                            //  byte[] writeBuf = (byte[]) msg.obj;
+                            //  String writeMessage = new String(writeBuf);
+                            //  Log.i(TAG, "Wrote: " + writeMessage);
+                            break;
+
+                        case MESSAGE_DEVICE_NAME:
+                            Log.i(TAG, msg.getData().getString(DEVICE_NAME));
+                            break;
+
+                        case MESSAGE_TOAST:
+                            String message = msg.getData().getString(TOAST);
+                            notifyConnectionLost(message);
+                            break;
+                    }
+                }
+            };
+
+            this.bluetoothClassicSerialService = new BluetoothClassicSerialService(this.mHandler);
+            this.buffer = new StringBuffer();
+            this.interfaceId = interfaceId;
+            this.dataAvailableCallback = null;
+            this.delimiter = null;
         }
-    }
+
+        public int available() {
+            return buffer.length();
+        }
+
+        public void clearBuffer() {
+            this.buffer = null;
+        }
+
+        public String read() {
+            int length = buffer.length();
+            String data = buffer.substring(0, length);
+            buffer.delete(0, length);
+            return data;
+        }
+
+        public String readUntil(String delimiter) {
+
+            String data = null;
+            int index;
+
+            index = this.buffer.indexOf(delimiter,0);
+
+            if (index > -1) {
+                data = this.buffer.substring(0, index + delimiter.length());
+                this.buffer.delete(0, index + delimiter.length());
+            }
+
+            return data;
+
+        }
+
+
+        private void sendDataToSubscriber(MsgObject msgObject) {
+
+            if (msgObject != null) {
+
+                String data = readUntil(msgObject.stringData);
+
+                if (data != null && data.length() > 0) {
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, data);
+                    result.setKeepCallback(true);
+                    dataAvailableCallback.sendPluginResult(result);
+                    sendDataToSubscriber(msgObject);
+                }
+            }
+        }
+
+    }  //End of Interface Context Class
 
 
     private void listBondedDevices(CallbackContext callbackContext) throws JSONException {
@@ -309,7 +491,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     try {
-                    	JSONObject o = deviceToJSON(device);
+                        JSONObject o = deviceToJSON(device);
                         unpairedDevices.put(o);
                         if (ddc != null) {
                             PluginResult res = new PluginResult(PluginResult.Status.OK, o);
@@ -345,113 +527,80 @@ public class BluetoothClassicSerial extends CordovaPlugin {
     }
 
     private void connect(CordovaArgs args, boolean secure, CallbackContext callbackContext) throws JSONException {
-      String macAddress = args.getString(0);
-      JSONArray uuidJSONArray = args.getJSONArray(1);
+        String macAddress = args.getString(0);
+        JSONArray uuidJSONArray = args.getJSONArray(1);
 
-      String stringConnectUuid;
-      UUID connectUuid;
-      InterfaceContext interfaceContext;
-      BluetoothClassicSerialService blueService;
+        String stringConnectUuid;
+        UUID connectUuid;
+        InterfaceContext interfaceContext;
+        BluetoothClassicSerialService blueService;
+        HashMap<String, InterfaceContext> deviceMap;
 
-      BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
+        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
 
-      if (device != null) {
-        connectCallback = callbackContext;
+        if (device != null) {
+                connectCallback = callbackContext;
 
-        for (int i = 0; i < uuidJSONArray.length(); i++) {
-          stringConnectUuid = uuidJSONArray.getString(i);
-          connectUuid = UUID.fromString(stringConnectUuid);
-          connections.put(stringConnectUuid, new InterfaceContext());
+            for (int i = 0; i < uuidJSONArray.length(); i++) {
+                stringConnectUuid = uuidJSONArray.getString(i);
+                connectUuid = UUID.fromString(stringConnectUuid);
 
-          interfaceContext = connections.get(stringConnectUuid);
+                interfaceContext = connections.get(stringConnectUuid);
 
-          if (interfaceContext != null) {
-             blueService = interfaceContext.bluetoothClassicSerialService;
-             blueService.connect(device, connectUuid, secure);
-          }
+                if (interfaceContext == null){
+                    interfaceContext = new InterfaceContext(stringConnectUuid);
+                    connections.put(stringConnectUuid, interfaceContext);
+                }
+
+                if (interfaceContext != null) {
+                    blueService = interfaceContext.bluetoothClassicSerialService;
+                    blueService.connect(device, connectUuid, secure);
+                }
+            }
+
+            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
+
+        } else {
+            callbackContext.error("Could not connect to " + macAddress);
+        }
+    }
+
+    private void disconnect(CallbackContext callbackContext) {
+
+        InterfaceContext ic;
+
+        for(Map.Entry<String,InterfaceContext> entry: connections.entrySet()) {
+
+            ic = entry.getValue();
+
+            if (ic.bluetoothClassicSerialService != null) {
+               ic.bluetoothClassicSerialService.stop();
+            }
+
         }
 
-        PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-        result.setKeepCallback(true);
-        callbackContext.sendPluginResult(result);
+        callbackContext.success();
 
-      } else {
-      callbackContext.error("Could not connect to " + macAddress);
     }
-  }
 
-    // The Handler that gets information back from the BluetoothClassicSerialService
-    // Original code used handler for the because it was talking to the UI.
-    // Consider replacing with normal callbacks
-    private final Handler mHandler = new Handler() {
+    private void destroy() {
 
-         public void handleMessage(Message msg) {
+        InterfaceContext ic;
 
-            byte[] byteArray;
-            Object dataObject;
-            MsgObject msgObject;
+        for(Map.Entry<String,InterfaceContext> entry: connections.entrySet()) {
 
-             switch (msg.what) {
-                 case MESSAGE_READ:
+            ic = entry.getValue();
 
-                     dataObject = msg.obj;
+            if (ic.bluetoothClassicSerialService != null) {
+                ic.bluetoothClassicSerialService.stop();
+            }
 
-                     if (dataObject instanceof MsgObject) {
-                        msgObject = (MsgObject)dataObject;
-                        updateContextBuffer(msgObject.interfaceId, msgObject.stringData);
-                        if (dataAvailableCallback != null) {
-                            sendDataToSubscriber(msgObject);
-                        }
-                    }
+            connections.remove(entry.getKey());
+        }
+    }
 
-                    break;
-
-                 case MESSAGE_READ_RAW:
-                    if (rawDataAvailableCallback != null) {
-
-                        dataObject = msg.obj;
-
-                        if (dataObject instanceof MsgObject) {
-                            msgObject = (MsgObject)dataObject;
-                            sendRawDataToSubscriber(msgObject);
-                        }
-
-                    }
-                    break;
-                 case MESSAGE_STATE_CHANGE:
-
-                    if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-                    switch (msg.arg1) {
-                        case BluetoothClassicSerialService.STATE_CONNECTED:
-                            Log.i(TAG, "BluetoothClassicSerialService.STATE_CONNECTED");
-                            notifyConnectionSuccess();
-                            break;
-                        case BluetoothClassicSerialService.STATE_CONNECTING:
-                            Log.i(TAG, "BluetoothClassicSerialService.STATE_CONNECTING");
-                            break;
-                        case BluetoothClassicSerialService.STATE_LISTEN:
-                            Log.i(TAG, "BluetoothClassicSerialService.STATE_LISTEN");
-                            break;
-                        case BluetoothClassicSerialService.STATE_NONE:
-                            Log.i(TAG, "BluetoothClassicSerialService.STATE_NONE");
-                            break;
-                    }
-                    break;
-                case MESSAGE_WRITE:
-                    //  byte[] writeBuf = (byte[]) msg.obj;
-                    //  String writeMessage = new String(writeBuf);
-                    //  Log.i(TAG, "Wrote: " + writeMessage);
-                    break;
-                case MESSAGE_DEVICE_NAME:
-                    Log.i(TAG, msg.getData().getString(DEVICE_NAME));
-                    break;
-                case MESSAGE_TOAST:
-                    String message = msg.getData().getString(TOAST);
-                    notifyConnectionLost(message);
-                    break;
-             }
-         }
-    };
 
     private void notifyConnectionLost(String error) {
         if (connectCallback != null) {
@@ -493,79 +642,55 @@ public class BluetoothClassicSerial extends CordovaPlugin {
         }
     }
 
-    private void sendDataToSubscriber(MsgObject msgObject) {
+    private void setContextSubscribe(String interfaceId, CallbackContext cc, String delimiter) {
 
-        String interfaceId;
-        String contextDelimiter;
-        StringBuffer contextBuffer;
-        InterfaceContext interfaceContext;
+        InterfaceContext ic = null;
 
-        if (msgObject != null) {
+        ic = getInterfaceContext(interfaceId);
 
-            String data = readUntil(msgObject);
-
-                if (data != null && data.length() > 0) {
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, data);
-                    result.setKeepCallback(true);
-                    dataAvailableCallback.sendPluginResult(result);
-
-                    sendDataToSubscriber(msgObject);
-                }
-            }
+        if (ic == null) {
+            ic = new InterfaceContext(interfaceId);
+            setInterfaceContext(interfaceId, ic);
         }
 
+        if (ic != null) {
 
-    private int available() {
-        return buffer.length();
-    }
+            ic.dataAvailableCallback = cc;
+            ic.delimiter = delimiter;
 
-    private String read() {
-        int length = buffer.length();
-        String data = buffer.substring(0, length);
-        buffer.delete(0, length);
-        return data;
-    }
-
-    private String readUntil(MsgObject msgObject) {
-
-        //TODO - InProgress
-        InterfaceContext ic;
-        String data = null;
-        int index;
-
-        if (msgObject != null) {
-
-            ic = connections.get(msgObject.interfaceId);
-            index = ic.buffer.indexOf(ic.delimiter,0);
-
-            if (index > -1) {
-                data = ic.buffer.substring(0, index + ic.delimiter.length());
-                ic.buffer.delete(0, index + ic.delimiter.length());
-
-                // Update connection buffer
-                connections.put(msgObject.interfaceId, ic);
-
-            }
+            setInterfaceContext(interfaceId, ic);
         }
 
-        return data;
+    }
+
+    private InterfaceContext getInterfaceContext(String interfaceId) {
+        return connections.get(interfaceId);
     }
 
 
-    private void updateContextBuffer(String interfaceId, String stringData) {
+    private void setInterfaceContext(String interfaceId, InterfaceContext ic) {
 
-        InterfaceContext interfaceContext;
-        StringBuffer contextBuffer;
-
-        if (interfaceId != null && stringData != null & !stringData.equals("")) {
-
-            interfaceContext = connections.get(interfaceId);
-
-            if (interfaceContext != null) {
-                interfaceContext.buffer.append(stringData);
-                connections.put(interfaceId, interfaceContext);
-            }
+        if (interfaceId == null) {
+            return;
         }
+
+        if (ic == null) {
+            ic = new InterfaceContext(interfaceId);
+        }
+
+        connections.put(interfaceId, ic);
+
+    }
+
+    private void clearInterfaceBuffer(String deviceId, String interfaceId) {
+        InterfaceContext ic = null;
+
+        ic = getInterfaceContext(interfaceId);
+
+        if (ic != null) {
+            ic.clearBuffer();
+        }
+
     }
 
 }
