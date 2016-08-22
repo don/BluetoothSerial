@@ -1,8 +1,8 @@
 /*global cordova*/
 module.exports = {
 
-    connect: function (deviceId, interfaceId, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "connect", [deviceId, interfaceId]);
+    connect: function (deviceId, interfaceIds, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "connect", [deviceId, interfaceIds]);
     },
 
     // Android only - see http://goo.gl/1mFjZY
@@ -33,18 +33,18 @@ module.exports = {
     },
 
     // read all the data in the buffer
-    read: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "read", []);
+    read: function (interfaceId, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "read", [interfaceId]);
     },
 
     // reads the data in the buffer up to and including the delimiter
-    readUntil: function (delimiter, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "readUntil", [delimiter]);
+    readUntil: function (delimiter, interfaceId, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "readUntil", [delimiter, interfaceId]);
     },
 
     // writes data to the bluetooth serial port
     // data can be an ArrayBuffer, string, integer array, or Uint8Array
-    write: function (data, success, failure) {
+    write: function (data, interfaceId, success, failure) {
 
         // convert to ArrayBuffer
         if (typeof data === 'string') {
@@ -56,17 +56,17 @@ module.exports = {
             data = data.buffer;
         }
 
-        cordova.exec(success, failure, "BluetoothClassicSerial", "write", [data]);
+        cordova.exec(success, failure, "BluetoothClassicSerial", "write", [data, interfaceId]);
     },
 
     // calls the success callback when new data is available
-    subscribe: function (delimiter, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "subscribe", [delimiter]);
+    subscribe: function (delimiter, interfaceId, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "subscribe", [delimiter, interfaceId]);
     },
 
     // removes data subscription
-    unsubscribe: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "unsubscribe", []);
+    unsubscribe: function (interfaceId, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "unsubscribe", [interfaceId]);
     },
 
     // calls the success callback when new data is available with an ArrayBuffer
@@ -91,8 +91,8 @@ module.exports = {
     },
 
     // clears the data buffer
-    clear: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "clear", []);
+    clear: function (interfaceId, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "clear", [interfaceId]);
     },
 
     // // reads the RSSI of the *connected* peripherial
