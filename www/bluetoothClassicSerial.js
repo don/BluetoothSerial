@@ -91,8 +91,8 @@ module.exports = {
     },
 
     // clears the data buffer
-    clear: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "clear", []);
+    clear: function (interfaceId, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "clear", [interfaceId]);
     },
 
     // // reads the RSSI of the *connected* peripherial

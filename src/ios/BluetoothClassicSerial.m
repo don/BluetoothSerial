@@ -118,9 +118,12 @@
 - (void)clear:(CDVInvokedUrlCommand *)command {
 
     CDVPluginResult *pluginResult = nil;
+    NSString *protocolString = [command.arguments objectAtIndex:0];
 
     for (CommunicationSession *session in self.communicationSessions) {
-        [session clear];
+        if ([session.protocolString isEqualToString:protocolString]) {
+            [session clear];
+        }
     }
 
     // Fire the callback
