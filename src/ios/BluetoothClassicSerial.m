@@ -48,8 +48,8 @@
     CDVPluginResult *pluginResult = nil;
 
     // Grab the read delimiter and protocol string
-    NSString *delimiter = [command.arguments objectAtIndex:0];
-    NSString *protocolString = [command.arguments objectAtIndex:1];
+    NSString *delimiter = [command.arguments objectAtIndex:1];
+    NSString *protocolString = [command.arguments objectAtIndex:0];
     bool callbackExists = false;
 
     if (delimiter != nil && protocolString != nil) {
@@ -343,8 +343,8 @@
 
     CDVPluginResult *pluginResult = nil;
 
-    NSData *data = [command.arguments objectAtIndex:0];
-    NSString *protocolString = [command.arguments objectAtIndex:1];
+    NSData *data = [command.arguments objectAtIndex:1];
+    NSString *protocolString = [command.arguments objectAtIndex:0];
     NSString *writeError = nil;
 
     CommunicationSession *session = [self getCommunicationSessionForProtocolString:protocolString];
@@ -393,11 +393,11 @@
 - (void)readUntil:(CDVInvokedUrlCommand*)command {
 
     CDVPluginResult *pluginResult = nil;
-    NSString *protocolString = [command.arguments objectAtIndex:1];
+    NSString *protocolString = [command.arguments objectAtIndex:0];
 
     CommunicationSession *session = [self getCommunicationSessionForProtocolString:protocolString];
     if (session != nil && [session isOpen]) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[session readUntilDelimiter:[command.arguments objectAtIndex:0]]];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[session readUntilDelimiter:[command.arguments objectAtIndex:1]]];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The communication session for this protocol is not open on the device."];
 
