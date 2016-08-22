@@ -2,6 +2,7 @@
 #import <ExternalAccessory/ExternalAccessory.h>
 #import <Cordova/CDVPlugin.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import "CommunicationSession.h"
 
 @interface BluetoothClassicSerial : CDVPlugin <EAAccessoryDelegate, NSStreamDelegate, CBCentralManagerDelegate>
 
@@ -25,11 +26,11 @@
  @brief Connect to the device by opening a communication session
  @discussion This methods opens a communication session with the device enabling reading and writing to and from the device.
 
- The JavaScript API accepts a unique connectionID which can be used to select a particular device that adheres to the provided communication protocol. The communication protocol should be specified as the second parameter. If no connectionID is provided then the method will attempt to connect to the first paired device it finds that adheres to the supported communication protocol.
+ The JavaScript API accepts a unique connectionID which can be used to select a particular device that adheres to the provided communication protocols. The communication protocols should be specified as an array in the second parameter.
 
  JavaScript API:
  @code
- bluetoothClassicSerial.connect(connectionID, protocolString, successCallback, failCallback);
+ bluetoothClassicSerial.connect(connectionID, [protocolStrings], successCallback, failCallback);
  @endcode
  */
 - (void)connect:(CDVInvokedUrlCommand *)command;
@@ -90,42 +91,42 @@
 - (void)isConnected:(CDVInvokedUrlCommand*)command;
 
 /*!
- @brief Write data to the device
+ @brief Write data to the device for a particular protocol
 
  JavaScript API:
  @code
- bluetoothClassicSerial.write(data, successCallback, failCallback);
+ bluetoothClassicSerial.write(data, protocolString, successCallback, failCallback);
  @endcode
  */
 - (void)write:(CDVInvokedUrlCommand *)command;
 
 /*!
- @brief Read all data in the input stream
+ @brief Read all data in the input stream for a particular protocol
  @discussion If the communication session is not open the failCallback will be called
 
  @code
- bluetoothClassicSerial.read(successCallback, failCallback);
+ bluetoothClassicSerial.read(protocolString, successCallback, failCallback);
  @endcode
  */
 - (void)read:(CDVInvokedUrlCommand *)command;
 
 /*!
- @brief Read data in the input stream until the specified delimiter occurs
+ @brief Read data in the input stream of the particular protocol until the specified delimiter occurs
  @discussion This method is passed a delimiter via the JavaScript API. If no delimiter is specified then the failCallback will fire. Or if the communication session is not open the failCallback will be called.
 
  @code
- bluetoothClassicSerial.readUntil(delimiter, successCallback, failCallback);
+ bluetoothClassicSerial.readUntil(delimiter, protocolString, successCallback, failCallback);
  @encode
  */
 - (void)readUntil:(CDVInvokedUrlCommand*)command;
 
 /*!
- @brief Subscribe to be notified when data is received from the device via the sendDataToSubscriber callback.
+ @brief Subscribe to be notified when data is received from the device for a particular protocol via the sendDataToSubscriber callback.
  @discussion It takes a delimiter as the first argument which specifies at what point the callback should be triggered to return data.
 
  JavaScript API:
  @code
- bluetoothClassicSerial.subscribe('\n', successCallback, failCallback);
+ bluetoothClassicSerial.subscribe(delimiter, protocolString, successCallback, failCallback);
  @endcode
  */
 - (void)subscribe:(CDVInvokedUrlCommand *)command;
@@ -155,7 +156,7 @@
 
  JavaScript API:
  @code
- bluetoothClassicSerial.unsubscribe(successCallback);
+ bluetoothClassicSerial.unsubscribe(protocolString, successCallback);
  @endcode
  */
 - (void)unsubscribe:(CDVInvokedUrlCommand *)command;
@@ -197,51 +198,22 @@
 
 
 /*!
- @brief Read the input stream until a delimiter is hit
- @return NSString - either an empty string or the string up until the delimiter.
+ @brief Close the communication sessions with the connected device.
  */
-- (NSString*)readUntilDelimiter:(NSString*)delimiter;
-
-/*!
- @brief Low level write method to write data to the session outputstream
- */
--(void)writeSessionData;
-
-/*!
- @brief Determines if a communication session is open with the connected accessory
- @return Boolean - True for session open. False for not.
- */
-- (bool)isCommunicationSessionOpen;
-
-/*!
- @brief Close the communication session with the connected device.
- */
-- (void)closeSession;
+- (void)closeCommunicationSessions;
 
 /*!
  @brief Open a communication session for an accessory with a given connectionID and a given protocolString
  @discussion If the connectionID is passed in as 0 then the method will attempt to open a session with the first connected device that matches the provided communication protocol.
- @return Boolean - True for session open. False for not
+ @return NSMutableDictionary - True for session open. False for not
  */
-- (bool)openSessionForConnectionIdAndProtocolString:(NSUInteger)connectionId :(NSString *)protocolString;
+- (NSMutableDictionary*)openSessionForConnectionIdAndProtocolStrings:(NSUInteger)connectionId :(NSArray *)protocolStrings;
 
 /*!
  @brief Get all the details for a given accessory
  @return Dictionary of accessory details
  */
 - (NSMutableDictionary*)accessoryDetails:(EAAccessory *)accessory;
-
-/*!
- @brief High level read data method. Accepts the number of bytes to read and reads those bytes from the input stream
- @return NSData - the data read matching the number of bytes passed in.
- */
-- (NSData *)readHighData:(NSUInteger)bytesToRead;
-
-/*!
- @brief  Low level read data method. Reads data in from the inputStream if the stream has bytes available.
- @discussion After each read a session data received notification is sent which will trigger the subscribe callback, if the user has asked to subscribe to the read data feed.
- */
-- (void)readSessionData;
 
 /*!
  @brief Checks the core bluetooth manager to see if Bluetooth is active and enabled.
@@ -267,33 +239,30 @@
 - (void)accessoryDisconnected:(NSNotification *)notification;
 
 /*!
- @brief Notification method that gets fired when a user subscribe to a data feed.
- @discussion It will send data back to the JavaScript API everytime a delimiter is read from the input stream.
+ @brief Determines whether all not all communication sessions are open on the device.
  */
-- (void)sendDataToSubscriber:(NSNotification *)notification;
-
+- (bool)isAllCommunicationSessionsOpen;
 
 /*!
- @brief  Session stream object reports events to this method. Anytime an input or output stream event occurs it is handled by this method.
+ @brief Get the active communication session for a particular protocol string.
  */
-- (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)eventCode;
+- (CommunicationSession*)getCommunicationSessionForProtocolString: (NSString *)protocolString;
 
 
-@property (nonatomic, strong) EASession *session;
 @property (nonatomic, strong) EAAccessory *accessory;
 @property (nonatomic, strong) NSString *deviceDiscoveredCallbackID;
 @property (nonatomic, strong) NSString *sessionDataReadCallbackID;
 @property (nonatomic, strong) NSString *subscribeRawDataCallbackID;
-@property (nonatomic, strong) NSMutableData *readData;
-@property (nonatomic, strong) NSMutableData *writeData;
-@property (nonatomic, strong) CDVInvokedUrlCommand *sessionCommand;
 @property CBCentralManager* bluetoothManager;
 @property (nonatomic) bool bluetoothEnabled;
-@property (nonatomic) bool writeError;
 @property (nonatomic, strong) NSMutableArray *connectionError;
 @property (nonatomic, strong) NSMutableDictionary *connectionErrorDetails;
-@property (nonatomic) uint8_t inputBufferSize;
 @property (nonatomic, strong) NSString *SessionDataReceivedNotification;
-@property (nonatomic, strong) NSString *readDelimiter;
+@property (nonatomic, strong) NSMutableArray *communicationSessions;
+@property (nonatomic, strong) NSMutableArray *subscribeCallbackIds;
+
+
+
+
 
 @end
