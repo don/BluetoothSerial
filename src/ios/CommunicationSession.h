@@ -73,6 +73,16 @@
  */
 - (void)unsubscribe;
 
+/*!
+ @brief Unsubscribe from the raw data callback function.
+ */
+- (void)unsubscribeRaw;
+
+/*!
+ @brief Subscribe to the raw data feed.
+ */
+- (void)subscribeRaw: (NSString *)callbackId;
+
 @property (nonatomic, strong) EASession *session;
 @property (nonatomic, strong) EAAccessory *accessory;
 @property (nonatomic, weak) id <CDVCommandDelegate> commandDelegate;

@@ -252,7 +252,6 @@
 @property (nonatomic, strong) EAAccessory *accessory;
 @property (nonatomic, strong) NSString *deviceDiscoveredCallbackID;
 @property (nonatomic, strong) NSString *sessionDataReadCallbackID;
-@property (nonatomic, strong) NSString *subscribeRawDataCallbackID;
 @property CBCentralManager* bluetoothManager;
 @property (nonatomic) bool bluetoothEnabled;
 @property (nonatomic, strong) NSMutableArray *connectionError;
@@ -260,6 +259,7 @@
 @property (nonatomic, strong) NSString *SessionDataReceivedNotification;
 @property (nonatomic, strong) NSMutableArray *communicationSessions;
 @property (nonatomic, strong) NSMutableArray *subscribeCallbackIds;
+@property (nonatomic, strong) NSMutableArray *subscribeRawCallbackIds;
 
 
 

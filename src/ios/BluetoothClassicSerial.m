@@ -11,7 +11,6 @@
     self.sessionDataReadCallbackID = nil;
     self.connectionErrorDetails = nil;
     self.connectionError = nil;
-    self.subscribeRawDataCallbackID = nil;
 
     // Initialise base bluetooth settings
     self.bluetoothEnabled = false;
@@ -86,8 +85,8 @@
 
     // Grab the protocol string
     NSString *protocolString = [command.arguments objectAtIndex:0];
-
     [self unsubscribeCommunicationSession:protocolString];
+
 
     // Fire the success callback
     CDVPluginResult *pluginResult = nil;
@@ -97,20 +96,53 @@
 }
 
 - (void)subscribeRaw:(CDVInvokedUrlCommand *)command {
-    self.subscribeRawDataCallbackID = command.callbackId;
-    [self addSubscribeCallbacksToCommunicationSessions];
+
+    CDVPluginResult *pluginResult = nil;
+
+    NSString *protocolString = [command.arguments objectAtIndex:0];
+    bool callbackExists = false;
+
+    if (protocolString != nil) {
+
+        // If we've already got some subscribe callback defined, check if we have one with a matching protocol string and replace the callback id with the new one.
+        for (NSMutableDictionary *callback in self.subscribeRawCallbackIds) {
+            if ([[callback allKeys] containsObject:@"protocolString"] && [protocolString isEqualToString:callback[@"protocolString"]]) {
+                [callback setValue:command.callbackId forKey:@"id"];
+                callbackExists = true;
+            }
+        }
+
+        // If we didn't already have a callback for the protocol string then create one
+        if (!callbackExists) {
+            NSMutableDictionary *newCallback = [[NSMutableDictionary alloc] init];
+            [newCallback setValue:command.callbackId forKey:@"id"];
+            [newCallback setValue:protocolString forKey:@"protocolString"];
+            [self.subscribeRawCallbackIds addObject:newCallback];
+        }
+
+        // Add the subscribe callback to the communication sessions.
+        [self addSubscribeCallbacksToCommunicationSessions];
+
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Subscribe raw requires one parameter. The protocol string."];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
+
 }
 
 - (void)unsubscribeRaw:(CDVInvokedUrlCommand *)command {
 
-    self.subscribeRawDataCallbackID = nil;
-
-    [self unsubscribeCommunicationSessionsFromRawData];
-
-    // Fire the success callback
     CDVPluginResult *pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+    NSString *protocolString = [command.arguments objectAtIndex:0];
+    if (protocolString != nil) {
+        [self unsubscribeCommunicationSessionFromRawData:protocolString];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unsubscribe raw requires one parameter. The protocol string."];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
 
 
 }
@@ -552,11 +584,16 @@
 
     }
 
-    if (self.subscribeRawDataCallbackID != nil) {
+    for (NSMutableDictionary *callback in self.subscribeRawCallbackIds) {
+
         for (CommunicationSession *session in self.communicationSessions) {
-            session.subscribeRawDataCallbackID = self.subscribeRawDataCallbackID;
+            if ([session.protocolString isEqualToString:callback[@"protocolString"]]) {
+                [session subscribeRaw:callback[@"id"]];
+            }
         }
+
     }
+
 }
 
 - (void)unsubscribeCommunicationSession: (NSString *)protocolString {
@@ -567,9 +604,12 @@
     }
 }
 
-- (void)unsubscribeCommunicationSessionsFromRawData {
+- (void)unsubscribeCommunicationSessionFromRawData: (NSString *)protocolString {
+
     for (CommunicationSession *session in self.communicationSessions) {
-        session.subscribeRawDataCallbackID = nil;
+        if ([session.protocolString isEqualToString:protocolString]) {
+            [session unsubscribeRaw];
+        }
     }
 }
 

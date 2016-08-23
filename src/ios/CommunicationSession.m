@@ -64,6 +64,14 @@
 
 }
 
+- (void)unsubscribeRaw {
+    self.subscribeRawDataCallbackID = nil;
+}
+
+- (void)subscribeRaw: (NSString *)callbackId {
+    self.subscribeRawDataCallbackID = callbackId;
+}
+
 
 
 - (bool)open {
