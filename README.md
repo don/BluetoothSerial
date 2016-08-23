@@ -48,8 +48,8 @@ Replace the text 'first.device.protocol.string' with the protocol string for the
             <string>second.device.protocol.string</string>
          </array>
     </config-file>
-</platform>```
-
+</platform>
+```
 
 #### Phonegap Build config.xml entry for Supported Accessories
 
@@ -59,9 +59,8 @@ Replace the text 'first.device.protocol.string' with the protocol string for the
         <string>first.device.protocol.string</string>
          <string>second.device.protocol.string</string>
     </array>
-</config-file>```
-
-config.xml Example (TBC)
+</config-file>
+```
 
 # Examples
 
@@ -120,8 +119,9 @@ For iOS, `connect` takes the ConnectionID as the deviceID, and the Protocol Stri
 ## connectInsecure
 
 Connect insecurely to a Bluetooth device.
-
-    bluetoothClassicSerial.connectInsecure(deviceId, interfaceIdArray, connectSuccess, connectFailure);
+```
+bluetoothClassicSerial.connectInsecure(deviceId, interfaceIdArray, connectSuccess, connectFailure);
+```
 
 ### Description
 
@@ -143,10 +143,9 @@ For Android, see [connect](#connect).
 - __connectFailure__: Error callback function, invoked when error occurs or the connection disconnects.
 
 ## disconnect
-
-Disconnect.
-
-    bluetoothClassicSerial.disconnect([success], [failure]);
+```
+bluetoothClassicSerial.disconnect(success, failure);
+```
 
 ### Description
 
@@ -160,8 +159,9 @@ Function `disconnect` disconnects the current connection.
 ## write
 
 Writes data to the serial port.
-
-    bluetoothClassicSerial.write(interfaceId, data, success, failure);
+```
+bluetoothClassicSerial.write(interfaceId, data, success, failure);
+```
 
 ### Description
 
@@ -177,29 +177,31 @@ Internally string, integer array, and Uint8Array are converted to an ArrayBuffer
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
+```
+// string
+bluetoothClassicSerial.write("00001101-0000-1000-8000-00805F9B34FB", "hello, world", success, failure);
 
-    // string
-    bluetoothClassicSerial.write("00001101-0000-1000-8000-00805F9B34FB", "hello, world", success, failure);
+// array of int (or bytes)
+bluetoothClassicSerial.write("00001101-0000-1000-8000-00805F9B34FB", [186, 220, 222], success, failure);
 
-    // array of int (or bytes)
-    bluetoothClassicSerial.write("00001101-0000-1000-8000-00805F9B34FB", [186, 220, 222], success, failure);
+// Typed Array
+var data = new Uint8Array(4);
+data[0] = 0x41;
+data[1] = 0x42;
+data[2] = 0x43;
+data[3] = 0x44;
+bluetoothClassicSerial.write(interfaceId, data, success, failure);
 
-    // Typed Array
-    var data = new Uint8Array(4);
-    data[0] = 0x41;
-    data[1] = 0x42;
-    data[2] = 0x43;
-    data[3] = 0x44;
-    bluetoothClassicSerial.write(interfaceId, data, success, failure);
-
-    // Array Buffer
-    bluetoothClassicSerial.write(interfaceId, data.buffer, success, failure);
+// Array Buffer
+bluetoothClassicSerial.write(interfaceId, data.buffer, success, failure);
+```
 
 ## available
 
 Gets the number of bytes of data available.
-
-    bluetoothClassicSerial.available(interfaceId, success, failure);
+```
+bluetoothClassicSerial.available(interfaceId, success, failure);
+```
 
 ### Description
 
@@ -216,16 +218,16 @@ Function `available` gets the number of bytes of data available.  The bytes are 
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
-
-    bluetoothClassicSerial.available("00001101-0000-1000-8000-00805F9B34FB", function (numBytes) {
-        console.log("There are " + numBytes + " available to read.");
-    }, failure);
+```
+bluetoothClassicSerial.available("00001101-0000-1000-8000-00805F9B34FB", function (numBytes) { console.log("There are " + numBytes + " available to read."); }, failure);
+```
 
 ## read
 
 Reads data from the buffer.
-
-    bluetoothClassicSerial.read(interfaceId, success, failure);
+```
+bluetoothClassicSerial.read(interfaceId, success, failure);
+```
 
 ### Description
 
@@ -238,11 +240,9 @@ Function `read` reads the data from the buffer. The data is passed to the succes
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
-
-    bluetoothClassicSerial.read(interfaceId, function (data) {
-        console.log(data);
-    }, failure);
-
+```
+bluetoothClassicSerial.read("00001101-0000-1000-8000-00805F9B34FB", function (data) { console.log(data);}, failure);
+```
 ## readUntil
 
 Reads data from the buffer until it reaches a delimiter.
@@ -261,10 +261,9 @@ Function `readUntil` reads the data from the buffer until it reaches a delimiter
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
-
-    bluetoothClassicSerial.readUntil(interfaceId, '\n', function (data) {
-        console.log(data);
-    }, failure);
+```
+bluetoothClassicSerial.readUntil("00001101-0000-1000-8000-00805F9B34FB", '\n', function (data) {console.log(data);}, failure);
+```
 
 ## subscribe
 

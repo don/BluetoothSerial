@@ -8,15 +8,11 @@ import java.util.Arrays;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * This class does all the work for setting up and managing Bluetooth
@@ -340,11 +336,6 @@ public class BluetoothClassicSerialService {
             byte[] buffer = new byte[1024];
             int bytes;
 
-            MsgObject msgObject;
-            JSONObject jsonObject;
-
-            //TODO
-
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
@@ -352,14 +343,8 @@ public class BluetoothClassicSerialService {
                     bytes = mmInStream.read(buffer);
                     String data = new String(buffer, 0, bytes);
 
-                    msgObject = new MsgObject();
-                    msgObject.deviceId = mmSocket.getRemoteDevice().toString();
-                    msgObject.interfaceId = connectedUUID;
-                    msgObject.stringData = data;
-                    msgObject.byteData = null;
-
                     // Send the new data String to the UI Activity
-                    mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ, msgObject).sendToTarget();
+                    mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ, data).sendToTarget();
 
                     // Send the raw bytestream to the UI Activity.
                     // We make a copy because the full array can have extra data at the end
@@ -367,9 +352,7 @@ public class BluetoothClassicSerialService {
                     if (bytes > 0) {
                         byte[] rawdata = Arrays.copyOf(buffer, bytes);
 
-                        msgObject.byteData = rawdata;
-
-                        mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ_RAW, msgObject).sendToTarget();
+                        mHandler.obtainMessage(BluetoothClassicSerial.MESSAGE_READ_RAW, rawdata).sendToTarget();
                     }
 
                 } catch (IOException e) {
