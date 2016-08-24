@@ -2,9 +2,8 @@
 
 This plugin enables serial communication over Bluetooth. It is a fork of https://github.com/don/BluetoothSerial.  The core difference is that https://github.com/don/BluetoothSerial supports Bluetooth Low Energy on iOS.  This plugin is written using the iOS Accessory Framework (MFi) to support Classic Bluetooth on iOS.  Windows Phone 8 Support has been removed in the fork.
 
-** Beta Release **
-** Breaking API Changes with version 0.9.5 MultiInterface **
-** Data returned in the callbacks is changed **
+* **Beta Release**
+* **Breaking API Changes from version 0.9.5 'MultiInterface'**
 
 ## Supported Platforms
 
@@ -283,11 +282,12 @@ Function `subscribe` registers a callback that is called when data is received. 
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
-
-    // the success callback is called whenever data is received
-    bluetoothClassicSerial.subscribe(interfaceId, '\n', function (data) {
-        console.log(data);
-    }, failure);
+```
+// the success callback is called whenever data is received
+bluetoothClassicSerial.subscribe("00001101-0000-1000-8000-00805F9B34FB", '\n', function (data) {
+    console.log(data);
+}, failure);
+```
 
 ## unsubscribe
 
@@ -301,6 +301,7 @@ Function `unsubscribe` removes any notification added by `subscribe` and kills t
 
 ### Parameters
 
+- __interfaceId__: The interface to unsubscribe from
 - __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
@@ -312,7 +313,7 @@ Function `unsubscribe` removes any notification added by `subscribe` and kills t
 
 Subscribe to be notified when data is received.
 
-    bluetoothClassicSerial.subscribeRawData(success, failure);
+    bluetoothClassicSerial.subscribeRawData(interfaceId, success, failure);
 
 ### Description
 
@@ -320,22 +321,24 @@ Function `subscribeRawData` registers a callback that is called when data is rec
 
 ### Parameters
 
+- __interfaceId__: The interface to subscribe to
 - __success__: Success callback function that is invoked with the data.
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
-
-    // the success callback is called whenever data is received
-    bluetoothClassicSerial.subscribeRawData(function (data) {
-        var bytes = new Uint8Array(data);
-        console.log(bytes);
-    }, failure);
+```
+// the success callback is called whenever data is received
+bluetoothClassicSerial.subscribeRawData(function (data) {
+    var bytes = new Uint8Array(data);
+    console.log(bytes);
+}, failure);
+```
 
 ## unsubscribeRawData
 
 Unsubscribe from a subscription.
 
-    bluetoothClassicSerial.unsubscribeRawData(success, failure);
+    bluetoothClassicSerial.unsubscribeRawData(interfaceId, success, failure);
 
 ### Description
 
@@ -343,12 +346,14 @@ Function `unsubscribeRawData` removes any notification added by `subscribeRawDat
 
 ### Parameters
 
-- __success__: Success callback function that is invoked when the connection is successful. [optional]
+- __interfaceId__: The interface to unsubscribe from
+- __success__: Success callback function that is invoked when the unsubscribe is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
-
-    bluetoothClassicSerial.unsubscribeRawData();
+```
+bluetoothClassicSerial.unsubscribeRawData("00001101-0000-1000-8000-00805F9B34FB");
+```
 
 ## clear
 
@@ -409,16 +414,17 @@ Example list passed to success callback for iOS.
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
-
-    bluetoothClassicSerial.list(function(devices) {
-        devices.forEach(function(device) {
-            console.log(device.id);
-        })
-    }, failure);
+```
+bluetoothClassicSerial.list(function(devices) {
+    devices.forEach(function(device) {
+        console.log(device.id);
+    })
+}, failure);
+```
 
 ## isConnected
 
-Reports the connection status.
+Reports the connection status.  If all interfaces are connected then the success callback is called.  If one interface is not connected then the failure callback is called.  The connect method does not allow the status of a single interface to be determined (unless you have only specified a single interfaceId in the prior connect method).
 
     bluetoothClassicSerial.isConnected(success, failure);
 
@@ -432,15 +438,16 @@ Function `isConnected` calls the success callback when connected to a peer and t
 - __failure__: Error callback function, invoked when device is NOT connected.
 
 ### Quick Example
-
-    bluetoothClassicSerial.isConnected(
-        function() {
-            console.log("Bluetooth is connected");
-        },
-        function() {
-            console.log("Bluetooth is *not* connected");
-        }
-    );
+```
+bluetoothClassicSerial.isConnected(
+    function() {
+        console.log("Bluetooth is connected");
+    },
+    function() {
+        console.log("Bluetooth is *not* connected");
+    }
+);
+```
 
 ## isEnabled
 
@@ -458,15 +465,16 @@ Function `isEnabled` calls the success callback when bluetooth is enabled and th
 - __failure__: Error callback function, invoked when Bluetooth is NOT enabled.
 
 ### Quick Example
-
-    bluetoothClassicSerial.isEnabled(
-        function() {
-            console.log("Bluetooth is enabled");
-        },
-        function() {
-            console.log("Bluetooth is *not* enabled");
-        }
-    );
+```
+bluetoothClassicSerial.isEnabled(
+    function() {
+        console.log("Bluetooth is enabled");
+    },
+    function() {
+        console.log("Bluetooth is *not* enabled");
+    }
+);
+```
 
 ## showBluetoothSettings
 
@@ -488,8 +496,9 @@ Function `showBluetoothSettings` opens the Bluetooth settings on the operating s
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
-
-    bluetoothClassicSerial.showBluetoothSettings();
+```
+bluetoothClassicSerial.showBluetoothSettings();
+```
 
 ## enable
 
@@ -515,15 +524,16 @@ If `enable` is called when Bluetooth is already enabled, the user will not promp
 - __failure__: Error callback function, invoked if the user does not enabled Bluetooth.
 
 ### Quick Example
-
-    bluetoothClassicSerial.enable(
-        function() {
-            console.log("Bluetooth is enabled");
-        },
-        function() {
-            console.log("The user did *not* enable Bluetooth");
-        }
-    );
+```
+bluetoothClassicSerial.enable(
+    function() {
+        console.log("Bluetooth is enabled");
+    },
+    function() {
+        console.log("The user did *not* enable Bluetooth");
+    }
+);
+```
 
 ## discoverUnpaired
 
@@ -540,27 +550,28 @@ The behaviour of this method varies between Android and iOS.
 Function `discoverUnpaired` discovers unpaired Bluetooth devices. The success callback is called with a list of objects similar to `list`, or an empty list if no unpaired devices are found.
 
 Example list passed to success callback.
-
-    [{
-        "class": 276,
-        "id": "10:BF:48:CB:00:00",
-        "address": "10:BF:48:CB:00:00",
-        "name": "Nexus 7"
-    }, {
-        "class": 7936,
-        "id": "00:06:66:4D:00:00",
-        "address": "00:06:66:4D:00:00",
-        "name": "RN42"
-    }]
+```
+[{
+    "class": 276,
+    "id": "10:BF:48:CB:00:00",
+    "address": "10:BF:48:CB:00:00",
+    "name": "Nexus 7"
+}, {
+    "class": 7936,
+    "id": "00:06:66:4D:00:00",
+    "address": "00:06:66:4D:00:00",
+    "name": "RN42"
+}]
+```
 
 The discovery process takes a while to happen. You can register notify callback with [setDeviceDiscoveredListener](#setdevicediscoveredlistener).
-You may also want to show a progress indicator while waiting for the discover proces to finish, and the sucess callback to be invoked.
+You may also want to show a progress indicator while waiting for the discover process to finish, and the success callback to be invoked.
 
 Calling `connect` on an unpaired Bluetooth device should begin the Android pairing process.
 
 #### iOS
 
-Function `discoverUnpaired` will launch a native iOS window showing all devices which match the protocol string defined in the application's cordova config.xml file.  Choosing a device from the list will initiate pairing and the details of that device will be returned to the success callback function.  Once paired the device is available for connection.
+Function `discoverUnpaired` will launch a native iOS window showing all devices which match the protocol string defined in the application's cordova config.xml file.  Choosing a device from the list will initiate pairing and the details of that device will **not** trigger the success callback function. **The device discovered listener must be used**. Once paired the device is available for connection.
 
 ### Parameters
 
@@ -568,12 +579,13 @@ Function `discoverUnpaired` will launch a native iOS window showing all devices 
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
-
-    bluetoothClassicSerial.discoverUnpaired(function(devices) {
-        devices.forEach(function(device) {
-            console.log(device.id);
-        })
-    }, failure);
+```
+bluetoothClassicSerial.discoverUnpaired(function(devices) {
+    devices.forEach(function(device) {
+        console.log(device.id);
+    })
+}, failure);
+```
 
 ## setDeviceDiscoveredListener
 
@@ -588,13 +600,14 @@ be started with [discoverUnpaired](#discoverunpaired).
 There can be only one registered callback.
 
 Example object passed to notify callback.
-
-    {
-        "class": 276,
-        "id": "10:BF:48:CB:00:00",
-        "address": "10:BF:48:CB:00:00",
-        "name": "Nexus 7"
-    }
+```
+{
+    "class": 276,
+    "id": "10:BF:48:CB:00:00",
+    "address": "10:BF:48:CB:00:00",
+    "name": "Nexus 7"
+}
+```
 
 #### iOS
 
@@ -605,18 +618,20 @@ When a device is paired from the [discoverUnpaired](#discoverunpaired) function 
 - __notify__: Notify callback function that is invoked when device is discovered during discovery process.
 
 ### Quick Example
-
-    bluetoothClassicSerial.setDeviceDiscoveredListener(function(device) {
-		console.log('Found: ',device.id);
-    });
+```
+bluetoothClassicSerial.setDeviceDiscoveredListener(function(device) {
+  console.log('Found: ',device.id);
+});
+```
 
 ## clearDeviceDiscoveredListener
 
 Clears notify callback function registered with [setDeviceDiscoveredListener](#setdevicediscoveredlistener).
 
 ### Quick Example
-
-    bluetoothClassicSerial.clearDeviceDiscoveredListener();
+```
+bluetoothClassicSerial.clearDeviceDiscoveredListener();
+```
 
 # Misc
 
@@ -638,6 +653,8 @@ Development Devices include
 ## Props
 
 This project is a fork of Don Coleman's https://github.com/don/BluetoothSerial so all the big props to him.
+
+The multi interface implementation for Android borrowed ideas from Shikoruma's pull request https://github.com/don/BluetoothSerial/pull/205 to Don Coleman's [Cordova BluetoothSerial Plugin](https://github.com/don/BluetoothSerial).
 
 ### Android
 

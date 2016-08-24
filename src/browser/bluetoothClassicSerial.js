@@ -57,8 +57,8 @@ module.exports = (function() {
         }
     };
     return {
-        connect : function(deviceId, interfaceId, success_cb, fail_cb) {
-            btlog("bluetoothClassicSerial.connect: " + deviceId + "," + interfaceId);
+        connect : function(deviceId, interfaceArray, success_cb, fail_cb) {
+            btlog("bluetoothClassicSerial.connect: " + deviceId + ", " + JSON.stringify(interfaceArray));
             connected = true;
             if (success_cb) { success_cb(); }
         },
@@ -72,22 +72,22 @@ module.exports = (function() {
             window.clearInterval(interval);
             if (success_cb) { success_cb(); }
         },
-        write : function(data, success_cb, fail_cb) {
+        write : function(interfaceId, data, success_cb, fail_cb) {
             btlog("bluetoothClassicSerial.write: " + data);
             buf.input += data;
             if(success_cb) { success_cb(); }
         },
-        available : function(success_cb, fail_cb) {
+        available : function(interfaceId, success_cb, fail_cb) {
             btlog("bluetoothClassicSerial.available");
             success_cb(buf.output.length);
         },
-        read : function(success_cb, fail_cb) {
+        read : function(interfaceId, success_cb, fail_cb) {
             btlog("bluetoothClassicSerial.read: " + buf.output);
             var data = buf.output;
             buf.output = "";
             success_cb(data);
         },
-        readUntil : function(delimiter, success_cb, fail_cb) {
+        readUntil : function(interfaceId, delimiter, success_cb, fail_cb) {
             btlog("bluetoothClassicSerial.readUntil");
             var index = buf.output.indexOf(delimiter);
             if (index == -1) {
@@ -98,26 +98,26 @@ module.exports = (function() {
                 success_cb(data);
             }
         },
-        subscribe : function(delimiter, success_cb, fail_cb) {
+        subscribe : function(interfaceId, delimiter, success_cb, fail_cb) {
             btlog("bluetoothClassicSerial.subscribe '"+delimiter+"'");
             subscribe_cb = success_cb;
             subscribe_delim = delimiter;
         },
-        unsubscribe : function(success_cb, fail_cb) {
+        unsubscribe : function(interfaceId, success_cb, fail_cb) {
             btlog("bluetoothClassicSerial.unsubscribe");
             subscribe_delim = false;
             if(success_cb) { success_cb(); }
         },
-        subscribeRawData : function(success_cb, fail_cb) {
+        subscribeRawData : function(interfaceId, success_cb, fail_cb) {
             btlog("bluetoothClassicSerial.subscribeRawData");
             raw_cb = success_cb;
         },
-        unsubscribeRawData : function(success_cb, fail_cb) {
+        unsubscribeRawData : function(interfaceId, success_cb, fail_cb) {
             btlog("bluetoothClassicSerial.unsubscribeRawData");
             raw_cb = false;
             if(success_cb) { success_cb(); }
         },
-        clear : function(success_cb, fail_cb) {
+        clear : function(interfaceId, success_cb, fail_cb) {
             btlog("bluetoothClassicSerial.clear");
             buf.output = "";
             if(success_cb) { success_cb(); }
