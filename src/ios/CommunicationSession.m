@@ -216,12 +216,8 @@
 - (void)readStreamData {
 
     NSMutableData *rawDataRead = nil;
-    NSMutableDictionary *rawDataOutput = nil;
-    NSMutableArray *rawDataResult = nil;
     if (self.subscribeRawDataCallbackID != nil) {
         rawDataRead = [[NSMutableData alloc] init];
-        rawDataOutput = [[NSMutableDictionary alloc] init];
-        rawDataResult = [[NSMutableArray alloc] init];
     }
 
     uint8_t buf[self.inputBufferSize];
@@ -242,15 +238,7 @@
 
     // If someone is listening for raw data send that back.
     if (self.subscribeRawDataCallbackID != nil && rawDataRead != nil) {
-
-        NSString *base64Output = [rawDataRead base64EncodedStringWithOptions:0];
-        [rawDataOutput setObject:base64Output forKey:@"rawDataB64"];
-        [rawDataOutput setValue:self.protocolString forKey:@"interfaceId"];
-        [rawDataOutput setValue:[NSNumber numberWithLong:[self.accessory connectionID]] forKey:@"deviceId"];
-
-        [rawDataResult addObject:rawDataOutput];
-
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:rawDataOutput];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArrayBuffer:rawDataRead];
         [pluginResult setKeepCallbackAsBool:true];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.subscribeRawDataCallbackID];
     }
