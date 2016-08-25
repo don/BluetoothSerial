@@ -1,6 +1,8 @@
 /*global cordova*/
 module.exports = {
 
+    version: '0.9.7',
+
     connect: function (deviceId, interfaceArray, success, failure) {
 
       if (typeof interfaceArray === 'string') {
