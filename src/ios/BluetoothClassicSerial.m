@@ -23,6 +23,8 @@
 
     // Initialise array to hold subscribe callback ids for protocol strings
     self.subscribeCallbackIds = [[NSMutableArray alloc] init];
+    self.subscribeRawCallbackIds = [[NSMutableArray alloc] init];
+
 
 
     // Register for accessory manager notifications
@@ -583,9 +585,7 @@
         }
 
     }
-
     for (NSMutableDictionary *callback in self.subscribeRawCallbackIds) {
-
         for (CommunicationSession *session in self.communicationSessions) {
             if ([session.protocolString isEqualToString:callback[@"protocolString"]]) {
                 [session subscribeRaw:callback[@"id"]];
