@@ -1,3 +1,6 @@
+= 0.4.6 =
+Add support for Android 6.0 (API 23) Permissions. Thanks Sundypha #194, #226, #228
+
 = 0.4.5 =
 Resolve iOS conflicts with cordova-plugin-ble-central #177
 Add support for broadcasted name when discoverable (Android) #137 Thanks marvinmarnold
