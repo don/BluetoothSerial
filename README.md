@@ -124,7 +124,7 @@ Function `disconnect` disconnects the current connection.
 
 ### Parameters
 
-- __success__: Success callback function that is invoked when the connection is successful. [optional]
+- __success__: Success callback function that is invoked after the connection is disconnected. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ## write
