@@ -33,4 +33,10 @@
 #define LAIRD_CHAR_TX_UUID                       "569a2000-b87f-490c-92cb-11ba5ea5167c"
 #define LAIRD_CHAR_RX_UUID                       "569a2001-b87f-490c-92cb-11ba5ea5167c"
 
+// HM-10 (unfortunately this is also the UUID for the TI simple key service)
+// http://processors.wiki.ti.com/index.php/SensorTag_User_Guide#Simple_Key_Service
+#define HM10_SERVICE_UUID                       "ffe0"
+#define HM10_CHAR_TX_UUID                       "ffe1"
+#define HM10_CHAR_RX_UUID                       "ffe1"
+
 #define RBL_BLE_FRAMEWORK_VER                    0x0200
