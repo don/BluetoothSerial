@@ -61,7 +61,7 @@ module.exports = {
 
     // calls the success callback when new data is available
     subscribe: function (delimiter, success, failure) {
-        cordova.exec(success, failure, "BluetoothSerial", "subscribe", [delimiter]);
+        cordova.exec(success, failure, "BluetoothSerial", "subscribe", [delimiter, success]);
     },
 
     // removes data subscription
@@ -82,7 +82,7 @@ module.exports = {
             }
             success(data);
         };
-        cordova.exec(successWrapper, failure, "BluetoothSerial", "subscribeRaw", []);
+        cordova.exec(successWrapper, failure, "BluetoothSerial", "subscribeRaw", [successWrapper]);
     },
 
     // removes data subscription
