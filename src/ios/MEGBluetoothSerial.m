@@ -200,9 +200,7 @@
 }
 
 - (void)clear:(CDVInvokedUrlCommand*)command {
-    long end = [_buffer length] - 1;
-    NSRange truncate = NSMakeRange(0, end);
-    [_buffer deleteCharactersInRange:truncate];
+    [self clearBuffer];
 }
 
 - (void)readRSSI:(CDVInvokedUrlCommand*)command {
@@ -246,6 +244,7 @@
 - (void)bleDidConnect {
     NSLog(@"bleDidConnect");
     CDVPluginResult *pluginResult = nil;
+    [self clearBuffer];
 
     if (_connectCallbackId) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -461,6 +460,12 @@
         }
     }
     return peripheral;
+}
+
+- (void)clearBuffer {
+    long end = [_buffer length];
+    NSRange truncate = NSMakeRange(0, end);
+    [_buffer deleteCharactersInRange:truncate];
 }
 
 @end
