@@ -1,3 +1,8 @@
+= 0.4.7 =
+Clear old data from buffer on new connection fixes #286
+Update package.json for Meteor #271 Thanks StephenClement
+Support HM-10 on iOS #288
+
 = 0.4.6 =
 Add support for Android 6.0 (API 23) Permissions. Thanks Sundypha #194, #226, #228
 
