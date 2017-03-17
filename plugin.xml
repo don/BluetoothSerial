@@ -11,11 +11,6 @@
     <keywords>bluetooth, BLE, arduino</keywords>
     <repo>https://github.com/don/BluetoothSerial.git</repo>
     <issue>https://github.com/don/BluetoothSerial/issues</issue>
-    
-    <engines>
-	<!-- Windows universal apps (Windows 8.1, Windows Phone 8.1, Windows 10) -->
-	<engine name="cordova-windows" version=">=3.8.0" />
-    </engines>
 
     <js-module src="www/bluetoothSerial.js" name="bluetoothSerial">
         <clobbers target="window.bluetoothSerial" />
@@ -87,21 +82,5 @@
             <clobbers target="window.bluetoothSerial" />
         </js-module>
 
-    </platform>
-    
-    <!-- Windows universal apps (Windows 8.1, Windows Phone 8.1, Windows 10) -->
-    <platform name="windows">
-        <js-module src="src/windows/BluetoothSerial.js" name="BluetoothSerial">
-            <merges target="" />
-        </js-module>
-	
-	<config-file target="package.appxmanifest" parent="/Package/Capabilities">
-		<DeviceCapability Name="bluetooth.rfcomm">
-			<Device Id="any">
-				<Function Type="name:serialPort" />
-			</Device>
-		</DeviceCapability>
-         </config-file>
-	 
     </platform>
 </plugin>
