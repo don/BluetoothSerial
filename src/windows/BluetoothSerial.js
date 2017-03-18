@@ -8,88 +8,154 @@ var streams = Windows.Storage.Streams;
 var socket;
 var writer;
 var reader;
-var bufferBytes, buffer;
 var delimiter;
-var subscribeCallback, subscribeRawCallback;
+var subscribeCallback, subscribeRawCallback, disconnectCallback;
 
+var receivedBytes = [];
 
-var readUntil = function(chars) {
-	var index = buffer.indexOf(chars);
+var bytesToString = function(bytes) {
+	// based on http://ciaranj.blogspot.fr/2007/11/utf8-characters-encoding-in-javascript.html
+
+	var result = "";
+	var i, c, c1, c2, c3;
+	i = c = c1 = c2 = c3 = 0;
+
+	// Perform byte-order check.
+	if( bytes.length >= 3 ) {
+		if( (bytes[0] & 0xef) == 0xef && (bytes[1] & 0xbb) == 0xbb && (bytes[2] & 0xbf) == 0xbf ) {
+			// stream has a BOM at the start, skip over
+			i = 3;
+		}
+	}
+
+	while ( i < bytes.length ) {
+		c = bytes[i] & 0xff;
+
+		if ( c < 128 ) {
+
+			result += String.fromCharCode(c);
+			i++;
+
+		} else if ( (c > 191) && (c < 224) ) {
+
+			if ( i + 1 >= bytes.length ) {
+				//throw "Un-expected encoding error, UTF-8 stream truncated, or incorrect";
+				// assume reading the next byte will fix this, ignore
+				break;
+			}
+			c2 = bytes[i + 1] & 0xff;
+			result += String.fromCharCode( ((c & 31) << 6) | (c2 & 63) );
+			i += 2;
+
+		} else {
+
+			if ( i + 2 >= bytes.length  || i + 1 >= bytes.length ) {
+				//throw "Un-expected encoding error, UTF-8 stream truncated, or incorrect";
+				// assume reading the next bytes will fix this, ignore
+				break;
+			}
+			c2 = bytes[i + 1] & 0xff;
+			c3 = bytes[i + 2] & 0xff;
+			result += String.fromCharCode( ((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63) );
+			i += 3;
+
+		}
+	}
+	return result;
+}
+
+var stringToBytes = function(string) {
+	// based on http://ciaranj.blogspot.fr/2007/11/utf8-characters-encoding-in-javascript.html
+
+	var bytes = [];
+
+	for (var n = 0; n < string.length; n++) {
+
+		var c = string.charCodeAt(n);
+
+		if (c < 128) {
+
+			bytes[bytes.length]= c;
+
+		} else if((c > 127) && (c < 2048)) {
+
+			bytes[bytes.length] = (c >> 6) | 192;
+			bytes[bytes.length] = (c & 63) | 128;
+
+		} else {
+
+			bytes[bytes.length] = (c >> 12) | 224;
+			bytes[bytes.length] = ((c >> 6) & 63) | 128;
+			bytes[bytes.length] = (c & 63) | 128;
+
+		}
+
+	}
+
+	return bytes;
+}
+
+// read received data up until the chars that define the delimiter
+var readUntil = function(chars) { 
+	var dataAsString = bytesToString(receivedBytes);
+	var index = dataAsString.indexOf(chars);
 	var data = "";
 	
 	if (index > -1) {
-		data = buffer.substring(0, index + chars.length);
-		buffer = buffer.replace(data, "");
+		data = dataAsString.substring(0, index + chars.length);
+
+		// truncate receivedBytes, removing data. data might contain unicode, so convert to bytes to get the length
+		var removeBytes = stringToBytes(data);
+		receivedBytes = receivedBytes.slice(removeBytes.length);
 	}
 	
 	return data;
 }
 
-/*
- * http://stackoverflow.com/questions/17191945/conversion-between-utf-8-arraybuffer-and-string
- * Niccolò Campolungo's answer
-*/
-var uintToString = function(uintArray) {
-	var encodedString = String.fromCharCode.apply(null, uintArray);
-	var decodedString = decodeURIComponent(escape(encodedString));
-	return decodedString;
+// This sends data if we've hit the delimiter
+var	sendDataToSubscriber = function() {
+	var data = readUntil(delimiter);
+	
+	if (data && data.length > 0) {
+		subscribeCallback(data, { keepCallback: true });
+		
+		// in case there is more data to send
+		sendDataToSubscriber();
+	}
+}
+
+var receiveStringLoop = function (reader) {
+	// read one byte at a time
+	reader.loadAsync(1).done(function (size) {
+		if (size != 1) {
+			bluetoothSerial.disconnect();
+			console.log('The underlying socket was closed before we were able to read the whole data. Client disconnected.');
+			disconnectCallback("Socket closed"); // TODO determine why this isn't working
+			return;
+		}
+
+		var byte = reader.readByte();
+		receivedBytes.push(byte);
+
+		if (subscribeRawCallback && typeof (subscribeRawCallback) !== "undefined") {
+			subscribeRawCallback(new Uint8Array([byte]), { keepCallback: true });
+		}
+
+		if (subscribeCallback && typeof (subscribeCallback) !== "undefined") {
+			sendDataToSubscriber();
+		}
+
+		WinJS.Promise.timeout().done(function () { return receiveStringLoop(reader); });
+	}, function (error) {
+		console.log('Failed to read the data, with error: ' + error);
+		WinJS.Promise.timeout(1000).done(function () { return receiveStringLoop(reader); });
+	});
 }
 
 module.exports = {
-	sendDataToSubscriber: function() {
-		var data = readUntil(delimiter);
-		
-		if (data && data.length > 0) {
-			subscribeCallback(data);
-			
-			// in case there is more data to send
-			module.exports.sendDataToSubscriber();
-		}
-	},
-	
-	receiveStringLoop:  function(reader) {
-		// Read first byte (length of the subsequent message, 255 or less). 
-		reader.loadAsync(1).done(function (size) {		
-			if (size != 1) {
-				bluetoothSerial.disconnect();
-				console.log("The underlying socket was closed before we were able to read the whole data. Client disconnected.", "sample", "status");
-				return;
-			}
 
-			// Read the message. 
-			var messageLength = reader.readByte();			
-			reader.loadAsync(messageLength).done(function(actualMessageLength) {
-				if (messageLength != actualMessageLength)
-				{
-					console.log("The underlying socket was closed before we were able to read the whole data.", "sample", "status");
-					return;
-				}
-				
-				//var message = reader.readString(actualMessageLength);
-				bufferBytes = new Uint8Array(actualMessageLength);
-				reader.readBytes(bufferBytes);
-				
-				// unfortunately IE doesn't support TextDecoder, so we need another solution...
-				buffer = uintToString(bufferBytes);
-				
-				if (subscribeRawCallback && typeof(subscribeRawCallback) !== "undefined") {
-					subscribeRawCallback(bufferBytes);
-				}
-				
-				if (subscribeCallback && typeof(subscribeCallback) !== "undefined") {
-					module.exports.sendDataToSubscriber();
-				}
-				
-				WinJS.Promise.timeout().done(function () { return module.exports.receiveStringLoop(reader); });
-			}, function (error) {
-				console.log("loadAsync -> Failed to read the message, with error: " + error, "sample", "error");
-			});
-		}, function (error) {
-			console.log("Failed to read the message size, with error: " + error, "sample", "error");
-		});
-	},
-	
-	list: function(success, failure, args) {
+	list: function (success, failure, args) {
+
 		deviceInfo.findAllAsync(
 			Windows.Devices.Bluetooth.Rfcomm.RfcommDeviceService.getDeviceSelector(
 				Windows.Devices.Bluetooth.Rfcomm.RfcommServiceId.serialPort			
@@ -98,12 +164,12 @@ module.exports = {
 		).then(function(devices) {
 			if (devices.length > 0) {
 				var results = [];
-				
+
 				for (var i = 0; i < devices.length; i++) {
-					var devName = devices[i].name;
-					var devAddress = devices[i].id;
-					
-					results.push({ name: devName, uuid: devAddress, address: devAddress });
+                    // TODO parse MAC address out of the id
+					// TODO see if there's a way to get the correct device name
+					// The windows permission dialog has the correct name  					
+					results.push({ name: devices[i].name, id: devices[i].id });
 				}
 				success(results);
 			}
@@ -115,7 +181,8 @@ module.exports = {
 	
 	connect: function(success, failure, args) {
 		var id = args[0];
-		
+		disconnectCallback = failure;
+
 		// Initialize the target Rfcomm service
 		rfcomm.RfcommDeviceService.fromIdAsync(id).then(
 			function (service) {
@@ -138,29 +205,38 @@ module.exports = {
 							reader.unicodeEncoding = streams.UnicodeEncoding.Utf8;
 							reader.byteOrder = streams.ByteOrder.littleEndian;
 							
-							buffer = [];							
-							module.exports.receiveStringLoop(reader);
+							receiveStringLoop(reader);
 							
 							success("Connected.");
+						},
+						function(e){
+							failure(e.toString());
 						});
-					}
-					else {
+					} else {
 						failure("Impossible to determine the HostName or the ServiceName.");
 					}
 				}
+			},
+			function(e){
+				failure(e.toString());
 			}
 		);
 	},
 	
 	connectInsecure: function(success, failure, args) {
-		failure("Not yet implemented...");
+		failure("connectInsecure is only available on Android.");
 	},
 	
 	disconnect: function(success, failure, args) {			
 		if (writer) {
-			writer.detachStream();
+			writer.close();
 			writer = null;
 		}		
+
+    	if (reader) {
+      		reader.close();
+      		reader = null
+    	}
 
 		if (socket) {
 			socket.close();
@@ -171,6 +247,8 @@ module.exports = {
 		success("Device disconnected.");		
 	},
 	
+	// TODO find a better way to do this
+	// If there are no RFCOMM devices paired, this reports Bluetooth is disabled
 	isEnabled: function(success, failure, args) {
 		deviceInfo.findAllAsync(
 			Windows.Devices.Bluetooth.Rfcomm.RfcommDeviceService.getDeviceSelector(
@@ -179,10 +257,9 @@ module.exports = {
 			null
 		).then(function(devices) {
 			if (devices.length > 0) {
-				success(1);
-			}
-			else {
-				success(0);
+				success(); // enabled
+			} else {
+				failure(); // not enabled
 			}
 		});
 	},
@@ -192,8 +269,8 @@ module.exports = {
 	},
 	
 	read: function(success, failure, args) {
-		var ret = buffer;
-		buffer = "";
+		var ret = bytesToString(receivedBytes);
+		receivedBytes = [];
 		success(ret);
 	},
 	
@@ -224,7 +301,7 @@ module.exports = {
 	
 	subscribe: function(success, failure, args) {
 		delimiter = args[0];
-		subscribeCallback = args[1];
+		subscribeCallback = success;
 	},
 	
 	unsubscribe: function(success, failure, args) {
@@ -234,7 +311,7 @@ module.exports = {
 	},
 	
 	subscribeRaw: function(success, failure, args) {
-		subscribeRawCallback = args[0];
+		subscribeRawCallback = success;
 	},
 	
 	unsubscribeRaw: function(success, failure, args) {
@@ -243,7 +320,7 @@ module.exports = {
 	},
 	
 	clear: function(success, failure, args) {
-		buffer = "";
+		receivedBytes = [];
 		success("Buffer cleared");
 	},
 	
@@ -273,3 +350,4 @@ module.exports = {
 }
 
 require("cordova/exec/proxy").add("BluetoothSerial", module.exports);
+
