@@ -28,7 +28,10 @@ var app = {
         var TOUCH_START = 'touchstart';
         if (window.navigator.msPointerEnabled) { // windows phone
             TOUCH_START = 'MSPointerDown';
+        } else if (cordova.platformId === 'windows') {
+            TOUCH_START = 'click';
         }
+        
         document.addEventListener('deviceready', this.onDeviceReady, false);
         refreshButton.addEventListener(TOUCH_START, this.refreshDeviceList, false);
         sendButton.addEventListener(TOUCH_START, this.sendData, false);
@@ -55,12 +58,12 @@ var app = {
 
             listItem.innerHTML = html;
 
-            if (cordova.platformId === 'windowsphone') {
+            if (cordova.platformId === 'windowsphone' || cordova.platformId === 'windows') {
               // This is a temporary hack until I get the list tap working
               var button = document.createElement('button');
               button.innerHTML = "Connect";
               button.addEventListener('click', app.connect, false);
-              button.dataset = {};
+
               button.dataset.deviceId = device.id;
               listItem.appendChild(button);
             } else {
@@ -117,7 +120,7 @@ var app = {
         };
 
         var failure = function() {
-            alert("Failed writing data to Bluetooth peripheral");
+            navigator.notification.alert("Failed writing data to Bluetooth peripheral");
         };
 
         var data = messageInput.value;
@@ -147,6 +150,6 @@ var app = {
         }, 5000);
     },
     onError: function(reason) {
-        alert("ERROR: " + reason); // real apps should use notification.alert
+        navigator.notification.alert(reason, null, "ERROR"); 
     }
 };
