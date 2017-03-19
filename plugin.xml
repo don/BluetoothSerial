@@ -94,14 +94,18 @@
         <js-module src="src/windows/BluetoothSerial.js" name="BluetoothSerial">
             <merges target="" />
         </js-module>
+
+        <config-file target="package.windows10.appxmanifest" parent="/Package/Capabilities">
+            <DeviceCapability Name="bluetooth" />
+        </config-file>
 	
-	<config-file target="package.appxmanifest" parent="/Package/Capabilities">
-		<DeviceCapability Name="bluetooth.rfcomm">
-			<Device Id="any">
-				<Function Type="name:serialPort" /> 
-			</Device>
-		</DeviceCapability>
-         </config-file>
+	    <config-file target="package.appxmanifest" parent="/Package/Capabilities">
+		    <DeviceCapability Name="bluetooth.rfcomm">
+			    <Device Id="any">
+				    <Function Type="name:serialPort" /> 
+			    </Device>
+		    </DeviceCapability>
+        </config-file>
 	 
     </platform>
 </plugin>
