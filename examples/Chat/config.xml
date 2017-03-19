@@ -13,4 +13,7 @@
     <preference name="KeyboardShrinksView" value="true" />
     <preference name="DisallowOverscroll" value="true" />
     <access origin="*" />
+    <preference name="windows-target-version" value="10.0" />
+    <plugin name="cordova-plugin-dialogs" spec="~1.3.2" />
+    <plugin name="cordova-plugin-bluetooth-serial" spec="https://github.com/don/BluetoothSerial#windows" />
 </widget>
