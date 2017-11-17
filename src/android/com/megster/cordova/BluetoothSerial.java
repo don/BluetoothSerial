@@ -48,6 +48,7 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String CLEAR = "clear";
     private static final String SETTINGS = "showBluetoothSettings";
     private static final String ENABLE = "enable";
+    private static final String DISABLE = "disable";
     private static final String DISCOVER_UNPAIRED = "discoverUnpaired";
     private static final String SET_DEVICE_DISCOVERED_LISTENER = "setDeviceDiscoveredListener";
     private static final String CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener";
@@ -210,6 +211,11 @@ public class BluetoothSerial extends CordovaPlugin {
             enableBluetoothCallback = callbackContext;
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             cordova.startActivityForResult(this, intent, REQUEST_ENABLE_BLUETOOTH);
+
+        }else if (action.equals(DISABLE)) {
+
+            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            mBluetoothAdapter.disable();
 
         } else if (action.equals(DISCOVER_UNPAIRED)) {
 
