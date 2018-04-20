@@ -4,7 +4,7 @@ This plugin enables serial communication over Bluetooth. It was written for comm
 
 Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
-*This is a fork of the original Project with modifications that allow the connection between two android devices and tests using this [bluetooth printer emulator](https://play.google.com/store/apps/details?id=co.com.BluetoothPrinterEmulator)
+*This is a fork of the original Project with modifications(based on [tomvanenckevort fork](https://github.com/tomvanenckevort/BluetoothSerial)) that allow the connection between two android devices and tests using this [bluetooth printer emulator](https://play.google.com/store/apps/details?id=co.com.BluetoothPrinterEmulator)
 
 ## Supported Platforms
 
