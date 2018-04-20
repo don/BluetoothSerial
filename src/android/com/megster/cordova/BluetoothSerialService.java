@@ -96,8 +96,9 @@ public class BluetoothSerialService {
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
-        setState(STATE_NONE);
-
+        //setState(STATE_NONE);
+        //Enabled listening state for accepting incoming connections.
+        setState(STATE_LISTEN);
 //      Listen isn't working with Arduino. Ignore since assuming the phone will initiate the connection.
 //        setState(STATE_LISTEN);
 //
