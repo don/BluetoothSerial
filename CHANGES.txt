@@ -1,3 +1,6 @@
+= 0.x.x =
+Add hc02 Bluetooth BLE support #359
+
 = 0.4.7 =
 Clear old data from buffer on new connection fixes #286
 Update package.json for Meteor #271 Thanks StephenClement
