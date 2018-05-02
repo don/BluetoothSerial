@@ -39,4 +39,11 @@
 #define HM10_CHAR_TX_UUID                       "ffe1"
 #define HM10_CHAR_RX_UUID                       "ffe1"
 
+// HC-02
+// http://www.hc01.com/productdetail?productid=20180314021
+#define HC02_SERVICE_UUID "49535343-FE7D-4AE5-8FA9-9FAFD205E455"
+#define HC02_CHAR_TX_UUID "49535343-1E4D-4BD9-BA61-23C647249616"
+#define HC02_CHAR_RX_UUID "49535343-8841-43F4-A8D4-ECBE34729BB3"
+#define HC02_ADV_UUID "18F0"
+
 #define RBL_BLE_FRAMEWORK_VER                    0x0200
