@@ -120,6 +120,12 @@ public class BluetoothSerialService {
     public synchronized void connect(BluetoothDevice device, boolean secure) {
         if (D) Log.d(TAG, "connect to: " + device);
 
+
+        if (mAdapter == null || !mAdapter.isEnabled()){
+            Log.e(TAG, "Bluetooth is disabled! Not connecting");
+            return;
+        }
+
         // Cancel any thread attempting to make a connection
         if (mState == STATE_CONNECTING) {
             if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
@@ -221,6 +227,7 @@ public class BluetoothSerialService {
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
     private void connectionFailed() {
+        Log.e(TAG, "Connection failed!");
         // Send a failure message back to the Activity
         Message msg = mHandler.obtainMessage(BluetoothSerial.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
@@ -371,8 +378,7 @@ public class BluetoothSerialService {
                 // This is a blocking call and will only return on a successful connection or an exception
                 Log.i(TAG,"Connecting to socket...");
                 mmSocket.connect();
-                Log.i(TAG,"Connected");
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 Log.e(TAG, e.toString());
 
                 // Some 4.1 devices have problems, try an alternative way to connect
@@ -381,18 +387,19 @@ public class BluetoothSerialService {
                     Log.i(TAG,"Trying fallback...");
                     mmSocket = (BluetoothSocket) mmDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mmDevice,1);
                     mmSocket.connect();
-                    Log.i(TAG,"Connected");
                 } catch (Exception e2) {
                     Log.e(TAG, "Couldn't establish a Bluetooth connection.");
                     try {
                         mmSocket.close();
-                    } catch (IOException e3) {
+                    } catch (IOException | NullPointerException e3) {
                         Log.e(TAG, "unable to close() " + mSocketType + " socket during connection failure", e3);
                     }
                     connectionFailed();
                     return;
                 }
             }
+
+            Log.i(TAG,"Successfully connected!");
 
             // Reset the ConnectThread because we're done
             synchronized (BluetoothSerialService.this) {
@@ -406,7 +413,7 @@ public class BluetoothSerialService {
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 Log.e(TAG, "close() of connect " + mSocketType + " socket failed", e);
             }
         }
@@ -497,3 +504,4 @@ public class BluetoothSerialService {
         }
     }
 }
+
