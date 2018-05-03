@@ -1,8 +1,10 @@
 # Bluetooth Serial Plugin for PhoneGap
 
-This plugin enables serial communication over Bluetooth. It was written for communicating between Android or iOS and an Arduino.
+This plugin enables serial communication over Bluetooth. It was written for communicating between Android(android to android and android to another device) or iOS and an Arduino.
 
 Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
+
+*This is a fork of the original Project with modifications(based on [tomvanenckevort fork](https://github.com/tomvanenckevort/BluetoothSerial)) that allow the connection between two android devices and tests using this [bluetooth printer emulator](https://play.google.com/store/apps/details?id=co.com.BluetoothPrinterEmulator)
 
 ## Supported Platforms
 
@@ -17,7 +19,6 @@ Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
 
  * The phone must initiate the Bluetooth connection
  * iOS Bluetooth Low Energy requires iPhone 4S, iPhone5, iPod 5, or iPad3+
- * Will *not* connect Android to Android[*](https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
  * Will *not* connect iOS to iOS[*](https://github.com/don/BluetoothSerial/issues/75#issuecomment-52591397)
 
 # Installing

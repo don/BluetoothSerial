@@ -96,8 +96,9 @@ public class BluetoothSerialService {
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
-        setState(STATE_NONE);
-
+        //setState(STATE_NONE);
+        //Enabled listening state for accepting incoming connections.
+        setState(STATE_LISTEN);
 //      Listen isn't working with Arduino. Ignore since assuming the phone will initiate the connection.
 //        setState(STATE_LISTEN);
 //
@@ -347,11 +348,11 @@ public class BluetoothSerialService {
             // Get a BluetoothSocket for a connection with the given BluetoothDevice
             try {
                 if (secure) {
-                    // tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
-                    tmp = device.createRfcommSocketToServiceRecord(UUID_SPP);
+                    tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
+                    //tmp = device.createRfcommSocketToServiceRecord(UUID_SPP);
                 } else {
-                    //tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
-                    tmp = device.createInsecureRfcommSocketToServiceRecord(UUID_SPP);
+                    tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
+                    //tmp = device.createInsecureRfcommSocketToServiceRecord(UUID_SPP);
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
