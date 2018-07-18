@@ -92,7 +92,7 @@ public class BluetoothSerial extends CordovaPlugin {
     @Override
     public boolean execute(String action, CordovaArgs args, CallbackContext callbackContext) throws JSONException {
 
-        LOG.d(TAG, "action = " + action);
+        //LOG.d(TAG, "action = " + action);
 
         if (bluetoothAdapter == null) {
             bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -110,14 +110,12 @@ public class BluetoothSerial extends CordovaPlugin {
 
         } else if (action.equals(CONNECT)) {
 
-            boolean secure = true;
-            connect(args, secure, callbackContext);
+            connect(args, true, callbackContext);
 
         } else if (action.equals(CONNECT_INSECURE)) {
 
             // see Android docs about Insecure RFCOMM http://goo.gl/1mFjZY
-            boolean secure = false;
-            connect(args, secure, callbackContext);
+            connect(args, false, callbackContext);
 
         } else if (action.equals(DISCONNECT)) {
 
@@ -350,7 +348,7 @@ public class BluetoothSerial extends CordovaPlugin {
             callbackContext.sendPluginResult(result);
 
         } else {
-            callbackContext.error("Could not connect to " + macAddress);
+            callbackContext.error("Could not connect to " + macAddress + "(device not found/unreachable)");
         }
     }
 
@@ -400,7 +398,7 @@ public class BluetoothSerial extends CordovaPlugin {
                     //  Log.i(TAG, "Wrote: " + writeMessage);
                     break;
                 case MESSAGE_DEVICE_NAME:
-                    Log.i(TAG, msg.getData().getString(DEVICE_NAME));
+                    Log.i(TAG, "device name: " + msg.getData().getString(DEVICE_NAME));
                     break;
                 case MESSAGE_TOAST:
                     String message = msg.getData().getString(TOAST);

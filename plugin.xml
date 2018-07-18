@@ -35,6 +35,9 @@
             <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
         </config-file>
 
+	<!-- Enforces java 7 or higher: https://github.com/cvuser0/cordova-plugin-java7-->
+        <source-file src="build-extras.gradle" target-dir="../android" />
+
     </platform>
 
     <platform name="ios">
