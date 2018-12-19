@@ -46,4 +46,10 @@
 #define HC02_CHAR_RX_UUID "49535343-8841-43F4-A8D4-ECBE34729BB3"
 #define HC02_ADV_UUID "18F0"
 
+// Bluetooth service for IMP006 Thermal Pos Printer from China
+// http://www.issyzonepos.com/IMP006-Bluetooth-Mobile-Thermal-Printer-For-Android-and-iOS-Mobile-Device_p100.html
+#define IMP_SERVICE_UUID                       "18f0"
+#define IMP_CHAR_TX_UUID                       "2af0"
+#define IMP_CHAR_RX_UUID                       "2af1"
+
 #define RBL_BLE_FRAMEWORK_VER                    0x0200
