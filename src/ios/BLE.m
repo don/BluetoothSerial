@@ -32,6 +32,8 @@ CBUUID *blueGigaServiceUUID;
 CBUUID *hm10ServiceUUID;
 CBUUID *hc02ServiceUUID;
 CBUUID *hc02AdvUUID;
+CBUUID *impServiceUUID;
+
 CBUUID *serialServiceUUID;
 CBUUID *readCharacteristicUUID;
 CBUUID *writeCharacteristicUUID;
@@ -218,8 +220,9 @@ CBUUID *writeCharacteristicUUID;
     hm10ServiceUUID = [CBUUID UUIDWithString:@HM10_SERVICE_UUID];
     hc02ServiceUUID = [CBUUID UUIDWithString:@HC02_SERVICE_UUID];
     hc02AdvUUID = [CBUUID UUIDWithString:@HC02_ADV_UUID];
+    impServiceUUID = [CBUUID UUIDWithString:@IMP_SERVICE_UUID];
     NSArray *services = @[redBearLabsServiceUUID, adafruitServiceUUID, lairdServiceUUID, blueGigaServiceUUID, hm10ServiceUUID, 
-                        hc02AdvUUID];
+                        hc02AdvUUID, impServiceUUID];
     [self.CM scanForPeripheralsWithServices:services options: nil];
 #else
     [self.CM scanForPeripheralsWithServices:nil options:nil]; // Start scanning
@@ -568,6 +571,12 @@ static bool done = false;
                 serialServiceUUID = hc02ServiceUUID;
                 readCharacteristicUUID = [CBUUID UUIDWithString:@HC02_CHAR_TX_UUID];
                 writeCharacteristicUUID = [CBUUID UUIDWithString:@HC02_CHAR_RX_UUID];
+                break;
+             } else if ([service.UUID isEqual:impServiceUUID]) {
+                NSLog(@"IMP006B Bluetooth");
+                serialServiceUUID = impServiceUUID;
+                readCharacteristicUUID = [CBUUID UUIDWithString:@IMP_CHAR_TX_UUID];
+                writeCharacteristicUUID = [CBUUID UUIDWithString:@IMP_CHAR_RX_UUID];
                 break;
             } else {
                 // ignore unknown services
