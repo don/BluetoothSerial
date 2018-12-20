@@ -52,4 +52,10 @@
 #define IMP_CHAR_TX_UUID                       "2af0"
 #define IMP_CHAR_RX_UUID                       "2af1"
 
+// Bluetooth service for MTP-3B Thermal Pos Printer from China
+// http://www.xmjprt.com/bbx/2457738-2457759.html?id=52829&pid=2281589
+#define MTP3_SERVICE_UUID                       "E7810A71-73AE-499D-8C15-FAA9AEF0C3F2"
+#define MTP3_CHAR_TX_UUID                       "BEF8D6C9-9C21-4C9E-B632-BD58C1009F9F"
+#define MTP3_CHAR_RX_UUID                       "BEF8D6C9-9C21-4C9E-B632-BD58C1009F9F"
+
 #define RBL_BLE_FRAMEWORK_VER                    0x0200
