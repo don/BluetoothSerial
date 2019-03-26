@@ -165,5 +165,14 @@ module.exports = (function() {
         discoverUnpaired : function(success_cb, fail_cb) {
             alert("bluetoothSerial.discoverUnpaired is not implemented");
         },
+        setRemoteUUID : function(uuid) {
+            alert("bluetoothSerial.setRemoteUUID is not implemented");
+        },
+        setLocalSecureUUID : function(uuid) {
+            alert("bluetoothSerial.setLocalSecureUUID is not implemented");
+        },
+        setLocalInsecureUUID : function(uuid) {
+            alert("bluetoothSerial.setLocalInsecureUUID is not implemented");
+        },
     }
 })();

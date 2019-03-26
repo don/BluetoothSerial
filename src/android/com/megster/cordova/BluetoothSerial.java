@@ -53,6 +53,9 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener";
     private static final String SET_NAME = "setName";
     private static final String SET_DISCOVERABLE = "setDiscoverable";
+    private static final String SET_REMOTE_UUID = "setRemoteUUID";
+    private static final String SET_LOCAL_SECURE_UUID = "setLocalSecureUUID";
+    private static final String SET_LOCAL_INSECURE_UUID = "setLocalInsecureUUID";
 
     // callbacks
     private CallbackContext connectCallback;
@@ -241,7 +244,25 @@ public class BluetoothSerial extends CordovaPlugin {
             discoverIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration);
             cordova.getActivity().startActivity(discoverIntent);
 
-        } else {
+        } else if (action.equals(SET_REMOTE_UUID)) {
+
+            String uuid = args.getString(0);
+			this.bluetoothSerialService.setRemoteUUID(uuid);
+            callbackContext.success();
+
+		} else if (action.equals(SET_LOCAL_SECURE_UUID)) {
+
+            String uuid = args.getString(0);
+			this.bluetoothSerialService.setLocalSecureUUID(uuid);
+            callbackContext.success();
+
+		} else if (action.equals(SET_LOCAL_INSECURE_UUID)) {
+
+            String uuid = args.getString(0);
+			this.bluetoothSerialService.setLocalInsecureUUID(uuid);
+            callbackContext.success();
+
+		} else
             validAction = false;
 
         }

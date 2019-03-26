@@ -131,6 +131,17 @@ module.exports = {
         cordova.exec(null, null, "BluetoothSerial", "setDiscoverable", [discoverableDuration]);
     }
 
+	setRemoteUUID: function (uuid) {
+        cordova.exec(null, null, "BluetoothSerial", "setLocalUUID", [uuid]);
+	}
+
+	setLocalSecureUUID: function (uuid) {
+        cordova.exec(null, null, "BluetoothSerial", "setLocalSecureUUID", [uuid]);
+	}
+
+	setLocalInsecureUUID: function (uuid) {
+        cordova.exec(null, null, "BluetoothSerial", "setLocalInsecureUUID", [uuid]);
+	}
 
 };
 
