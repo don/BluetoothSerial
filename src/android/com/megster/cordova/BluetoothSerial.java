@@ -241,7 +241,7 @@ public class BluetoothSerial extends CordovaPlugin {
             discoverIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration);
             cordova.getActivity().startActivity(discoverIntent);
 
-        } else {
+		} else {
             validAction = false;
 
         }
@@ -337,12 +337,18 @@ public class BluetoothSerial extends CordovaPlugin {
     }
 
     private void connect(CordovaArgs args, boolean secure, CallbackContext callbackContext) throws JSONException {
-        String macAddress = args.getString(0);
+        String connectTo = args.getString(0);
+        String[] parts = connectTo.split("\\|");
+		String macAddress = parts[0];
+		String uuid = null;
+		if(parts.length > 1) {
+			uuid = parts[1];
+		}
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
 
         if (device != null) {
             connectCallback = callbackContext;
-            bluetoothSerialService.connect(device, secure);
+            bluetoothSerialService.connect(device, secure, uuid);
             buffer.setLength(0);
 
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);

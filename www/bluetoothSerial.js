@@ -129,8 +129,7 @@ module.exports = {
 
     setDiscoverable: function (discoverableDuration) {
         cordova.exec(null, null, "BluetoothSerial", "setDiscoverable", [discoverableDuration]);
-    }
-
+    },
 
 };
 
