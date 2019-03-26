@@ -53,9 +53,6 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener";
     private static final String SET_NAME = "setName";
     private static final String SET_DISCOVERABLE = "setDiscoverable";
-    private static final String SET_REMOTE_UUID = "setRemoteUUID";
-    private static final String SET_LOCAL_SECURE_UUID = "setLocalSecureUUID";
-    private static final String SET_LOCAL_INSECURE_UUID = "setLocalInsecureUUID";
 
     // callbacks
     private CallbackContext connectCallback;
@@ -244,25 +241,7 @@ public class BluetoothSerial extends CordovaPlugin {
             discoverIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration);
             cordova.getActivity().startActivity(discoverIntent);
 
-        } else if (action.equals(SET_REMOTE_UUID)) {
-
-            String uuid = args.getString(0);
-			this.bluetoothSerialService.setRemoteUUID(uuid);
-            callbackContext.success();
-
-		} else if (action.equals(SET_LOCAL_SECURE_UUID)) {
-
-            String uuid = args.getString(0);
-			this.bluetoothSerialService.setLocalSecureUUID(uuid);
-            callbackContext.success();
-
-		} else if (action.equals(SET_LOCAL_INSECURE_UUID)) {
-
-            String uuid = args.getString(0);
-			this.bluetoothSerialService.setLocalInsecureUUID(uuid);
-            callbackContext.success();
-
-		} else
+		} else {
             validAction = false;
 
         }
@@ -358,12 +337,18 @@ public class BluetoothSerial extends CordovaPlugin {
     }
 
     private void connect(CordovaArgs args, boolean secure, CallbackContext callbackContext) throws JSONException {
-        String macAddress = args.getString(0);
+        String connectTo = args.getString(0);
+        String[] parts = connectTo.split("\\|");
+		String macAddress = parts[0];
+		String uuid = null;
+		if(parts.length > 1) {
+			uuid = parts[1];
+		}
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
 
         if (device != null) {
             connectCallback = callbackContext;
-            bluetoothSerialService.connect(device, secure);
+            bluetoothSerialService.connect(device, secure, uuid);
             buffer.setLength(0);
 
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);

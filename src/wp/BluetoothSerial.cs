@@ -30,21 +30,6 @@ public class BluetoothSerial : BaseCommand
     private int RAW_DATA_FLUSH_TIMER_MILLIS = 200;
 
     private Boolean connected = false;
-	
-	public void setRemoteUUID(string uuid)
-	{
-		// Do nothing
-	}
-	
-	public void setLocalSecureUUID(string uuid)
-	{
-		// Do nothing
-	}
-	
-	public void setLocalInsecureUUID(string uuid)
-	{
-		// Do nothing
-	}
 
     public async void list(string args)
     {

@@ -49,9 +49,6 @@ public class BluetoothSerialService {
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
-	private UUID mRemoteUUID = null;
-	private UUID mLocalSecureUUID = null;
-	private UUID mLocaInsecureUUID = null;
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
@@ -68,57 +65,6 @@ public class BluetoothSerialService {
         mState = STATE_NONE;
         mHandler = handler;
     }
-	
-	/**
-	 * Set the remote device UUID used to establish a new connection.
-	 * If null, empty or invalid, the default 00001101-0000-1000-8000-00805F9B34FB is used.
-	 * @param uuid A String representing the UUID
-	 */
-	public synchronized void setRemoteUUID(String uuid) {
-		if((uuid == null) || uuid.isEmpty()) {
-			this.mRemoteUUID = null;
-		}
-		
-		try {
-			this.mRemoteUUID = UUID.fromString(uuid);
-		} catch(IllegalArgumentException ex) {
-			this.mRemoteUUID = null;
-		}
-	}
-	
-	/**
-	 * Set the local secure device UUID used to establish a new connection.
-	 * If null, empty or invalid, the default 7A9C3B55-78D0-44A7-A94E-A93E3FE118CE is used.
-	 * @param uuid A String representing the UUID
-	 */
-	public synchronized void setLocalSecureUUID(String uuid) {
-		if((uuid == null) || uuid.isEmpty()) {
-			this.mLocalSecureUUID = null;
-		}
-		
-		try {
-			this.mLocalSecureUUID = UUID.fromString(uuid);
-		} catch(IllegalArgumentException ex) {
-			this.mLocalSecureUUID = null;
-		}
-	}
-	
-	/**
-	 * Set the local insecure device UUID used to establish a new connection.
-	 * If null, empty or invalid, the default 23F18142-B389-4772-93BD-52BDBB2C03E9 is used.
-	 * @param uuid A String representing the UUID
-	 */
-	public synchronized void setLocalInsecureUUID(String uuid) {
-		if((uuid == null) || uuid.isEmpty()) {
-			this.mLocalInsecureUUID = null;
-		}
-		
-		try {
-			this.mLocalInsecureUUID = UUID.fromString(uuid);
-		} catch(IllegalArgumentException ex) {
-			this.mLocalInsecureUUID = null;
-		}
-	}
 
     /**
      * Set the current state of the chat connection
@@ -170,8 +116,9 @@ public class BluetoothSerialService {
      * Start the ConnectThread to initiate a connection to a remote device.
      * @param device  The BluetoothDevice to connect
      * @param secure Socket Security type - Secure (true) , Insecure (false)
+	 * @param uuid A string representing the UUID to connect to. If null, the default is used.
      */
-    public synchronized void connect(BluetoothDevice device, boolean secure) {
+    public synchronized void connect(BluetoothDevice device, boolean secure, String uuid) {
         if (D) Log.d(TAG, "connect to: " + device);
 
         // Cancel any thread attempting to make a connection
@@ -183,7 +130,7 @@ public class BluetoothSerialService {
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
         // Start the thread to connect with the given device
-        mConnectThread = new ConnectThread(device, secure);
+        mConnectThread = new ConnectThread(device, secure, uuid);
         mConnectThread.start();
         setState(STATE_CONNECTING);
     }
@@ -318,9 +265,9 @@ public class BluetoothSerialService {
             // Create a new listening server socket
             try {
                 if (secure) {
-                    tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, (this.mLocalSecureUUID != null) ? this.mLocalSecureUUID : MY_UUID_SECURE);
+                    tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, MY_UUID_SECURE);
                 } else {
-                    tmp = mAdapter.listenUsingInsecureRfcommWithServiceRecord(NAME_INSECURE, (this.mLocalInsecureUUID != null) ? this.mLocalInsecureUUID : MY_UUID_INSECURE);
+                    tmp = mAdapter.listenUsingInsecureRfcommWithServiceRecord(NAME_INSECURE, MY_UUID_INSECURE);
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "listen() failed", e);
@@ -393,19 +340,27 @@ public class BluetoothSerialService {
         private final BluetoothDevice mmDevice;
         private String mSocketType;
 
-        public ConnectThread(BluetoothDevice device, boolean secure) {
+        public ConnectThread(BluetoothDevice device, boolean secure, String uuid) {
             mmDevice = device;
             BluetoothSocket tmp = null;
             mSocketType = secure ? "Secure" : "Insecure";
+			
+			UUID remoteUUID = null;
+			try {
+				remoteUUID = UUID.fromString(uuid);
+                Log.v(TAG, "Connect using user-defined UUID " + uuid);
+			} catch(Exception e) {
+                Log.e(TAG, "Invalid UUID provided for connection: " + uuid + ". Fallback to default.", e);
+			}
 
             // Get a BluetoothSocket for a connection with the given BluetoothDevice
             try {
                 if (secure) {
                     // tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
-                    tmp = device.createRfcommSocketToServiceRecord((this.mRemoteUUID != null) ? this.mRemoteUUID : UUID_SPP);
+                    tmp = device.createRfcommSocketToServiceRecord((remoteUUID != null) ? remoteUUID : UUID_SPP);
                 } else {
                     //tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
-                    tmp = device.createInsecureRfcommSocketToServiceRecord((this.mRemoteUUID != null) ? this.mRemoteUUID : UUID_SPP);
+                    tmp = device.createInsecureRfcommSocketToServiceRecord((remoteUUID != null) ? remoteUUID : UUID_SPP);
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
