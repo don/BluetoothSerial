@@ -34,6 +34,7 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String LIST = "list";
     private static final String CONNECT = "connect";
     private static final String CONNECT_INSECURE = "connectInsecure";
+    private static final String BIND = "bind";
     private static final String DISCONNECT = "disconnect";
     private static final String WRITE = "write";
     private static final String AVAILABLE = "available";
@@ -118,6 +119,10 @@ public class BluetoothSerial extends CordovaPlugin {
             // see Android docs about Insecure RFCOMM http://goo.gl/1mFjZY
             boolean secure = false;
             connect(args, secure, callbackContext);
+
+        } else if (action.equals(BIND)) {
+
+            bind(args, callbackContext);
 
         } else if (action.equals(DISCONNECT)) {
 
@@ -301,7 +306,7 @@ public class BluetoothSerial extends CordovaPlugin {
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     try {
-                    	JSONObject o = deviceToJSON(device);
+                        JSONObject o = deviceToJSON(device);
                         unpairedDevices.put(o);
                         if (ddc != null) {
                             PluginResult res = new PluginResult(PluginResult.Status.OK, o);
@@ -354,28 +359,74 @@ public class BluetoothSerial extends CordovaPlugin {
         }
     }
 
+    private void bind(CordovaArgs args, CallbackContext callbackContext) throws JSONException {
+        String macAddress = args.getString(0);
+        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
+        if (device == null) {
+            Log.e(TAG, "Unknown device: " + macAddress);
+            callbackContext.error("Could not bind with " + macAddress);
+            return;
+        }
+
+        String Pin = args.getString(1);
+
+        final BroadcastReceiver pairingReceiver = new BroadcastReceiver() {
+
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                int previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, 0);
+                int bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0);
+                Log.d(TAG, "Received: " + action + " previous: " + previousState + " current: " + bondState);
+                if (BluetoothDevice.ACTION_PAIRING_REQUEST.equals(action)) {
+                    Log.d(TAG, "Setting the PIN");
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    byte[] pinBytes = Pin.getBytes();
+                    device.setPin(pinBytes);
+                    device.setPairingConfirmation(true);
+                }
+                if (bondState == BluetoothDevice.BOND_BONDED)
+                    callbackContext.success("PAIRED correctly");
+                else if (bondState == BluetoothDevice.BOND_NONE)
+                    callbackContext.error("PAIR failed because of state:" + bondState);
+                if (bondState == BluetoothDevice.BOND_BONDED || bondState == BluetoothDevice.BOND_NONE)
+                    cordova.getActivity().unregisterReceiver(this);
+            }
+        };
+
+        Activity activity = cordova.getActivity();
+        activity.registerReceiver(pairingReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
+        activity.registerReceiver(pairingReceiver, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
+        activity.registerReceiver(pairingReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+
+        if (!device.createBond()) {
+            Log.e(TAG, "Somehow unable to createBound(). Already bound ?");
+            callbackContext.success("PAIRED already");
+        }
+
+    }
+
     // The Handler that gets information back from the BluetoothSerialService
     // Original code used handler for the because it was talking to the UI.
     // Consider replacing with normal callbacks
     private final Handler mHandler = new Handler() {
 
-         public void handleMessage(Message msg) {
-             switch (msg.what) {
-                 case MESSAGE_READ:
-                    buffer.append((String)msg.obj);
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+            case MESSAGE_READ:
+                buffer.append((String) msg.obj);
 
-                    if (dataAvailableCallback != null) {
-                        sendDataToSubscriber();
-                    }
+                if (dataAvailableCallback != null) {
+                    sendDataToSubscriber();
+                }
 
-                    break;
-                 case MESSAGE_READ_RAW:
-                    if (rawDataAvailableCallback != null) {
-                        byte[] bytes = (byte[]) msg.obj;
-                        sendRawDataToSubscriber(bytes);
-                    }
-                    break;
-                 case MESSAGE_STATE_CHANGE:
+                break;
+            case MESSAGE_READ_RAW:
+                if (rawDataAvailableCallback != null) {
+                    byte[] bytes = (byte[]) msg.obj;
+                    sendRawDataToSubscriber(bytes);
+                }
+                break;
+            case MESSAGE_STATE_CHANGE:
 
                     if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
                     switch (msg.arg1) {
@@ -469,22 +520,22 @@ public class BluetoothSerial extends CordovaPlugin {
     public void onRequestPermissionResult(int requestCode, String[] permissions,
                                           int[] grantResults) throws JSONException {
 
-        for(int result:grantResults) {
-            if(result == PackageManager.PERMISSION_DENIED) {
+        for (int result : grantResults) {
+            if (result == PackageManager.PERMISSION_DENIED) {
                 LOG.d(TAG, "User *rejected* location permission");
                 this.permissionCallback.sendPluginResult(new PluginResult(
                         PluginResult.Status.ERROR,
                         "Location permission is required to discover unpaired devices.")
-                    );
+                );
                 return;
             }
         }
 
-        switch(requestCode) {
-            case CHECK_PERMISSIONS_REQ_CODE:
-                LOG.d(TAG, "User granted location permission");
-                discoverUnpairedDevices(permissionCallback);
-                break;
+        switch (requestCode) {
+        case CHECK_PERMISSIONS_REQ_CODE:
+            LOG.d(TAG, "User granted location permission");
+            discoverUnpairedDevices(permissionCallback);
+            break;
         }
     }
 }

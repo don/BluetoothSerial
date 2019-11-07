@@ -10,6 +10,11 @@ module.exports = {
         cordova.exec(success, failure, "BluetoothSerial", "connectInsecure", [macAddress]);
     },
 
+    // Android only
+    bind: function (macAddress, pin, success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "bind", [macAddress, pin]);
+    },
+
     disconnect: function (success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "disconnect", []);
     },
@@ -72,7 +77,7 @@ module.exports = {
     // calls the success callback when new data is available with an ArrayBuffer
     subscribeRawData: function (success, failure) {
 
-        successWrapper = function(data) {
+        successWrapper = function (data) {
             // Windows Phone flattens an array of one into a number which
             // breaks the API. Stuff it back into an ArrayBuffer.
             if (typeof data === 'number') {
@@ -134,7 +139,7 @@ module.exports = {
 
 };
 
-var stringToArrayBuffer = function(str) {
+var stringToArrayBuffer = function (str) {
     var ret = new Uint8Array(str.length);
     for (var i = 0; i < str.length; i++) {
         ret[i] = str.charCodeAt(i);
