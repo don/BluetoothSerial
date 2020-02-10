@@ -48,6 +48,7 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String CLEAR = "clear";
     private static final String SETTINGS = "showBluetoothSettings";
     private static final String ENABLE = "enable";
+    private static final String DISABLE = "disable";
     private static final String DISCOVER_UNPAIRED = "discoverUnpaired";
     private static final String SET_DEVICE_DISCOVERED_LISTENER = "setDeviceDiscoveredListener";
     private static final String CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener";
@@ -149,6 +150,8 @@ public class BluetoothSerial extends CordovaPlugin {
             delimiter = args.getString(0);
             dataAvailableCallback = callbackContext;
 
+            bluetoothSerialService.start();
+
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
             result.setKeepCallback(true);
             callbackContext.sendPluginResult(result);
@@ -208,8 +211,14 @@ public class BluetoothSerial extends CordovaPlugin {
         } else if (action.equals(ENABLE)) {
 
             enableBluetoothCallback = callbackContext;
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            cordova.startActivityForResult(this, intent, REQUEST_ENABLE_BLUETOOTH);
+            Activity activity = cordova.getActivity();
+            activity.registerReceiver(bluetoothStatusReceiver, bluetoothIntentFilter);
+            bluetoothAdapter.enable();
+
+        } else if (action.equals(DISABLE)) {
+
+            bluetoothAdapter.disable();
+            callbackContext.success();
 
         } else if (action.equals(DISCOVER_UNPAIRED)) {
 
@@ -247,27 +256,6 @@ public class BluetoothSerial extends CordovaPlugin {
         }
 
         return validAction;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
-
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG, "User enabled Bluetooth");
-                if (enableBluetoothCallback != null) {
-                    enableBluetoothCallback.success();
-                }
-            } else {
-                Log.d(TAG, "User did *NOT* enable Bluetooth");
-                if (enableBluetoothCallback != null) {
-                    enableBluetoothCallback.error("User did not enable Bluetooth");
-                }
-            }
-
-            enableBluetoothCallback = null;
-        }
     }
 
     @Override
@@ -487,4 +475,50 @@ public class BluetoothSerial extends CordovaPlugin {
                 break;
         }
     }
+
+    private final BroadcastReceiver bluetoothStatusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+                        BluetoothAdapter.ERROR);
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+                        // Bluetooth has been turned off;
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        // Bluetooth is turning off;
+                        break;
+                    case BluetoothAdapter.STATE_ON:
+                        // Bluetooth has been on
+                        Log.d(TAG, "User enabled Bluetooth");
+                        if (enableBluetoothCallback != null) {
+                            enableBluetoothCallback.success();
+                        }
+                        cleanUpEnableBluetooth();
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        // Bluetooth is turning on
+                        break;
+                    default:
+                        Log.d(TAG, "Error enabling bluetooth");
+                        if (enableBluetoothCallback != null) {
+                            enableBluetoothCallback.error("Error enabling bluetooth");
+                        }
+                        cleanUpEnableBluetooth();
+                        break;
+                }
+            }
+        }
+    };
+
+    private void cleanUpEnableBluetooth() {
+        enableBluetoothCallback = null;
+        Activity activity = cordova.getActivity();
+        activity.unregisterReceiver(bluetoothStatusReceiver);
+    }
+
+    IntentFilter bluetoothIntentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
 }
