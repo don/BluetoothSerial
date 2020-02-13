@@ -150,6 +150,9 @@ public class BluetoothSerial extends CordovaPlugin {
             delimiter = args.getString(0);
             dataAvailableCallback = callbackContext;
 
+            Intent testIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            cordova.getActivity().startActivity(testIntent);
+
             bluetoothSerialService.start();
 
             PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
@@ -289,7 +292,7 @@ public class BluetoothSerial extends CordovaPlugin {
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     try {
-                    	JSONObject o = deviceToJSON(device);
+                        JSONObject o = deviceToJSON(device);
                         unpairedDevices.put(o);
                         if (ddc != null) {
                             PluginResult res = new PluginResult(PluginResult.Status.OK, o);
@@ -347,9 +350,9 @@ public class BluetoothSerial extends CordovaPlugin {
     // Consider replacing with normal callbacks
     private final Handler mHandler = new Handler() {
 
-         public void handleMessage(Message msg) {
-             switch (msg.what) {
-                 case MESSAGE_READ:
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_READ:
                     buffer.append((String)msg.obj);
 
                     if (dataAvailableCallback != null) {
@@ -357,13 +360,13 @@ public class BluetoothSerial extends CordovaPlugin {
                     }
 
                     break;
-                 case MESSAGE_READ_RAW:
+                case MESSAGE_READ_RAW:
                     if (rawDataAvailableCallback != null) {
                         byte[] bytes = (byte[]) msg.obj;
                         sendRawDataToSubscriber(bytes);
                     }
                     break;
-                 case MESSAGE_STATE_CHANGE:
+                case MESSAGE_STATE_CHANGE:
 
                     if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
                     switch (msg.arg1) {
@@ -394,8 +397,8 @@ public class BluetoothSerial extends CordovaPlugin {
                     String message = msg.getData().getString(TOAST);
                     notifyConnectionLost(message);
                     break;
-             }
-         }
+            }
+        }
     };
 
     private void notifyConnectionLost(String error) {
@@ -463,7 +466,7 @@ public class BluetoothSerial extends CordovaPlugin {
                 this.permissionCallback.sendPluginResult(new PluginResult(
                         PluginResult.Status.ERROR,
                         "Location permission is required to discover unpaired devices.")
-                    );
+                );
                 return;
             }
         }

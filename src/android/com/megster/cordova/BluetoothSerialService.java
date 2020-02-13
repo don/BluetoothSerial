@@ -34,10 +34,7 @@ public class BluetoothSerialService {
     private static final String NAME_INSECURE = "PhoneGapBluetoothSerialServiceInSecure";
 
     // Unique UUID for this application
-    private static final UUID MY_UUID_INSECURE = UUID.fromString("23F18142-B389-4772-93BD-52BDBB2C03E9");
-
-    // Well known SPP UUID
-    private static final UUID UUID_SPP = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private static final UUID MY_UUID_INSECURE = UUID.fromString("77718142-B389-4772-93BD-52BDBB2C0777");
 
     // Member fields
     private final BluetoothAdapter mAdapter;
@@ -317,7 +314,7 @@ public class BluetoothSerialService {
         public ConnectThread(BluetoothDevice device) {
             mmDevice = device;
             BluetoothSocket tmp = null;
-            mSocketType = secure ? "Secure" : "Insecure";
+            mSocketType = "Insecure";
 
             // Get a BluetoothSocket for a connection with the given BluetoothDevice
             try {
@@ -348,7 +345,7 @@ public class BluetoothSerialService {
                 // See https://github.com/don/BluetoothSerial/issues/89
                 try {
                     Log.i(TAG,"Trying fallback...");
-                    mmSocket = (BluetoothSocket) mmDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mmDevice,1);
+                    mmSocket = (BluetoothSocket) mmDevice.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class}).invoke(mmDevice,1);
                     mmSocket.connect();
                     Log.i(TAG,"Connected");
                 } catch (Exception e2) {
