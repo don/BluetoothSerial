@@ -150,8 +150,8 @@ public class BluetoothSerial extends CordovaPlugin {
             delimiter = args.getString(0);
             dataAvailableCallback = callbackContext;
 
-            Intent testIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            cordova.getActivity().startActivity(testIntent);
+//            Intent testIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+//            cordova.getActivity().startActivity(testIntent);
 
             bluetoothSerialService.start();
 
