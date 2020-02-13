@@ -16,7 +16,18 @@
         <clobbers target="window.bluetoothSerial" />
     </js-module>
 
-    <platform name="android">
+    <platform name="android"
+        kotlin="1.2.30">
+        <!-- Add Kotlin support -->
+        <hook type="after_plugin_add" src="hooks/support-kotlin.js" />
+        <hook type="after_platform_add" src="hooks/support-kotlin.js" />
+        <framework src="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.31" />
+        <apply-plugin>kotlin-android-extensions</apply-plugin>
+        <apply-plugin>kotlin-kapt</apply-plugin>
+
+        <!-- Cleanup Kotlin source on uninstall -->
+        <hook type="before_plugin_rm" src="hooks/on-uninstall.js" />
+        <hook type="before_plugin_uninstall" src="hooks/on-uninstall.js" />
 
         <config-file target="res/xml/config.xml" parent="/widget">
             <feature name="BluetoothSerial">
@@ -24,9 +35,9 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/com/megster/cordova/BluetoothSerial.java"
+        <source-file src="src/android/com/megster/cordova/BluetoothSerial.kt"
             target-dir="src/com/megster/cordova"/>
-        <source-file src="src/android/com/megster/cordova/BluetoothSerialService.java"
+        <source-file src="src/android/com/megster/cordova/BluetoothSerialService.kt"
             target-dir="src/com/megster/cordova"/>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
