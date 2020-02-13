@@ -31,11 +31,9 @@ public class BluetoothSerialService {
     private static final boolean D = true;
 
     // Name for the SDP record when creating server socket
-    private static final String NAME_SECURE = "PhoneGapBluetoothSerialServiceSecure";
     private static final String NAME_INSECURE = "PhoneGapBluetoothSerialServiceInSecure";
 
     // Unique UUID for this application
-    private static final UUID MY_UUID_SECURE = UUID.fromString("7A9C3B55-78D0-44A7-A94E-A93E3FE118CE");
     private static final UUID MY_UUID_INSECURE = UUID.fromString("23F18142-B389-4772-93BD-52BDBB2C03E9");
 
     // Well known SPP UUID
@@ -44,7 +42,6 @@ public class BluetoothSerialService {
     // Member fields
     private final BluetoothAdapter mAdapter;
     private final Handler mHandler;
-    private AcceptThread mSecureAcceptThread;
     private AcceptThread mInsecureAcceptThread;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
@@ -98,11 +95,6 @@ public class BluetoothSerialService {
 
         setState(STATE_LISTEN);
 
-        // Start the thread to listen on a BluetoothServerSocket
-        if (mSecureAcceptThread == null) {
-            mSecureAcceptThread = new AcceptThread(true);
-            mSecureAcceptThread.start();
-        }
         if (mInsecureAcceptThread == null) {
             mInsecureAcceptThread = new AcceptThread(false);
             mInsecureAcceptThread.start();
@@ -126,7 +118,7 @@ public class BluetoothSerialService {
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
         // Start the thread to connect with the given device
-        mConnectThread = new ConnectThread(device, secure);
+        mConnectThread = new ConnectThread(device);
         mConnectThread.start();
         setState(STATE_CONNECTING);
     }
@@ -145,11 +137,6 @@ public class BluetoothSerialService {
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
-        // Cancel the accept thread because we only want to connect to one device
-        if (mSecureAcceptThread != null) {
-            mSecureAcceptThread.cancel();
-            mSecureAcceptThread = null;
-        }
         if (mInsecureAcceptThread != null) {
             mInsecureAcceptThread.cancel();
             mInsecureAcceptThread = null;
@@ -183,11 +170,6 @@ public class BluetoothSerialService {
         if (mConnectedThread != null) {
             mConnectedThread.cancel();
             mConnectedThread = null;
-        }
-
-        if (mSecureAcceptThread != null) {
-            mSecureAcceptThread.cancel();
-            mSecureAcceptThread = null;
         }
 
         if (mInsecureAcceptThread != null) {
@@ -260,11 +242,7 @@ public class BluetoothSerialService {
 
             // Create a new listening server socket
             try {
-                if (secure) {
-                    tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, MY_UUID_SECURE);
-                } else {
-                    tmp = mAdapter.listenUsingInsecureRfcommWithServiceRecord(NAME_INSECURE, MY_UUID_INSECURE);
-                }
+                tmp = mAdapter.listenUsingInsecureRfcommWithServiceRecord(NAME_INSECURE, MY_UUID_INSECURE);
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "listen() failed", e);
             }
@@ -336,18 +314,14 @@ public class BluetoothSerialService {
         private final BluetoothDevice mmDevice;
         private String mSocketType;
 
-        public ConnectThread(BluetoothDevice device, boolean secure) {
+        public ConnectThread(BluetoothDevice device) {
             mmDevice = device;
             BluetoothSocket tmp = null;
             mSocketType = secure ? "Secure" : "Insecure";
 
             // Get a BluetoothSocket for a connection with the given BluetoothDevice
             try {
-                if (secure) {
-                    tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
-                } else {
-                    tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
-                }
+                tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
             }
