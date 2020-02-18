@@ -1,24 +1,12 @@
 # Bluetooth Serial Plugin for PhoneGap
 
-This plugin enables serial communication over Bluetooth. It was written for communicating between Android or iOS and an Arduino.
+This plugin enables serial communication over Bluetooth. It was written for communicating between Android and Android.
 
-Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
+Android uses Classic Bluetooth.
 
 ## Supported Platforms
 
 * Android
-* iOS with [RedBearLab](http://redbearlab.com) BLE hardware, [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697), [Laird BL600](http://www.lairdtech.com/Products/Embedded-Wireless-Solutions/Bluetooth-Radio-Modules/BL600-Series/#.VBI7AS5dUzI), [BlueGiga](https://bluegiga.zendesk.com/entries/29185293--BGScript-spp-over-ble-AT-command-SPP-implementation-for-BLE), or [HC-02](http://www.hc01.com/productdetail?productid=20180314021)
-* Windows Phone 8
-* Browser (Testing only. See [comments](https://github.com/don/BluetoothSerial/blob/master/src/browser/bluetoothSerial.js).)
-
-[Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
-
-## Limitations
-
- * The phone must initiate the Bluetooth connection
- * iOS Bluetooth Low Energy requires iPhone 4S, iPhone5, iPod 5, or iPad3+
- * Will *not* connect Android to Android[*](https://github.com/don/BluetoothSerial/issues/50#issuecomment-66405396)
- * Will *not* connect iOS to iOS[*](https://github.com/don/BluetoothSerial/issues/75#issuecomment-52591397)
 
 # Installing
 
