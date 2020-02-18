@@ -2,7 +2,7 @@ const fs = require('fs');
 const xml2js = require('xml2js');
 
 const PLUGIN_ID = "cordova-plugin-bluetooth-serial";
-const gradlePath = './platforms/android/app/build.gradle'; // cordova-android@7+ path
+const gradlePath = './platforms/android/build.gradle'; // cordova-android@6.2 path
 
 let  deferral;
 

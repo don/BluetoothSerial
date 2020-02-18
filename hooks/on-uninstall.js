@@ -37,7 +37,7 @@ function removeKotlinSourceFiles(){
                 break;
             }
     });
-    
+
 }
 module.exports = function(ctx) {
     try{
