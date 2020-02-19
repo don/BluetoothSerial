@@ -289,7 +289,7 @@ class BluetoothSerial : CordovaPlugin() {
     }
 
     private fun sendDataToSubscriber() {
-        val data = readUntil(delimiter)f
+        val data = readUntil(delimiter)
         if (data != null && data.length > 0) {
             val result = PluginResult(PluginResult.Status.OK, data)
             result.setKeepCallback(true)
