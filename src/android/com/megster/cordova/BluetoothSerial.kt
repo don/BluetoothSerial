@@ -177,6 +177,10 @@ class BluetoothSerial : CordovaPlugin() {
             val discoverIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
             discoverIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration)
             cordova.getActivity().startActivity(discoverIntent)
+        } else if (action == GET_ADDRESS) {
+            bluetoothAdapter?.run {
+                callbackContext.success(address)
+            } ?: callbackContext.error("Unable to access BluetoothAdapter")
         } else {
             validAction = false
         }
@@ -402,6 +406,7 @@ class BluetoothSerial : CordovaPlugin() {
         private const val CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener"
         private const val SET_NAME = "setName"
         private const val SET_DISCOVERABLE = "setDiscoverable"
+        private const val GET_ADDRESS = "getAddress"
         // Debugging
         private const val TAG = "BluetoothSerial"
         private const val D = true
