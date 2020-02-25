@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.os.Message
 import android.provider.Settings
@@ -21,6 +22,7 @@ import org.apache.cordova.PluginResult
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.lang.reflect.Field
 
 /**
  * PhoneGap Plugin for Serial Communication over Bluetooth
@@ -178,9 +180,11 @@ class BluetoothSerial : CordovaPlugin() {
             discoverIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration)
             cordova.getActivity().startActivity(discoverIntent)
         } else if (action == GET_ADDRESS) {
-            bluetoothAdapter?.run {
-                callbackContext.success(address)
-            } ?: callbackContext.error("Unable to access BluetoothAdapter")
+            val macAddress = getBluetoothMacAddress()
+
+            macAddress?.run {
+                callbackContext.success(this)
+            } ?: callbackContext.error("Unable to determine Bluetooth MAC address")
         } else {
             validAction = false
         }
@@ -377,6 +381,26 @@ class BluetoothSerial : CordovaPlugin() {
         enableBluetoothCallback = null
         val activity: Activity = cordova.getActivity()
         activity.unregisterReceiver(bluetoothStatusReceiver)
+    }
+
+    private fun getBluetoothMacAddress(): String? {
+        var bluetoothMacAddress: String? = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                val serviceField: Field? = bluetoothAdapter?.javaClass?.getDeclaredField("mService")
+                serviceField?.isAccessible = true
+                val btManagerService: Any? = serviceField?.get(bluetoothAdapter)
+                btManagerService?.run {
+                    bluetoothMacAddress =
+                            javaClass.getMethod("getAddress").invoke(btManagerService) as String
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Unable to retrieve Bluetooth MAC Address: $e")
+            }
+        } else {
+            bluetoothMacAddress = bluetoothAdapter?.address
+        }
+        return bluetoothMacAddress
     }
 
     var bluetoothIntentFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
