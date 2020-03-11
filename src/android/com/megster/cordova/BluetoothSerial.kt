@@ -26,27 +26,26 @@ class BluetoothSerial : CordovaPlugin() {
     override fun execute(action: String, args: CordovaArgs, callbackContext: CallbackContext): Boolean {
         LOG.d(TAG, "action = $action")
         var validAction = true
+
+        try {
+            enableBluetoothIfNecessary()
+        } catch (e: Exception) {
+            // If we are unable to enable bluetooth
+            // then return false, which will invoke
+            // the error callback
+            Log.e(TAG, "Unable to enable bluetooth: $e")
+            return false
+        }
+
         when (action) {
             CONNECT -> {
-                enableBluetoothIfNecessary()
                 connect(args, callbackContext)
             }
             DISCONNECT -> {
-                try {
-                    BluetoothSerialService.stop()
-                    callbackContext.success()
-                } catch (e: Exception) {
-                    callbackContext.error(e.toString())
-                }
+                disconnect(callbackContext)
             }
             SEND -> {
-                try {
-                    val data: ByteArray = args.getArrayBuffer(0)
-                    BluetoothSerialService.write(data)
-                    callbackContext.success()
-                } catch (e: Exception) {
-                    callbackContext.error(e.toString())
-                }
+                send(args, callbackContext)
             }
             LISTEN -> {
                 listen(callbackContext)
@@ -92,18 +91,9 @@ class BluetoothSerial : CordovaPlugin() {
         return validAction
     }
 
-    private fun listen(callbackContext: CallbackContext) {
-        if (BluetoothSerialService.state == STATE_CONNECTED) {
-            callbackContext.error("Already connected")
-        } else {
-            enableBluetoothIfNecessary()
-            try {
-                BluetoothSerialService.start()
-                callbackContext.success()
-            } catch (e: Exception) {
-                callbackContext.error(e.toString())
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        BluetoothSerialService.stop()
     }
 
     private fun enableBluetoothIfNecessary() {
@@ -112,41 +102,77 @@ class BluetoothSerial : CordovaPlugin() {
         }
     }
 
-    private fun keepCallbackAndSendNoResult(callbackContext: CallbackContext) {
-        val result = PluginResult(PluginResult.Status.NO_RESULT)
-        result.keepCallback = true
-        callbackContext.sendPluginResult(result)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        BluetoothSerialService.stop()
-    }
-
-    @Throws(JSONException::class)
-    private fun connect(args: CordovaArgs, callbackContext: CallbackContext) {
-        val macAddress: String = args.getString(0)
-        val device = bluetoothAdapter?.getRemoteDevice(macAddress)
-        if (device != null) {
-            BluetoothSerialService.connect(device)
+    private fun listen(callbackContext: CallbackContext) {
+        try {
+            BluetoothSerialService.start()
             callbackContext.success()
+        } catch (e: Exception) {
+            Log.e(TAG, "Unable to start listening: $e")
+            callbackContext.error(e.toString())
+        }
+    }
+
+    private fun connect(args: CordovaArgs, callbackContext: CallbackContext) {
+        try {
+            val macAddress: String = args.getString(0)
+            val device = bluetoothAdapter?.getRemoteDevice(macAddress)
+            if (device != null) {
+                BluetoothSerialService.connect(device)
+                callbackContext.success()
+            } else {
+                Log.d(TAG, "Could not connect to $macAddress")
+                callbackContext.error("Could not connect to $macAddress")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Unable to start connecting: $e")
+            callbackContext.error(e.toString())
+        }
+    }
+
+    private fun send(args: CordovaArgs, callbackContext: CallbackContext) {
+        if (BluetoothSerialService.state != STATE_CONNECTED) {
+            Log.d(TAG, "Attempted send but not connected")
+            callbackContext.error("Not connected")
         } else {
-            callbackContext.error("Could not connect to $macAddress")
+            try {
+                val data: ByteArray = args.getArrayBuffer(0)
+                BluetoothSerialService.write(data)
+                callbackContext.success()
+            } catch (e: Exception) {
+                Log.e(TAG, "Unable to send: $e")
+                callbackContext.error(e.toString())
+            }
+        }
+    }
+
+    private fun disconnect(callbackContext: CallbackContext) {
+        try {
+            BluetoothSerialService.stop()
+            callbackContext.success()
+        } catch (e: Exception) {
+            Log.e(TAG, "Unable to disconnect: $e")
+            callbackContext.error(e.toString())
         }
     }
 
     private fun notifyConnectionLost() {
-        keepCallbackAndSendResult()
+        keepCallbackAndSendResult(closeCallback)
     }
 
     private fun notifyConnectionSuccess() {
-        keepCallbackAndSendResult()
+        keepCallbackAndSendResult(connectCallback)
     }
 
-    private fun keepCallbackAndSendResult() {
+    private fun keepCallbackAndSendResult(callbackContext: CallbackContext?) {
         val result = PluginResult(PluginResult.Status.OK)
         result.keepCallback = true
-        connectCallback?.sendPluginResult(result)
+        callbackContext?.sendPluginResult(result)
+    }
+
+    private fun keepCallbackAndSendNoResult(callbackContext: CallbackContext) {
+        val result = PluginResult(PluginResult.Status.NO_RESULT)
+        result.keepCallback = true
+        callbackContext.sendPluginResult(result)
     }
 
     private fun sendRawDataToSubscriber(data: ByteArray?) {
