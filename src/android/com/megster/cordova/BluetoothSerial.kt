@@ -27,17 +27,13 @@ class BluetoothSerial : CordovaPlugin() {
         LOG.d(TAG, "action = $action")
         var validAction = true
 
-        try {
-            enableBluetoothIfNecessary()
-        } catch (e: Exception) {
-            // If we are unable to enable bluetooth
-            // then return false, which will invoke
-            // the error callback
-            Log.e(TAG, "Unable to enable bluetooth: $e")
-            return false
-        }
-
         when (action) {
+            IS_ENABLED -> {
+                isEnabled(callbackContext)
+            }
+            ENABLE -> {
+                enable(callbackContext)
+            }
             CONNECT -> {
                 connect(args, callbackContext)
             }
@@ -96,9 +92,30 @@ class BluetoothSerial : CordovaPlugin() {
         BluetoothSerialService.stop()
     }
 
-    private fun enableBluetoothIfNecessary() {
-        if (!bluetoothAdapter.isEnabled) {
-            bluetoothAdapter.enable()
+    private fun isEnabled(callbackContext: CallbackContext) {
+        try {
+            callbackContext.success(bluetoothAdapter.isEnabled().toString())
+        } catch (e: Exception) {
+            Log.e(TAG, "Unable to check isEnabled: $e")
+            callbackContext.error(e.toString())
+        }
+    }
+
+    private fun enable(callbackContext: CallbackContext) {
+        try {
+            if (bluetoothAdapter.isEnabled()) {
+                callbackContext.success(true.toString())
+                return
+            }
+
+            // returns a boolean indicating whether it was able
+            // to begin enabling the adapter, which is an
+            // asynchronous process.
+            // https://github.com/aosp-mirror/platform_frameworks_base/blob/nougat-release/core/java/android/bluetooth/BluetoothAdapter.java#L899
+            callbackContext.success(bluetoothAdapter.enable().toString())
+        } catch (e: Exception) {
+            Log.e(TAG, "Unable to enable bluetooth: $e")
+            callbackContext.error(e.toString())
         }
     }
 
@@ -115,7 +132,7 @@ class BluetoothSerial : CordovaPlugin() {
     private fun connect(args: CordovaArgs, callbackContext: CallbackContext) {
         try {
             val macAddress: String = args.getString(0)
-            val device = bluetoothAdapter?.getRemoteDevice(macAddress)
+            val device = bluetoothAdapter.getRemoteDevice(macAddress)
             if (device != null) {
                 BluetoothSerialService.connect(device)
                 callbackContext.success()
@@ -187,10 +204,10 @@ class BluetoothSerial : CordovaPlugin() {
         var bluetoothMacAddress: String? = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
-                val serviceField: Field? = bluetoothAdapter?.javaClass?.getDeclaredField("mService")
-                serviceField?.isAccessible = true
-                val btManagerService: Any? = serviceField?.get(bluetoothAdapter)
-                btManagerService?.run {
+                val serviceField: Field = bluetoothAdapter.javaClass.getDeclaredField("mService")
+                serviceField.isAccessible = true
+                val btManagerService: Any = serviceField.get(bluetoothAdapter)
+                btManagerService.run {
                     bluetoothMacAddress =
                             javaClass.getMethod("getAddress").invoke(btManagerService) as String
                 }
@@ -198,12 +215,14 @@ class BluetoothSerial : CordovaPlugin() {
                 Log.e(TAG, "Unable to retrieve Bluetooth MAC Address: $e")
             }
         } else {
-            bluetoothMacAddress = bluetoothAdapter?.address
+            bluetoothMacAddress = bluetoothAdapter.address
         }
         return bluetoothMacAddress
     }
 
     companion object {
+        private const val IS_ENABLED = "isEnabled"
+        private const val ENABLE = "enable"
         private const val CONNECT = "connect"
         private const val LISTEN = "listen"
         private const val DISCONNECT = "disconnect"

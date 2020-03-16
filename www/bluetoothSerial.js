@@ -1,5 +1,12 @@
 /*global cordova*/
 module.exports = {
+    isEnabled: function(success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "isEnabled", []);
+    },
+
+    enable: function(success, failure) {
+        cordova.exec(success, failure, "BluetoothSerial", "enable", []);
+    },
 
     connect: function (macAddress, success, failure) {
         cordova.exec(success, failure, "BluetoothSerial", "connect", [macAddress]);
