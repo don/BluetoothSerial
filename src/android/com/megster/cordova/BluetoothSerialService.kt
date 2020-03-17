@@ -386,7 +386,7 @@ object BluetoothSerialService {
     }
 
     interface ConnectedCallback {
-        fun connected()
+        fun connected(remoteDeviceMacAddress: String?)
     }
 
     interface ClosedCallback {
