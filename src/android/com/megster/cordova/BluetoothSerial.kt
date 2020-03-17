@@ -66,8 +66,8 @@ class BluetoothSerial : CordovaPlugin() {
             REGISTER_CONNECT_CALLBACK -> {
                 connectCallback = callbackContext
                 BluetoothSerialService.registerConnectedCallback(object : ConnectedCallback {
-                    override fun connected() {
-                        notifyConnectionSuccess()
+                    override fun connected(remoteDeviceMacAddress: String?) {
+                        notifyConnectionSuccess(remoteDeviceMacAddress)
                     }
                 })
                 keepCallbackAndSendNoResult(callbackContext)
@@ -181,15 +181,13 @@ class BluetoothSerial : CordovaPlugin() {
     }
 
     private fun notifyConnectionLost() {
-        keepCallbackAndSendResult(closeCallback)
-    }
-
-    private fun notifyConnectionSuccess() {
-        keepCallbackAndSendResult(connectCallback)
-    }
-
-    private fun keepCallbackAndSendResult(callbackContext: CallbackContext?) {
         val result = PluginResult(PluginResult.Status.OK)
+        result.keepCallback = true
+        callbackContext?.sendPluginResult(result)
+    }
+
+    private fun notifyConnectionSuccess(remoteDeviceMacAddress: String?) {
+        val result = PluginResult(remoteDeviceMacAddress)
         result.keepCallback = true
         callbackContext?.sendPluginResult(result)
     }
