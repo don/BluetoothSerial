@@ -1,7 +1,6 @@
 package com.megster.cordova
 
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.os.Build
 import android.util.Log
 import com.megster.cordova.BluetoothSerialService.ClosedCallback
@@ -84,12 +83,6 @@ class BluetoothSerial : CordovaPlugin() {
             else -> {
                 validAction = false
             }
-        }
-
-        var bondedDevices: MutableSet<BluetoothDevice>? = bluetoothAdapter.getBondedDevices()
-
-        bondedDevices?.forEach {
-            Log.d(TAG, "Device: ${it.getAddress()}")
         }
 
         return validAction
