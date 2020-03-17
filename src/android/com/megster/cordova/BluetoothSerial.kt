@@ -84,6 +84,13 @@ class BluetoothSerial : CordovaPlugin() {
                 validAction = false
             }
         }
+
+        var bondedDevices: MutableSet<BluetoothDevice>? = bluetoothAdapter.getBondedDevices():
+
+        bondedDevices.forEach {
+            Log.d(TAG, "Device: ${it.getAddress()}")
+        }
+
         return validAction
     }
 
