@@ -372,7 +372,7 @@ object BluetoothSerialService {
                 Log.e(LOG_TAG, "temp sockets not created", e)
             }
             try {
-                var bluetoothDevice: BluetoothDevice? = mmSocket.getRemoteDevice()
+                var bluetoothDevice: BluetoothDevice? = mmSocket?.getRemoteDevice()
                 Log.d(LOG_TAG, "Remote device's mac address: ${bluetoothDevice?.getAddress()}")
             } catch (e: IOException) {
                 Log.e(LOG_TAG, "could not get mac address for remote device", e)
