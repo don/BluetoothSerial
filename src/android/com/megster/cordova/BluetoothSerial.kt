@@ -176,13 +176,13 @@ class BluetoothSerial : CordovaPlugin() {
     private fun notifyConnectionLost() {
         val result = PluginResult(PluginResult.Status.OK)
         result.keepCallback = true
-        callbackContext?.sendPluginResult(result)
+        closeCallback?.sendPluginResult(result)
     }
 
     private fun notifyConnectionSuccess(remoteDeviceMacAddress: String?) {
-        val result = PluginResult(remoteDeviceMacAddress)
+        val result = PluginResult(PluginResult.Status.OK, remoteDeviceMacAddress)
         result.keepCallback = true
-        callbackContext?.sendPluginResult(result)
+        connectCallback?.sendPluginResult(result)
     }
 
     private fun keepCallbackAndSendNoResult(callbackContext: CallbackContext) {
