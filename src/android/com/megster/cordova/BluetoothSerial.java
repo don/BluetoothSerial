@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Set;
+import java.lang.reflect.Method;
 
 /**
  * PhoneGap Plugin for Serial Communication over Bluetooth
@@ -49,6 +50,7 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String SETTINGS = "showBluetoothSettings";
     private static final String ENABLE = "enable";
     private static final String DISCOVER_UNPAIRED = "discoverUnpaired";
+    private static final String UNPAIR = "unpair";
     private static final String SET_DEVICE_DISCOVERED_LISTENER = "setDeviceDiscoveredListener";
     private static final String CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener";
     private static final String SET_NAME = "setName";
@@ -219,6 +221,10 @@ public class BluetoothSerial extends CordovaPlugin {
                 permissionCallback = callbackContext;
                 cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, ACCESS_COARSE_LOCATION);
             }
+
+        }  else if (action.equals(UNPAIR)) {
+
+             unpairRequest(args, callbackContext);
 
         } else if (action.equals(SET_DEVICE_DISCOVERED_LISTENER)) {
 
@@ -464,6 +470,22 @@ public class BluetoothSerial extends CordovaPlugin {
         }
         return data;
     }
+
+    private void unpairRequest(CordovaArgs args, final CallbackContext callbackContext) throws JSONException {
+        String macAddress = args.getString(0);
+        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
+        Log.d(TAG,"unpairRequest function");
+        try {
+            Method removeBond = BluetoothDevice.class.getMethod("removeBond");
+            if (!(Boolean)removeBond.invoke(device)) {
+                Log.d(TAG,"Must already be unpaired!");
+            }
+            callbackContext.success("Unpaired");
+        } catch (Exception e) {
+            Log.e("unpairRequest", "Exception", e);
+            callbackContext.error("Unpair exception:"+e);
+		}
+     }
 
     @Override
     public void onRequestPermissionResult(int requestCode, String[] permissions,
