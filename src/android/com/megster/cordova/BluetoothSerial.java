@@ -84,8 +84,10 @@ public class BluetoothSerial extends CordovaPlugin {
     private String delimiter;
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
 
-    // Android 23 requires user to explicitly grant permission for location to discover unpaired
-    private static final String ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    // Android 23 requires user to explicitly grant permission for bluetooth to discover unpaired
+    private static final String BLUETOOTH_SCAN = Manifest.permission.BLUETOOTH_SCAN;
+    private static final String BLUETOOTH_CONNECT = Manifest.permission.BLUETOOTH_CONNECT;
+    private static final String BLUETOOTH_ADVERTISE = Manifest.permission.BLUETOOTH_ADVERTISE;
     private static final int CHECK_PERMISSIONS_REQ_CODE = 2;
     private CallbackContext permissionCallback;
 
@@ -100,6 +102,19 @@ public class BluetoothSerial extends CordovaPlugin {
 
         if (bluetoothSerialService == null) {
             bluetoothSerialService = new BluetoothSerialService(mHandler);
+        }
+
+        if (!cordova.hasPermission(BLUETOOTH_SCAN)) {
+            LOG.d("RP", "ask permission: scan");
+            cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_SCAN);
+        }
+        if (!cordova.hasPermission(BLUETOOTH_ADVERTISE)) {
+            LOG.d("RP", "ask permission: advertise");
+            cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_ADVERTISE);
+        }
+        if (!cordova.hasPermission(BLUETOOTH_CONNECT)) {
+            LOG.d("RP", "ask permission: connect");
+            cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_CONNECT);
         }
 
         boolean validAction = true;
@@ -213,11 +228,11 @@ public class BluetoothSerial extends CordovaPlugin {
 
         } else if (action.equals(DISCOVER_UNPAIRED)) {
 
-            if (cordova.hasPermission(ACCESS_COARSE_LOCATION)) {
+            if (cordova.hasPermission(BLUETOOTH_CONNECT)) {
                 discoverUnpairedDevices(callbackContext);
             } else {
                 permissionCallback = callbackContext;
-                cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, ACCESS_COARSE_LOCATION);
+                cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_CONNECT);
             }
 
         } else if (action.equals(SET_DEVICE_DISCOVERED_LISTENER)) {
@@ -471,10 +486,10 @@ public class BluetoothSerial extends CordovaPlugin {
 
         for(int result:grantResults) {
             if(result == PackageManager.PERMISSION_DENIED) {
-                LOG.d(TAG, "User *rejected* location permission");
+                LOG.d(TAG, "User *rejected* bluetooth permission");
                 this.permissionCallback.sendPluginResult(new PluginResult(
                         PluginResult.Status.ERROR,
-                        "Location permission is required to discover unpaired devices.")
+                        "Bluetooth permission is required to discover unpaired devices.")
                     );
                 return;
             }
@@ -482,7 +497,7 @@ public class BluetoothSerial extends CordovaPlugin {
 
         switch(requestCode) {
             case CHECK_PERMISSIONS_REQ_CODE:
-                LOG.d(TAG, "User granted location permission");
+                LOG.d(TAG, "User granted bluetooth permission");
                 discoverUnpairedDevices(permissionCallback);
                 break;
         }
