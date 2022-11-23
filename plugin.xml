@@ -30,8 +30,8 @@
             target-dir="src/com/megster/cordova"/>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
-            <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
-            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+            <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="18" />
+            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
             <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
             <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
             <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
