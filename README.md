@@ -1,14 +1,13 @@
 # Bluetooth Serial Plugin for PhoneGap
 
-This plugin enables serial communication over Bluetooth. It was written for communicating between Android or iOS and an Arduino.
+This plugin enables serial communication over Bluetooth. The original one was written for communicating between Android or iOS and an Arduino. This fork is meant to be able to connect and operate to a Bluetooth Printer
 
-Android and Windows Phone use Classic Bluetooth.  iOS uses Bluetooth Low Energy.
+Android Classic Bluetooth. iOS uses Bluetooth Low Energy.
 
 ## Supported Platforms
 
 * Android
 * iOS with [RedBearLab](http://redbearlab.com) BLE hardware, [Adafruit Bluefruit LE](http://www.adafruit.com/products/1697), [Laird BL600](http://www.lairdtech.com/Products/Embedded-Wireless-Solutions/Bluetooth-Radio-Modules/BL600-Series/#.VBI7AS5dUzI), [BlueGiga](https://bluegiga.zendesk.com/entries/29185293--BGScript-spp-over-ble-AT-command-SPP-implementation-for-BLE), or [HC-02](http://www.hc01.com/productdetail?productid=20180314021)
-* Windows Phone 8
 * Browser (Testing only. See [comments](https://github.com/don/BluetoothSerial/blob/master/src/browser/bluetoothSerial.js).)
 
 [Supporting other Bluetooth Low Energy hardware](#supporting-other-ble-hardware)
@@ -26,11 +25,11 @@ Install with Cordova cli
 
     $ cordova plugin add cordova-plugin-bluetooth-serial
 
-Note that this plugin's id changed from `com.megster.cordova.bluetoothserial` to `cordova-plugin-bluetooth-serial` as part of the migration from the [Cordova plugin repo](http://plugins.cordova.io/) to [npm](https://www.npmjs.com/).
+Note that this plugin's id changed from `com.megster.cordova.bluetoothserial` to `cordova-plugin-bluetooth-serial` and then to `cordova-plugin-bluetooth-serial-2` as part of the migration from the [Cordova plugin repo](http://plugins.cordova.io/) to [npm](https://www.npmjs.com/). Then it was change to be able to install the new version via npm.
 
 # Examples
 
-There are some [sample projects](https://github.com/don/BluetoothSerial/tree/master/examples) included with the plugin.
+There are some [sample projects](https://github.com/giuseppelanzi/BluetoothSerial/tree/master/examples) included with the plugin.
 
 # API
 
