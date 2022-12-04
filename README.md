@@ -535,7 +535,7 @@ If `enable` is called when Bluetooth is already enabled, the user will not promp
 
 Discover unpaired devices
 
-    bluetoothSerial.discoverUnpaired(success, failure);
+    bluetoothSerial.discoverUnpaired(fineLocation, success, failure);
 
 ### Description
 
@@ -572,6 +572,7 @@ Calling `connect` on an unpaired Bluetooth device should begin the Android pairi
 
 ### Parameters
 
+- __fineLocation__: True to enable fine geolocalization, set it as true only if you need to determine the physical position of the bluetooth devices. [optional]
 - __success__: Success callback function that is invoked with a list of unpaired devices.
 - __failure__: Error callback function, invoked when error occurs. [optional]
 

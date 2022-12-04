@@ -92,6 +92,8 @@ public class BluetoothSerial extends CordovaPlugin {
     private static final String BLUETOOTH_SCAN = Manifest.permission.BLUETOOTH_SCAN;
     private static final String BLUETOOTH_CONNECT = Manifest.permission.BLUETOOTH_CONNECT;
     private static final String BLUETOOTH_ADVERTISE = Manifest.permission.BLUETOOTH_ADVERTISE;
+    private static final String ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final String ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final int CHECK_PERMISSIONS_REQ_CODE = 2;
     private CallbackContext permissionCallback;
 
@@ -104,32 +106,27 @@ public class BluetoothSerial extends CordovaPlugin {
         if (bluetoothSerialService == null)
             bluetoothSerialService = new BluetoothSerialService(mHandler);
         //
-        // Ask permissions, to target SDK31+ all those are mandatory (and some have to be requested to the user)
-        boolean permissionOk = true;
-        if (!cordova.hasPermission(BLUETOOTH_ADMIN)) {
-            permissionOk = false;
-            LOG.d("RP", "ask permission: " + BLUETOOTH_ADMIN);
-            cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_ADMIN);
-        }
-        if (permissionOk && !cordova.hasPermission(BLUETOOTH_CONNECT)) {
-            permissionOk = false;
-            LOG.d("RP", "ask permission: " + BLUETOOTH_CONNECT);
-            cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_CONNECT);
-        }
-        if (permissionOk && !cordova.hasPermission(BLUETOOTH_SCAN)) {
-            permissionOk = false;
-            LOG.d("RP", "ask permission: " + BLUETOOTH_SCAN);
-            cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_SCAN);
-        }
-        if (!permissionOk) {
-            callbackContext.error("User has not given all permission yet, cannot proceed.");
-            return false;
-        }
-        //
         boolean validAction = true;
         //
         if (action.equals(LIST)) {
-            listBondedDevices(callbackContext);
+            if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                if (cordova.hasPermission(BLUETOOTH_CONNECT) && cordova.hasPermission(BLUETOOTH_SCAN)) {
+                    listBondedDevices(callbackContext);
+                }
+                else if (!cordova.hasPermission(BLUETOOTH_CONNECT)) {
+                    LOG.d("RP", "ask permission: " + BLUETOOTH_CONNECT);
+                    permissionCallback = callbackContext;
+                    cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_CONNECT);
+                }
+                else if (!cordova.hasPermission(BLUETOOTH_SCAN)) {
+                    LOG.d("RP", "ask permission: " + BLUETOOTH_SCAN);
+                    permissionCallback = callbackContext;
+                    cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_SCAN);
+                }
+            }
+            else {
+                listBondedDevices(callbackContext);
+            }
         } else if (action.equals(CONNECT)) {
             boolean secure = true;
             connect(args, secure, callbackContext);
@@ -198,12 +195,51 @@ public class BluetoothSerial extends CordovaPlugin {
             cordova.getActivity().startActivity(intent);
             callbackContext.success();
         } else if (action.equals(ENABLE)) {
-            enableBluetoothCallback = callbackContext;
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            cordova.startActivityForResult(this, intent, REQUEST_ENABLE_BLUETOOTH);
+            if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                if (cordova.hasPermission(BLUETOOTH_SCAN) && cordova.hasPermission(BLUETOOTH_CONNECT)) {
+                    enableBluetoothCallback = callbackContext;
+                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    cordova.startActivityForResult(this, intent, REQUEST_ENABLE_BLUETOOTH);
+                }
+                else if (!cordova.hasPermission(BLUETOOTH_CONNECT)) {
+                    permissionCallback = callbackContext;
+                    cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_CONNECT);
+                } else if (!cordova.hasPermission(BLUETOOTH_SCAN)) {
+                    permissionCallback = callbackContext;
+                    cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_SCAN);
+                }
+            } else {
+                enableBluetoothCallback = callbackContext;
+                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                cordova.startActivityForResult(this, intent, REQUEST_ENABLE_BLUETOOTH);
+            }
         } else if (action.equals(DISCOVER_UNPAIRED)) {
-            permissionCallback = callbackContext;
-            discoverUnpairedDevices(callbackContext);
+            // Android.Q and above needs different permissions
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                // I want to ask ACCESS_FINE_LOCATION only if I need it.
+                // Elseway it would be awkward asking an unneeded permission
+                boolean fineLocation = false; // args.getBoolean(0);
+                if (!fineLocation || (cordova.hasPermission(ACCESS_FINE_LOCATION) && fineLocation) && cordova.hasPermission(BLUETOOTH_SCAN) && cordova.hasPermission(BLUETOOTH_CONNECT)) {
+                    discoverUnpairedDevices(callbackContext);
+                } else if (!cordova.hasPermission(ACCESS_FINE_LOCATION)) {
+                    permissionCallback = callbackContext;
+                    cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, ACCESS_FINE_LOCATION);
+                } else if (!cordova.hasPermission(BLUETOOTH_CONNECT)) {
+                    permissionCallback = callbackContext;
+                    cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_CONNECT);
+                } else if (!cordova.hasPermission(BLUETOOTH_SCAN)) {
+                    permissionCallback = callbackContext;
+                    cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_SCAN);
+                }
+            }
+            else {
+                if (cordova.hasPermission(ACCESS_COARSE_LOCATION)) {
+                    discoverUnpairedDevices(callbackContext);
+                } else {
+                    permissionCallback = callbackContext;
+                    cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, ACCESS_COARSE_LOCATION);
+                }
+            }
         } else if (action.equals(SET_DEVICE_DISCOVERED_LISTENER)) {
             this.deviceDiscoveredCallback = callbackContext;
         } else if (action.equals(CLEAR_DEVICE_DISCOVERED_LISTENER)) {
@@ -286,9 +322,11 @@ public class BluetoothSerial extends CordovaPlugin {
                         // This shouldn't happen, log and ignore
                         Log.e(TAG, "Problem converting device to JSON", e);
                     }
-                } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                }
+                else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                     LOG.d(TAG, "discovery started...");
-                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                }
+                else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                     LOG.d(TAG, "Discovery finished!");
                     callbackContext.success(unpairedDevices);
                     cordova.getActivity().unregisterReceiver(this);
@@ -296,12 +334,27 @@ public class BluetoothSerial extends CordovaPlugin {
             }
         };
         //
-        Activity activity = cordova.getActivity();
-        activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-        activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
-        activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
-        boolean discoveryStarted = bluetoothAdapter.startDiscovery();
-        LOG.d(TAG, "startDiscovery result: "+ discoveryStarted);
+        // Android.Q and above require different permissions
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (cordova.hasPermission(BLUETOOTH_SCAN) && cordova.hasPermission(BLUETOOTH_CONNECT)) {
+                Activity activity = cordova.getActivity();
+                activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+                activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+                bluetoothAdapter.startDiscovery();
+            } else if (!cordova.hasPermission(BLUETOOTH_CONNECT)) {
+                permissionCallback = callbackContext;
+                cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_CONNECT);
+            } else if (!cordova.hasPermission(BLUETOOTH_SCAN)) {
+                permissionCallback = callbackContext;
+                cordova.requestPermission(this, CHECK_PERMISSIONS_REQ_CODE, BLUETOOTH_SCAN);
+            }
+        }
+        else {
+            Activity activity = cordova.getActivity();
+            activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+            activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+            bluetoothAdapter.startDiscovery();
+        }
     }
 
     private JSONObject deviceToJSON(BluetoothDevice device) throws JSONException {
@@ -441,21 +494,25 @@ public class BluetoothSerial extends CordovaPlugin {
     }
 
     @Override
-    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
+    public void onRequestPermissionResult(int requestCode, String[] permissions,
+                                          int[] grantResults) throws JSONException {
+
         for(int result:grantResults) {
             if(result == PackageManager.PERMISSION_DENIED) {
-                LOG.d(TAG, "User *rejected* bluetooth permission");
+                LOG.d(TAG, "User *rejected* location permission");
                 this.permissionCallback.sendPluginResult(new PluginResult(
                         PluginResult.Status.ERROR,
-                        "Bluetooth permission is required to discover unpaired devices.")
-                    );
+                        "Location permission is required to discover unpaired devices.")
+                );
                 return;
             }
         }
-        //
-        if (!cordova.hasPermission(BLUETOOTH_ADMIN) || !cordova.hasPermission(BLUETOOTH_SCAN) || !cordova.hasPermission(BLUETOOTH_CONNECT)) {
-            LOG.d(TAG, "User has not given all permission yet, cannot proceed.");
-            return;
+
+        switch(requestCode) {
+            case CHECK_PERMISSIONS_REQ_CODE:
+                LOG.d(TAG, "User granted location permission");
+                discoverUnpairedDevices(permissionCallback);
+                break;
         }
     }
 }
