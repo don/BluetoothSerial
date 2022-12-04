@@ -218,7 +218,7 @@ public class BluetoothSerial extends CordovaPlugin {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                 // I want to ask ACCESS_FINE_LOCATION only if I need it.
                 // Elseway it would be awkward asking an unneeded permission
-                boolean fineLocation = false; // args.getBoolean(0);
+                boolean fineLocation = args.getBoolean(0) || false;
                 if (!fineLocation || (cordova.hasPermission(ACCESS_FINE_LOCATION) && fineLocation) && cordova.hasPermission(BLUETOOTH_SCAN) && cordova.hasPermission(BLUETOOTH_CONNECT)) {
                     discoverUnpairedDevices(callbackContext);
                 } else if (!cordova.hasPermission(ACCESS_FINE_LOCATION)) {
